@@ -1,0 +1,1028 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Perfect Rest Days — Energy–Stress–Complexity Coach (v4)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <style>
+
+        </style>
+        
+    
+</head>
+<body>
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+<div class="wrap">
+  <div class="card p-3 mb-3">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="text-light"><strong>Week of Sunday:</strong> <span id="weekDate"></span> </div>
+      <div class="d-flex gap-2">
+        <button class="state-pill" data-preset="overwhelmed">Overwhelmed</button>
+        <button class="state-pill" data-preset="cruising">Cruising</button>
+        <button class="state-pill" data-preset="stressed">Stressed</button>
+        <button class="state-pill skool-cta" data-preset="skool">Skool Group</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2 mb-3">
+    <section class="card p-3">
+      <div id="metricsPanel" class="collapse fade show">
+        <div class="mb-3 d-flex flex-column">
+          <label class="form-label">What was you energy level like last week?</label>
+          <label class="form-label">Energy (0–100)</label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="energy" type="range" min="0" max="100" step="1" value="60" class="form-range"/>
+            <span id="eVal" class="badge badge-num">60</span>
+          </div>
+          <div class="sub">More processes = more interdependencies (~n(n−1)/2) and more coordination (~n·log n).</div>
+        </div>
+        <div class="mb-3 d-flex flex-column">
+          <label class="form-label">How intense was your baseline stress level like last week?</label>
+          <label class="form-label">Stress intensity (0–100)</label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="stressI" type="range" min="0" max="100" step="1" value="40" class="form-range"/>
+            <span id="siVal" class="badge badge-num">40</span>
+          </div>
+          <div class="sub">More processes = more interdependencies (~n(n−1)/2) and more coordination (~n·log n).</div>
+        </div>
+        <div class="mb-3 d-flex flex-column">
+          <label class="form-label">How mnay stressful hours did you have last week?</label>
+          <label class="form-label">Stressful hours per week (0–168)</label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="stressD" type="range" min="0" max="168" step="1" value="12" class="form-range"/>
+            <span id="sdVal" class="badge badge-num">12 h/wk</span>
+          </div>
+          <div class="sub">Short = spikes; Long = chronic across the week.</div>
+        </div>
+        <div class="mb-3 d-flex flex-column">
+          <label class="form-label">How capable did you feel facing your challenges last week ?</label>
+          <label class="form-label d-flex align-items-center gap-2">Felt efficacy (0–100) <span id="feltEcho" class="badge bg-success">— lift</span></label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="feltEff" type="range" min="0" max="100" step="1" value="50" class="form-range"/>
+            <span id="feVal" class="badge badge-num">50</span>
+          </div>
+          <div class="sub">More processes = more interdependencies (~n(n−1)/2) and more coordination (~n·log n).</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">How many separate projects, routines, or responsibilities were you managing last week?</label>
+          <label class="form-label">Processes (n) — active systems you’re managing (1–14)</label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="procN" type="range" min="1" max="14" step="1" value="5" class="form-range"/>
+            <span id="nVal" class="badge badge-num">5</span>
+          </div>
+          <div class="sub">More processes = more interdependencies (~n(n−1)/2) and more coordination (~n·log n).</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">How many people do you have to share responsibility with?</label>
+          <label class="form-label">Support Have (0–10)</label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="supportHave" type="range" min="0" max="10" step="1" value="3" class="form-range"/>
+            <span id="supVal" class="badge badge-num">3</span>
+          </div>
+          <div class="sub">More processes = more interdependencies (~n(n−1)/2) and more coordination (~n·log n).</div>
+        </div>    
+      </div>
+      <div class="d-flex flex-column justify-content-between ">
+        <button
+          id="toggleMetrics"
+          class="btn btn-outline-dark w-100 mb-2"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#metricsPanel"
+          aria-expanded="true"
+          aria-controls="metricsPanel">
+          Last Week Snapshot
+        </button>
+      </div>      
+    </section>   
+
+
+    <section id="supportCard" class="card p-3">
+      <div id="supportPanel" class="collapse fade show">
+        <div id="stats" class="card p-3 mt-3">
+          <div class="row g-2">
+            <div class="col-6 col-sm-4"><div id="kpiEnergy" class="kpi" data-state="neutral"><div class="sub">Energy</div><div id="kEnergy" class="v">0</div></div></div>
+            <div class="col-6 col-sm-4"><div id="kpiStress" class="kpi" data-state="neutral"><div class="sub">Stress (weighted)</div><div id="kStress" class="v">0</div></div></div>
+            <div class="col-6 col-sm-4"><div id="kpiEff" class="kpi" data-state="neutral"><div class="sub">Efficacy Lift</div><div id="kEff" class="v">0</div></div></div>
+            <div class="col-6 col-sm-4"><div id="kpiCx" class="kpi" data-state="neutral"><div class="sub">Complexity Index</div><div id="kCx" class="v">0</div></div></div>
+            <div class="col-6 col-sm-4"><div id="kpiSau" class="kpi" data-state="neutral"><div class="sub">Surface Uncertainty</div><div id="kSau" class="v">0</div></div></div>
+            <div class="col-6 col-sm-4"><div id="kpiSupNeedNow" class="kpi" data-state="neutral"><div class="sub">Support Needed</div><div class="v" id="kSupNeedNow">0</div></div></div>
+            <div class="col-6 col-sm-4"><div id="kpiSupGapNow" class="kpi" data-state="neutral"><div class="sub">Support Gap</div><div class="v" id="kSupGapNow">0</div></div></div>
+            <div class="col-6 col-sm-4">
+              <div class="kpi" data-state="neutral">
+                <button id="resetBtn" class="btn btn-sm btn-outline-light  ">Reset</button>
+              </div>
+            </div>
+
+          </div>
+          
+        </div>
+
+        <div id="stats" class="card p-3 mt-3">
+          <div class="mb-3">
+            <label class="form-label">Chatgpt Prompt</label>
+            <textarea id="promptOut" class="form-control" rows="7" readonly
+              placeholder="A ready-to-paste prompt with your scores, example calcs, and how they were computed."></textarea>
+            <div class="input-group mt-4">
+              <button class="btn btn-outline-light btn-sm" id="copyPromptBtn">Copy to Clipboard</button>
+            </div>
+          </div>        
+        </div>
+        <!--
+        <div id="stats" class="card p-3 mt-3">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <h6 class="card-title mb-0">Directives</h6>
+            <span class="sub">Auto-updates as you select habits.</span>
+          </div>
+          <ol class="directives list-unstyled m-0">
+            <li class="directive">
+              <div class="badge-num">1</div>
+              <div>
+                <h3 class="h6 mb-1">Focus On Less <em>And Obsess</em></h3>
+                <p class="mb-0">Roald Amundsen’s success wasn’t the result of innovation—it was the result of ruthless focus.</p>
+              </div>
+            </li>
+            <li class="directive">
+              <div class="badge-num">2</div>
+              <div>
+                <h3 class="h6 mb-1">Reduce the <em>surface area</em> for error, not just errors</h3>
+                <p class="mb-0">Fewer moving parts means fewer ways to fail. </p>
+              </div>
+            </li>
+            <li class="directive">
+              <div class="badge-num">3</div>
+              <div>
+                <h3 class="h6 mb-1">Simple Works <em>Complex Breaks</em></h3>
+                <p class="mb-0">In harsh environments, interdependence turns small issues into system failures. </p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        -->
+      </div>
+      <div class="d-flex flex-column  justify-content-between">
+        <button
+          id="toggleMetrics"
+          class="btn btn-outline-dark w-100 mb-2"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#supportPanel"
+          aria-expanded="true"
+          aria-controls="supportPanel">
+          Current State
+        </button>
+      </div>            
+    </section>
+  </div>
+
+
+
+  <section class="card p-3 mb-3">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h6 class="card-title mb-0">3) Choose Habits (Easy vs Challenging)</h6>
+      <div id="habitControls" class="d-flex gap-2 flex-wrap align-items-center">
+        <select id="filter" class="form-select form-select-sm w-auto">
+          <option value="all">All</option>
+          <option value="easy">Easy Habits</option>
+          <option value="challenging">Challenging Habits</option>
+          <option value="energy_up">Increase Energy</option>
+          <option value="stressI_down">Lower Stress Intensity</option>
+          <option value="stressD_down">Shorten Stress Duration</option>
+          <option value="support_up">Increase Support</option>
+          <option value="skool">Skool Group</option>
+        </select>
+        <button id="recommendBtn" class="btn btn-sm btn-warning">Recommend Best Combo</button>
+      </div>
+    </div>
+    <div class="mb-2 sub">Pick what you’ll try for <strong>two days</strong>. Check-ins happen on <strong>Sunday and Wednesday</strong>.</div>
+    <div id="habits" class="row g-2"></div>
+    <div class="text-center mt-3">
+      <button id="toggleHabits" class="btn btn-outline-dark btn-sm" style="border-color:#facc15;color:#facc15;">
+        Show More Habits ↓
+      </button>
+    </div>
+
+  </section>
+
+
+
+  <section id="shareCard" class="p-4 mb-5">
+    <div class="report-header">
+      <div class="report-kpi">
+        <div class="label">PERSONAL POWER</div>
+        <div class="value" id="rScore">–</div>
+      </div>
+      <div class="report-title">
+        <div class="date" id="rDate">—</div>
+        <div class="heading">Recovery Plan</div>
+      </div>
+      <div class="report-kpi right">
+        <div class="label">EFFICACY LIFT</div>
+        <div class="value" id="rInstant">–</div>
+      </div>
+    </div>
+    <div class="progress-outer mb-2"><div id="rBar" class="progress-inner"></div></div>
+
+    
+
+    <div class="row ">
+      <div class=" col-12 col-md-6">
+        <div class="explain">
+          <h4>Understanding the KPIs</h4>
+
+          <p><strong>Personal Power</strong> = how much control you have right now. It blends your <em>Energy</em> with how much uncertainty you’re exposed to.</p>
+
+          <p><strong>Weighted Stress</strong> combines how hard stress hits (Intensity) and how long it lasts (Duration).</p>
+
+          <p><strong>Complexity Index (CX)</strong> reflects coordination cost as moving parts grow.</p>
+
+          <p><strong>Surface Uncertainty (SAU)</strong> captures exposure to failure points:</p>
+          <p class="formula">SAU = 0.6 × Weighted Stress + 0.4 × CX</p>
+
+          <p><strong>Personal Power</strong> merges Energy and control into one score:</p>
+          <p class="formula">Personal Power = average(Energy, 100 − SAU)</p>
+
+          <p><strong>Efficacy Lift</strong> shows momentum week‑over‑week:</p>
+          <p class="formula">Efficacy Lift (%) = ((Current Personal Power − Baseline Personal Power) ÷ Baseline) × 100</p>
+          <p><em>First time using the report?</em> Your last‑week inputs become the baseline. Efficacy Lift appears after your next entry.</p>
+
+        </div>
+      </div>
+      <div class=" col-12 col-md-6">
+          <div class="explain">
+            <h4>Recovery Activities</h4>
+            <div id="doneChips" class="d-flex flex-wrap gap-2"></div>
+          </div>
+      </div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile"><div class="t-label">Energy</div><div class="t-value" id="rEnergy">–</div></div>
+      <div class="tile"><div class="t-label">Stress (weighted)</div><div class="t-value" id="rStress">–</div></div>
+      <div class="tile"><div class="t-label">Complexity Index</div><div class="t-value" id="rCx">–</div></div>
+      <div class="tile"><div class="t-label">Surface Uncertainty</div><div class="t-value" id="rSau">–</div></div>
+      <div class="tile"><div class="t-label">Efficacy Score</div><div class="t-value" id="rEff">–</div></div>
+      <div class="tile"><div class="t-label">Grade (adaptive)</div><div class="t-value" id="rGrade">–</div></div>
+      <div class="tile"><div class="t-label">Easy Habits Selected</div><div class="t-value" id="rEasy">0</div></div>
+      <div class="tile"><div class="t-label">Challenging Habits Selected</div><div class="t-value" id="rHard">0</div></div>
+      <div class="tile"><div class="t-label">Time Invested (est.)</div><div class="t-value" id="rTime">0 min</div></div>
+      <div class="tile"><div class="t-label">Variety Bonus</div><div class="t-value" id="rVar">+0</div></div>
+      <div class="tile"><div class="t-label">Support Needed</div><div class="t-value" id="rSupNeed">–</div></div>
+      <div class="tile"><div class="t-label">Support Gap</div><div class="t-value" id="rSupGap">–</div></div>
+      <div class="tile check-in-field"><div class="t-label ">Next Check-In</div><div class="t-value " id="rNext">–</div></div>
+    </div>
+
+    <div class="mt-3">
+      <h6 class="mb-2" style="color:#0b1220">Baseline (Inputs)</h6>
+      <div class="tiles">
+        <div class="tile"><div class="t-label">Energy (start)</div><div class="t-value" id="rBaseEnergy">–</div></div>
+        <div class="tile"><div class="t-label">Stress Intensity (start)</div><div class="t-value" id="rBaseStressI">–</div></div>
+        <div class="tile"><div class="t-label">Stressful Hours (start)</div><div class="t-value" id="rBaseStressD">–</div></div>
+        <div class="tile"><div class="t-label">Felt Efficacy (start)</div><div class="t-value" id="rBaseFelt">–</div></div>
+        <div class="tile"><div class="t-label">Processes (start)</div><div class="t-value" id="rBaseN">–</div></div>
+        <div class="tile"><div class="t-label">Support Have (start)</div><div class="t-value" id="rBaseSupHave">–</div></div>
+      </div>
+    </div>
+
+    <div class="mt-3 text-center" style="color:#334155">Powered By The @Adventuredeficitclub</div>
+  </section>
+
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div class="text-light"><strong>Week of Sunday:</strong> <span id="weekDate2"></span> </div>
+    <div class="d-flex align-items-center gap-2">
+      <label class="me-2 sub">Share format</label>
+      <select id="ratio" class="form-select form-select-sm w-auto">
+        <option value="1:1">1:1 (Square)</option>
+        <option value="9:16">9:16 (Story/Reel)</option>
+        <option value="16:9">16:9 (Wide)</option>
+      </select>
+      <button id="exportBtn" class="btn btn-sm btn-primary">Export PNG</button>
+      <button id="exportPdfBtn" class="btn btn-sm btn-outline-light">Export PDF</button>
+    </div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay" style="position:fixed; inset:0; background:rgba(2,6,23,.75); display:none; align-items:center; justify-content:center; z-index:9999">
+  <div class="spinner" style="width:56px; height:56px; border-radius:50%; border:5px solid #20314e; border-top-color:#8ab4ff; animation:spin 1s linear infinite"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+(function(){
+  const habitsSection = document.getElementById('habits');
+  const toggleBtn = document.getElementById('toggleHabits');
+
+  if(habitsSection && toggleBtn){
+    // Default collapsed height (adjust to your layout)
+    let expanded = false;
+    habitsSection.style.maxHeight = '300px';
+    habitsSection.style.overflow = 'hidden';
+    habitsSection.style.transition = 'max-height 0.5s ease';
+
+    toggleBtn.addEventListener('click', ()=>{
+      expanded = !expanded;
+      if(expanded){
+        habitsSection.style.maxHeight = '2000px';
+        habitsSection.style.overflow = 'visible';
+        toggleBtn.innerHTML = 'Show Fewer Habits ↑';
+        toggleBtn.style.background = '#facc15';
+        toggleBtn.style.color = '#111827';
+      } else {
+        habitsSection.style.maxHeight = '300px';
+        habitsSection.style.overflow = 'hidden';
+        toggleBtn.innerHTML = 'Show More Habits ↓';
+        toggleBtn.style.background = 'transparent';
+        toggleBtn.style.color = '#facc15';
+        habitsSection.scrollIntoView({behavior:'smooth', block:'start'});
+
+      }
+    });
+  }
+})();
+</script>
+
+<script>
+  const $ = (q)=>document.querySelector(q);
+  const $$ = (q)=>Array.from(document.querySelectorAll(q));
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+  const fmt=(n)=>Math.round(n);
+
+  function getSunday(d=new Date()){
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = day === 0 ? 0 : day;
+    date.setDate(date.getDate()-diff);
+    return date;
+  }
+  function fmtDate(dt){ return dt.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}); }
+  $('#weekDate').textContent = fmtDate(getSunday(new Date('2025-10-26')));
+  $('#weekDate2').textContent = fmtDate(getSunday(new Date('2025-10-26')));
+
+  const today = new Date();
+  const rDateEl = document.getElementById('rDate');
+  if (rDateEl) rDateEl.textContent = today.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'2-digit'}).toUpperCase();
+  function nextCheckIn(d=new Date()){ const n = new Date(d); n.setDate(n.getDate()+3); return n; }
+  document.getElementById('rNext').textContent = fmtDate(nextCheckIn(today));
+
+  // === State
+  const state = { base: { energy: 60, stressI: 40, stressD: 12, feltEff: 50, n: 5, supportHave: 3 }, efficacy: 0, checked: new Set() };
+
+  // === Habits (examples, with effects across all metrics)
+  const H = [
+    {id:'sleep-regular', name:'Go to bed & wake same time (7–8h)', difficulty:'challenging', tags:['energy_up','stressD_down'], domain:'physical', dur:10, power:true, fx:{ now:{e:+8,sI:-6,sD:-8,eff:+6,cx:-0,sau:-4,support:+0} }},
+    {id:'exercise-20', name:'Exercise 20+ min', difficulty:'challenging', tags:['energy_up','stressI_down'], domain:'physical', dur:15, power:true, fx:{ now:{e:+8,sI:-6,sD:-3,eff:+8,cx:0,sau:-4,support:+0} }},
+    {id:'meditation-10', name:'Meditation (10 min)', difficulty:'easy', tags:['stressI_down','stressD_down'], domain:'mental', dur:10, power:true, fx:{ now:{e:+3,sI:-12,sD:-6,eff:+6,cx:0,sau:-6,support:+0} }},
+    {id:'high-protein-meal', name:'High-protein meal (~40g)', difficulty:'easy', tags:['energy_up','stressI_down'], domain:'physical', dur:10, power:true, fx:{ now:{e:+8,sI:-3,sD:-2,eff:+4,cx:0,sau:-2,support:+0} }},
+    {id:'plan-top3', name:'Plan tomorrow’s top 3', difficulty:'easy', tags:['stressD_down','energy_up'], domain:'mental', dur:5, fx:{ now:{e:+2,sI:-2,sD:-4,eff:+4,cx:0,sau:-2,support:+0} }},
+    {id:'deep-work-40', name:'Deep work 40m (no apps)', difficulty:'challenging', tags:['stressI_down'], domain:'mental', dur:5, fx:{ now:{e:+2,sI:-6,sD:-3,eff:+8,cx:0,sau:-3,support:+0} }},
+    {id:'light-10', name:'10 min outdoor light', difficulty:'easy', tags:['energy_up','stressD_down'], domain:'physical', dur:10, fx:{ now:{e:+5,sI:-3,sD:-2,eff:+3,cx:0,sau:-2,support:+0} }},
+    {id:'delegate-one', name:'Delegate one task', difficulty:'challenging', tags:['stressD_down','support_up'], domain:'ops', dur:5, fx:{ now:{e:+2,sI:-4,sD:-6,eff:+5,cx:-2,sau:-4,support:+1} }},
+    {id:'ask-for-help', name:'Ask 1 person for help', difficulty:'easy', tags:['support_up','stressI_down'], domain:'social', dur:2, fx:{ now:{e:+1,sI:-4,sD:-2,eff:+3,cx:-1,sau:-3,support:+1} }},
+    {id:'cowork-1h', name:'Co-work 1 hour (buddy)', difficulty:'easy', tags:['support_up','energy_up'], domain:'social', dur:5, fx:{ now:{e:+3,sI:-2,sD:-1,eff:+4,cx:0,sau:-1,support:+1} }},
+    {id:'mentor-check', name:'Mentor check-in (15m)', difficulty:'easy', tags:['support_up'], domain:'social', dur:5, fx:{ now:{e:+1,sI:-2,sD:-1,eff:+3,cx:0,sau:-1,support:+1} }},
+    {id:'digital-detox', name:'Digital detox (3h block)', difficulty:'challenging', tags:['stressI_down','stressD_down'], domain:'lifestyle', dur:0, fx:{ now:{e:+2,sI:-6,sD:-4,eff:+3,cx:0,sau:-3,support:+0} }}
+  
+    ,
+    {id:'skool-audit', name:'Weekly Audits', difficulty:'challenging', tags:['skool','stressD_down','support_up'], domain:'ops', dur:15, power:true, fx:{ now:{e:+2,sI:-3,sD:-6,eff:+6,cx:-1,sau:-3,support:+1} }},
+    {id:'skool-journal', name:'Daily Journal Club', difficulty:'easy', tags:['skool','support_up','energy_up'], domain:'social', dur:5, power:true, fx:{ now:{e:+4,sI:-2,sD:-1,eff:+6,cx:0,sau:-2,support:+1} }},
+    {id:'skool-rest2', name:'Two Rest Days a Week', difficulty:'easy', tags:['skool','stressD_down','energy_up'], domain:'lifestyle', dur:0, fx:{ now:{e:+6,sI:-3,sD:-8,eff:+4,cx:0,sau:-3,support:+0} }},
+    {id:'skool-winweds', name:'Win Loud Wednesday', difficulty:'easy', tags:['skool','support_up','efficacy'], domain:'social', dur:5, power:true, fx:{ now:{e:+2,sI:-1,sD:-1,eff:+8,cx:0,sau:-1,support:+1} }},
+    {id:'skool-sunfun', name:'Sunday Funday', difficulty:'easy', tags:['skool','energy_up','support_up'], domain:'social', dur:10, fx:{ now:{e:+5,sI:-2,sD:-1,eff:+4,cx:0,sau:-2,support:+1} }},
+    {id:'skool-velocity', name:'Velocity Table', difficulty:'challenging', tags:['skool','stressI_down','efficacy'], domain:'mental', dur:10, power:true, fx:{ now:{e:+3,sI:-6,sD:-4,eff:+10,cx:0,sau:-3,support:+0} }},
+    {id:'skool-helpline', name:'Community Helpline', difficulty:'easy', tags:['skool','support_up','stressI_down'], domain:'social', dur:2, fx:{ now:{e:+1,sI:-4,sD:-2,eff:+4,cx:-1,sau:-3,support:+2} }}
+
+];
+
+  function tagLabel(t){ if(t==='energy_up')return 'Energy (+)'; if(t==='stressI_down')return 'Stress Intensity (–)'; if(t==='stressD_down')return 'Stress Duration (–)'; if(t==='support_up')return 'Support (+)'; return t; }
+  function bucketFor(dur){ return dur<=5? '2–5' : dur<=10? '6–10' : dur<=20? '11–20' : '21+'; }
+
+  // === Complexity & SAU
+  const N_MAX = 14;
+  const EDGES_MAX = (N_MAX*(N_MAX-1))/2;
+  const LN_N_MAX = Math.log(N_MAX);
+
+  function stressScore(sI, sD){ return clamp(0.7*sI + 0.3*(sD/168*100), 0, 100); }
+
+  function complexityIndex(n){
+    n = clamp(n, 1, N_MAX);
+    const edges = (n*(n-1))/2;
+    const edges_norm = edges / EDGES_MAX;
+    const coord_norm = (n*Math.log(Math.max(2,n))) / (N_MAX * LN_N_MAX);
+    return Math.round(100 * clamp(0.6*edges_norm + 0.4*coord_norm, 0, 1));
+  }
+
+  function surfaceUncertainty(sw, n){
+    return Math.round(clamp(0.6*sw + 0.4*complexityIndex(n), 0, 100));
+  }
+
+  
+  // --- Baseline helpers for Personal Power ---
+  const LS_KEY_BASELINE_PP = 'ppBaseline';
+
+  function personalPowerFromInputs(base){
+    const sw  = stressScore(base.stressI, base.stressD);
+    const sau = surfaceUncertainty(sw, base.n);
+    return Math.round((base.energy + (100 - sau))/2);
+  }
+  function getBaselinePP(){
+    const v = Number(localStorage.getItem(LS_KEY_BASELINE_PP));
+    return Number.isFinite(v) && v > 0 ? v : null;
+  }
+  function setBaselinePP(val){
+    if (Number.isFinite(val) && val > 0) localStorage.setItem(LS_KEY_BASELINE_PP, String(val));
+  }
+// === Support model
+  function supportNeeded(sw, cx, energy){
+    return Math.round( clamp(3 + (sw/25) + (cx/25) - (energy/50), 0, 15) );
+  }
+
+  // === UI helpers
+  function setKPIState(el, val, type){
+    let st='neutral';
+    if(type==='energy'){ st = val>=70? 'good' : val>=50? 'warn' : 'bad'; }
+    if(type==='stress' || type==='sau' || type==='cx'){ st = val<=30? 'good' : val<=50? 'warn' : 'bad'; }
+    if(type==='eff'){ st = val>=80? 'good' : val>=60? 'warn' : 'bad'; }
+    if(type==='gap'){ st = val<=0? 'good' : val<=2? 'warn' : 'bad'; }
+    el.setAttribute('data-state', st);
+  }
+
+  function renderHabits(filter='all'){
+    const deck = $('#habits');
+    let items = H;
+    if(filter==='easy') items = items.filter(a=>a.difficulty==='easy');
+    else if(filter==='challenging') items = items.filter(a=>a.difficulty==='challenging');
+    else if(['energy_up','stressI_down','stressD_down','support_up','skool'].includes(filter)) items = items.filter(a=>a.tags.includes(filter));
+    deck.innerHTML = items.map(a=>{
+      const tags = a.tags.map(tagLabel).join(', ');
+      const checked = state.checked.has(a.id) ? 'checked' : '';
+      const diff = a.difficulty==='challenging' ? '<span class="tag">Challenging</span>' : '<span class="tag">Easy</span>';
+      return `<div class="col-12 col-sm-6">
+        <label class="habit w-100">
+          <input type="checkbox" data-id="${a.id}" ${checked} />
+          <div>
+            <div class="fw-semibold" style="color:#f8fafc">${a.name}</div>
+            <div class="meta">${diff} ${tags} <span class="dur">${a.dur} min </span></div>
+          </div>
+        </label>
+      </div>`;
+    }).join('');
+    $$('#habits input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change', (e)=>{
+        const id = e.target.dataset.id;
+        if(e.target.checked) state.checked.add(id); else state.checked.delete(id);
+        recalc();
+      });
+    });
+  }
+
+  // snapshot including habit effects
+  function computeSnapshotH(){
+    let e = state.base.energy, sI = state.base.stressI, sD = state.base.stressD, effBase = state.base.feltEff, n = state.base.n, supHave = state.base.supportHave, supportDelta = 0;
+    for(const id of [...state.checked]){
+      const a = H.find(x=>x.id===id); if(!a) continue;
+      const fx = a.fx.now||{e:0,sI:0,sD:0,eff:0,cx:0,sau:0,support:0};
+      e += fx.e; sI += fx.sI; sD += fx.sD; effBase += 0; // feltEff is baseline; efficacy lift handled separately
+      n += fx.cx||0; // allow habits like delegation to reduce effective processes a bit
+      supportDelta += (fx.support||0);
+    }
+    e  = clamp(e, 0, 100);
+    sI = clamp(sI, 0, 100);
+    sD = clamp(sD, 0, 168);
+    n  = clamp(n, 1, N_MAX);
+    const sw = stressScore(sI, sD);
+    const cx = complexityIndex(n);
+    const sau = surfaceUncertainty(sw, n);
+    const effPlan = scoreEfficacy(); // planned efficacy score (0-100)
+    const effLift = Math.max(0, Math.round(effPlan - state.base.feltEff));
+    const supNeed = supportNeeded(sw, cx, e);
+    const supHaveEff = clamp(supHave + supportDelta, 0, 15);
+    const supGap = Math.max(0, supNeed - supHaveEff);
+    return {e,sI,sD,sw,cx,sau,effPlan,effLift,supNeed,supHaveEff,supGap,n,supportDelta};
+  }
+
+  function personalPowerNow(){
+    const s = computeSnapshotH();
+    return { score: Math.round((s.e + (100 - s.sau))/2), ...s };
+  }
+
+  function scoreEfficacy(){
+    let score=0, power=0; const domains=new Set();
+    for(const id of [...state.checked]){
+      const a = H.find(x=>x.id===id); if(!a) continue;
+      if(a.power) power += 20;
+      domains.add(a.domain);
+    }
+    score = Math.min(100, power + domains.size*8 + Math.min(state.checked.size*5, 20));
+    return score;
+  }
+
+  function setAllKPI(p){
+    // Numbers
+    $('#kEnergy').textContent = fmt(p.e);
+    $('#kStress').textContent = fmt(p.sw);
+    $('#kEff').textContent = fmt(p.effLift);
+    $('#kCx').textContent = fmt(p.cx);
+    $('#kSau').textContent = fmt(p.sau);
+    $('#kSupNeedNow').textContent = fmt(p.supNeed);
+    $('#kSupGapNow').textContent = fmt(p.supGap);
+    // States
+    setKPIState($('#kpiEnergy'), p.e, 'energy');
+    setKPIState($('#kpiStress'), p.sw, 'stress');
+    setKPIState($('#kpiEff'), p.effLift, 'eff');
+    setKPIState($('#kpiCx'), p.cx, 'cx');
+    setKPIState($('#kpiSau'), p.sau, 'sau');
+
+    setKPIState($('#kpiSupNeedNow'), 100-p.supNeed, 'energy');
+    setKPIState($('#kpiSupGapNow'), p.supGap, 'gap');
+  }
+
+  function recalc(){
+    const p = personalPowerNow();
+    // --- Proper Efficacy Lift (% change in Personal Power vs baseline) ---
+    (function(){
+      const powerNow = p.score;
+      const basePP = getBaselinePP();
+      let liftPctTxt = '—';
+      if (basePP && basePP > 0) {
+        const liftPct = Math.round(((powerNow - basePP) / basePP) * 100);
+        liftPctTxt = (liftPct >= 0 ? '+' : '') + liftPct + '%';
+      } else {
+        // first-time use: seed baseline from last-week inputs and show neutral
+        setBaselinePP(personalPowerFromInputs(state.base));
+      }
+      const rInst = document.getElementById('rInstant');
+      if (rInst) rInst.textContent = liftPctTxt;
+    })();
+
+    const effScore = p.effPlan;
+    const effLift = p.effLift;
+
+    setAllKPI(p);
+
+    let g='F', why='';
+    if(effScore>=90 && p.sau<=30){g='A';why='Strong plan, low uncertainty.'}
+    else if(effScore>=80 && p.sau<=40){g='B';why='Good improvement with manageable uncertainty.'}
+    else if(effScore>=70){g='C';why='Okay. Add one power item or reduce SAU.'}
+    else if(effScore>=60){g='D';why='Light. Add 2 targeted habits to cut stress/complexity.'}
+    else {g='F';why='Too thin. Start with meditation + protein or ask for help.'}
+    var _g=document.getElementById('grade'); if(_g) _g.textContent=g; var _gw=document.getElementById('gradeWhy'); if(_gw) _gw.textContent=why;
+
+    // Auto narrative
+    const sd = document.getElementById('stateDesc'); // may be null (we replaced with Prompt Generator)
+    const patterns = [];
+    if(p.sw>=50) patterns.push('stress is high');
+    if(p.sau>=50) patterns.push('uncertainty surface is large');
+    if(p.cx>=50) patterns.push('too many interdependencies');
+    if(p.e<50) patterns.push('energy is depleted');
+    if(p.supGap>2) patterns.push('support gap is significant');
+    const causes = patterns.length? patterns.join(', ') : 'inputs are balanced';
+    const outlook = (p.sau>50 || p.e<50) ? 'If this continues a week, expect lower motivation, longer recovery, and a hit to execution.' : 'If this continues a week, momentum will likely compound and execution will feel easier.';
+    if(sd){ sd.value = `Right now, ${causes}. Energy=${fmt(p.e)}, Stress=${fmt(p.sw)}, CX=${fmt(p.cx)}, SAU=${fmt(p.sau)}, SupportGap=${fmt(p.supGap)}. This combination suggests ${p.e<50 && p.supGap>0 ? 'risk of depletion due to mismatch between workload and support' : 'stable recovery capacity'}. ${outlook}`; }
+
+    // Report
+    $('#rScore').textContent = fmt(p.score);
+    $('#rInstant').textContent = fmt(effLift);
+    const bar = document.getElementById('rBar'); if (bar) bar.style.width = clamp(p.score,0,100)+'%';
+    const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+    setText('rEnergy', fmt(p.e));
+    setText('rStress', fmt(p.sw));
+    setText('rEff', fmt(effScore));
+    setText('rGrade', g);
+    setText('rCx', fmt(p.cx));
+    setText('rSau', fmt(p.sau));
+    setText('rSupNeed', fmt(p.supNeed));
+    setText('rSupGap', fmt(p.supGap));
+
+    // Baseline tiles
+    setText('rBaseEnergy', fmt(state.base.energy));
+    setText('rBaseStressI', fmt(state.base.stressI));
+    setText('rBaseStressD', fmt(state.base.stressD) + ' h/wk');
+    setText('rBaseFelt', fmt(state.base.feltEff));
+    setText('rBaseN', fmt(state.base.n));
+    setText('rBaseSupHave', fmt(state.base.supportHave));
+
+    const chosen = [...state.checked].map(id=>H.find(a=>a.id===id)).filter(Boolean);
+    document.getElementById('doneChips').innerHTML = chosen.length ? chosen.map(a=>`<span class="chip">${a.name}</span>`).join('') : '<span class="sub" style="color:#334155">Nothing selected yet.</span>';
+    const totalMin = chosen.reduce((acc,a)=>acc + (a?.dur||0), 0);
+    const easyCount = chosen.filter(a=>a.difficulty==='easy').length;
+    const hardCount = chosen.filter(a=>a.difficulty==='challenging').length;
+    setText('rEasy', easyCount);
+    setText('rHard', hardCount);
+    setText('rTime', `${totalMin} min`);
+    const durBuckets = new Set(); const domains = new Set();
+    for(const it of chosen){
+      const b = it.dur<=5?'S': it.dur<=10?'M': it.dur<=20?'L':'XL'; durBuckets.add(b); domains.add(it.domain);
+    }
+    const vBonus = durBuckets.size*4 + domains.size*4;
+    setText('rVar', `+${vBonus}`);
+
+    const feltEcho = document.getElementById('feltEcho');
+    if (feltEcho) feltEcho.textContent = `+${effLift} lift`;
+  }
+
+  // ---------- Depletion Risk ----------
+function computeDepletionRisk(p){
+  const e  = clamp(p.e, 0, 100);
+  const sI = clamp(p.sI || 0, 0, 100);
+  const sD = clamp(p.sD || 0, 168);
+  const cx = clamp(p.cx || 0, 100);
+  const sDnorm = (sD/168)*100;
+  // intensity 45%, duration 25%, complexity 20%, low energy 30%
+  const raw = 0.45*sI + 0.25*sDnorm + 0.20*cx + 0.30*(100 - e);
+  return Math.round(clamp(raw, 0, 100));
+}
+function labelRisk(score){
+  if(score < 30) return ['Low','text-success'];
+  if(score < 60) return ['Moderate','text-warning'];
+  return ['High','text-danger'];
+}
+
+// Hook into recalc so risk + prompt auto-update
+const _recalc_old = (typeof recalc==='function') ? recalc : function(){};
+recalc = function(){
+  _recalc_old();
+  try {
+    const s = computeSnapshotH(); // your existing function
+    const risk = computeDepletionRisk({ e:s.e, sI:+$('#stressI').value, sD:+$('#stressD').value, cx:s.cx });
+    const [lab, cls] = labelRisk(risk);
+    const el = document.getElementById('riskLabel');
+    const why = document.getElementById('riskWhy');
+
+    const out = document.getElementById('promptOut'); if(out){ out.value = buildPromptForChat(s, risk); }
+  } catch(e){ console.warn('risk/prompt error', e); }
+};
+
+// ---------- Prompt Generator ----------
+function buildPromptForChat(s, risk){
+  const si = +$('#stressI').value || 0;
+  const sd = +$('#stressD').value || 0;
+  const lines = [];
+  lines.push('You are analyzing a Rest Day dashboard. Compute and explain the metrics below, then suggest actions.');
+  lines.push('\\nINPUTS');
+  lines.push('Energy: ' + s.e);
+  lines.push('Stress Intensity: ' + si);
+  lines.push('Stress Hours/Week: ' + sd);
+  lines.push('Processes n: ' + s.n);
+  lines.push('Support: need ' + s.supNeed + ', have ' + s.supHaveEff + ', gap ' + s.supGap);
+  lines.push('\\nDERIVED');
+  lines.push('Stress (weighted): ' + s.sw + ' (from intensity ' + si + ' and hours ' + sd + ')');
+  lines.push('Complexity Index: ' + s.cx + ' (edges + coordination)');
+  lines.push('Surface Uncertainty: ' + s.sau);
+  lines.push('Efficacy: ' + s.effPlan + ' (lift vs baseline: ' + s.effLift + ')');
+  lines.push('\\nEXAMPLE CALCS');
+  lines.push('Stress hours normalized = (hours/168)*100 = (' + sd + '/168)*100');
+  lines.push('Depletion Risk = 0.45*SI + 0.25*SD% + 0.20*CX + 0.30*(100-Energy)');
+  lines.push('\\nTASK FOR CHATGPT: Give 3 concrete actions to lower risk by 15 points in one week using habits/support.');
+  return lines.join('\\n');
+}
+document.addEventListener('click', (e)=> {
+  if(e.target && e.target.id==='copyPromptBtn'){
+    const t = document.getElementById('promptOut');
+    if(t){ t.select(); document.execCommand('copy'); e.target.textContent='Copied!'; setTimeout(()=>e.target.textContent='Copy to Clipboard',1200); }
+  }
+});
+
+
+
+// Inputs wiring
+  ['energy','stressI','stressD','feltEff','procN','supportHave'].forEach(id=>{
+    const el = document.getElementById(id);
+    const badge = id==='energy'? 'eVal' :
+                  id==='stressI'? 'siVal' :
+                  id==='stressD'? 'sdVal' :
+                  id==='feltEff'? 'feVal' :
+                  id==='procN'? 'nVal' : 'supVal';
+    el.addEventListener('input', ()=>{
+      const v = Number(el.value);
+      if(id==='energy') state.base.energy = v;
+      if(id==='stressI') state.base.stressI = v;
+      if(id==='stressD') state.base.stressD = v;
+      if(id==='feltEff') state.base.feltEff = v;
+      if(id==='procN') state.base.n = v;
+      if(id==='supportHave') state.base.supportHave = v;
+      document.getElementById(badge).textContent = (id==='stressD') ? v+' h/wk' : v;
+      recalc();
+    });
+  });
+
+  // Presets
+  const PRESETS = {
+    overwhelmed: {energy:30, stressI:75, stressD:60, n:10, supportHave:1, feltEff:40},
+    cruising:    {energy:70, stressI:35, stressD:15, n:4,  supportHave:5, feltEff:65},
+    stressed:    {energy:45, stressI:65, stressD:40, n:7,  supportHave:2, feltEff:55},
+    skool:       {energy:80, stressI:30, stressD:20, n:3,  supportHave:5, feltEff:75}
+  };
+  $$('.state-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $$('.state-pill').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      const p = PRESETS[btn.dataset.preset];
+      if(!p) return;
+      // set bases
+      state.base.energy=p.energy; $('#energy').value=p.energy; $('#eVal').textContent=p.energy;
+      state.base.stressI=p.stressI; $('#stressI').value=p.stressI; $('#siVal').textContent=p.stressI;
+      state.base.stressD=p.stressD; $('#stressD').value=p.stressD; $('#sdVal').textContent=p.stressD+' h/wk';
+      state.base.n=p.n; $('#procN').value=p.n; $('#nVal').textContent=p.n;
+      state.base.supportHave=p.supportHave; $('#supportHave').value=p.supportHave; $('#supVal').textContent=p.supportHave;
+      if (p.feltEff !== undefined) { state.base.feltEff = p.feltEff; $('#feltEff').value = p.feltEff; $('#feVal').textContent = p.feltEff; }
+      if (btn.dataset.preset === 'skool') {
+        state.checked.clear();
+        H.filter(h=>h.tags && h.tags.includes('skool')).forEach(h=>state.checked.add(h.id));
+        const f = document.getElementById('filter'); if (f) f.value = 'skool';
+        // re-render habits to show skool and checked boxes
+        renderHabits('skool');
+        // scroll into view of habits
+        const habits = document.getElementById('habits'); if (habits) habits.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+
+      recalc();
+    });
+  });
+
+  // --- Optimization helpers (updated for SAU/support) ---
+  function snapshotWith(setIds){
+    let e = state.base.energy, sI = state.base.stressI, sD = state.base.stressD, n = state.base.n, supHave = state.base.supportHave, supportDelta = 0;
+    for(const id of setIds){
+      const a = H.find(x=>x.id===id); if(!a) continue;
+      const fx = a.fx.now||{e:0,sI:0,sD:0,eff:0,cx:0,sau:0,support:0};
+      e += fx.e; sI += fx.sI; sD += fx.sD; n += fx.cx||0; supportDelta += fx.support||0;
+    }
+    e=clamp(e,0,100); sI=clamp(sI,0,100); sD=clamp(sD,0,168); n=clamp(n,1,N_MAX);
+    const sw = stressScore(sI, sD);
+    const cx = complexityIndex(n);
+    const sau = surfaceUncertainty(sw, n);
+    const supNeed = supportNeeded(sw, cx, e);
+    const supHaveEff = clamp(supHave + supportDelta, 0, 15);
+    const supGap = Math.max(0, supNeed - supHaveEff);
+    return {e,sw,cx,sau,supNeed,supHaveEff,supGap};
+  }
+  function personalPowerFrom(setIds){
+    const s = snapshotWith(setIds);
+    const score = Math.round((s.e + (100 - s.sau))/2);
+    return {score, ...s};
+  }
+  function efficacyScoreFrom(setIds){
+    let power=0; const domains=new Set();
+    for(const id of setIds){
+      const a = H.find(x=>x.id===id); if(!a) continue;
+      if(a.power) power += 20;
+      domains.add(a.domain);
+    }
+    const sizeBonus = Math.min(setIds.size*5, 20);
+    const score = Math.min(100, power + domains.size*8 + sizeBonus);
+    return score;
+  }
+  function utilityFor(setIds){
+    const baseIds = new Set(state.checked);
+    const ppBase = personalPowerFrom(baseIds);
+    const effBase = efficacyScoreFrom(baseIds);
+
+    const ppNew  = personalPowerFrom(setIds);
+    const effNew = efficacyScoreFrom(setIds);
+
+    const dPP = ppNew.score - ppBase.score;
+    const dEff = effNew - effBase;
+    const dSAU = (ppBase.sau - ppNew.sau);
+    const dStress = (ppBase.sw - ppNew.sw);
+    const dCx = (ppBase.cx - ppNew.cx);
+    const dSupGap = (ppBase.supGap - ppNew.supGap); // positive = smaller gap
+
+    // Composite utility
+    return (0.9*dPP) + (0.7*dEff) + (0.6*(ppNew.e - ppBase.e)) + (0.8*dSupGap) + (0.7*dStress) + (0.6*dCx) + (0.5*dSAU);
+  }
+
+  document.getElementById('recommendBtn').addEventListener('click', ()=>{
+    const remaining = H.map(h=>h.id).filter(id=>!state.checked.has(id));
+    const chosenNow = new Set(state.checked);
+    for(let k=0;k<3;k++){
+      let bestId = null, bestU = -1e9;
+      for(const id of remaining){
+        const test = new Set(chosenNow); test.add(id);
+        const u = utilityFor(test);
+        if(u > bestU){ bestU = u; bestId = id; }
+      }
+      if(bestId){
+        chosenNow.add(bestId);
+        const idx = remaining.indexOf(bestId); if(idx>=0) remaining.splice(idx,1);
+      } else { break; }
+    }
+    for(const id of chosenNow){ state.checked.add(id); }
+    renderHabits(document.getElementById('filter').value);
+    recalc();
+  });
+  document.getElementById('filter').addEventListener('change', (e)=>{ renderHabits(e.target.value); });
+
+  const _rb = document.getElementById('resetBtn'); if(_rb){ _rb.addEventListener('click', resetAll); }
+const ctaBtn = document.getElementById('ctaSelectSkool');
+if (ctaBtn) ctaBtn.addEventListener('click', ()=>{
+  state.checked.clear();
+  H.filter(h=>h.tags && h.tags.includes('skool')).forEach(h=>state.checked.add(h.id));
+  const f = document.getElementById('filter'); if (f) f.value = 'skool';
+  renderHabits('skool'); recalc();
+});
+function resetAll() {
+  // 1. Clear selected habits
+  state.checked.clear();
+
+  // 2. Define default baseline values
+  const defaults = {
+    energy: 60,
+    stressI: 40,
+    stressD: 12,
+    feltEff: 50,
+    n: 5,
+    supportHave: 3
+  };
+
+  // 3. Reset all base values in the state
+  state.base.energy = defaults.energy;
+  state.base.stressI = defaults.stressI;
+  state.base.stressD = defaults.stressD;
+  state.base.feltEff = defaults.feltEff;
+  state.base.n = defaults.n;
+  state.base.supportHave = defaults.supportHave;
+
+  // 4. Update slider UI + label values
+  const updateSlider = (id, value, suffix = '', labelId) => {
+    const el = document.getElementById(id);
+    const label = document.getElementById(labelId);
+    if (el) el.value = value;
+    if (label) label.textContent = suffix ? `${value}${suffix}` : value;
+  };
+
+  updateSlider('energy', defaults.energy, '', 'eVal');
+  updateSlider('stressI', defaults.stressI, '', 'siVal');
+  updateSlider('stressD', defaults.stressD, ' h/wk', 'sdVal');
+  updateSlider('feltEff', defaults.feltEff, '', 'feVal');
+  updateSlider('procN', defaults.n, '', 'nVal');
+  updateSlider('supportHave', defaults.supportHave, '', 'supVal');
+
+  // 5. Clear any active state preset pills
+  document.querySelectorAll('.state-pill.active').forEach(b => b.classList.remove('active'));
+
+  // 6. Re-render habits and clear chips
+  if (typeof renderHabits === 'function') {
+    const filterEl = document.getElementById('filter');
+    const filter = filterEl ? filterEl.value : 'all';
+    renderHabits(filter);
+  }
+
+  const chips = document.getElementById('doneChips');
+  if (chips)
+    chips.innerHTML = '<span class="sub" style="color:#334155">Nothing selected yet.</span>';
+
+  // 7. Clear the auto-narrative text area
+  const desc = document.getElementById('stateDesc');
+  if (desc) desc.value = '';
+
+  // 8. Reset the KPI color states to neutral
+  document.querySelectorAll('.kpi').forEach(k => k.setAttribute('data-state', 'neutral'));
+
+  // 9. Recalculate everything to refresh numbers
+  if (typeof recalc === 'function') recalc();
+
+  // 10. Optional feedback (visual confirmation)
+  console.log('✅ Reset complete: all values restored to defaults.');
+}
+  async function exportPNG(){
+    const overlay = document.getElementById('overlay'); overlay.style.display = 'flex';
+    const node = document.getElementById('shareCard');
+    const canvas = await html2canvas(node, {backgroundColor:'#ffffff', scale: 2});
+    const ratio = document.getElementById('ratio').value;
+    const [rw,rh] = ratio.split(':').map(Number);
+    const targetW = 1080; const targetH = Math.round(targetW * rh / rw);
+    const out = document.createElement('canvas'); out.width = targetW; out.height = targetH;
+    const ctx = out.getContext('2d');
+    const sW = canvas.width, sH = canvas.height;
+    const scale = Math.min(targetW/sW, targetH/sH);
+    const dW = Math.round(sW*scale), dH = Math.round(sH*scale);
+    const dx = Math.round((targetW - dW)/2), dy = Math.round((targetH - dH)/2);
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,targetW,targetH);
+    ctx.drawImage(canvas, dx, dy, dW, dH);
+    const link = document.createElement('a');
+    link.download = `perfect-restdays-${new Date().toISOString().slice(0,10)}-${ratio.replace(':','x')}.png`;
+    link.href = out.toDataURL('image/png'); link.click();
+    overlay.style.display = 'none';
+  }
+  document.getElementById('exportBtn').addEventListener('click', exportPNG);
+
+  async function exportPDF(){
+    const node = document.getElementById('shareCard');
+    const canvas = await html2canvas(node, {backgroundColor:'#ffffff', scale: 2});
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({orientation:'portrait', unit:'pt', format:'a4'});
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+    const w = canvas.width * ratio, h = canvas.height * ratio;
+    const x = (pageW - w) / 2, y = 24;
+    pdf.addImage(imgData, 'PNG', x, y, w, h);
+    pdf.save(`perfect-restdays-${new Date().toISOString().slice(0,10)}.pdf`);
+  }
+  document.getElementById('exportPdfBtn').addEventListener('click', exportPDF);
+
+  (function init(){ 
+    // Set week date to the given Sunday (Oct 26, 2025) per your request
+    renderHabits('all');
+    // Seed baseline from "Baseline (Inputs)" (last week) if none saved yet
+    if (!getBaselinePP()) {
+      const seedPP = personalPowerFromInputs(state.base);
+      setBaselinePP(seedPP);
+    }
+ 
+    recalc(); 
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+(function(){
+  const root = document.getElementById('cta-calculator');
+  if(!root) return;
+  const $ = sel => root.querySelector(sel);
+
+  const pay = $('#calcPay');
+  const delay = $('#calcDelay');
+  const restarts = $('#calcRestarts'); // <-- this line must exist
+
+  const payVal = $('#calcPayVal');
+  const restVal = $('#calcRestartsVal');
+
+  const scoreMain = $('#calcScoreMain');
+  const scoreSecondary = $('#calcScoreSecondary');
+  const bar = $('#calcSeverityBar');
+  const quit = $('#calcQuitLikely');
+
+  const vLost = document.getElementById('calcValueLost');
+  const tLost = document.getElementById('calcTimeLost');
+  const sunk  = document.getElementById('calcSunk');
+
+  function hoursFor(key){
+    return { '3d':72,'1w':168,'1m':730,'3m':2190,'6m':4380,'1y':8760 }[key] || 168;
+  }
+
+function compute(){
+  const A = Number(pay?.value || 0);
+  const R = Number(document.getElementById('calcRestarts')?.value || 1);
+
+  if (payVal) payVal.textContent = A;
+  if (restVal) restVal.textContent = R;
+
+  const hours = hoursFor(delay?.value);
+  const score = Math.max(0, Math.min(100,
+    (hours/168)*25 + (R/10)*50 + Math.max(0,(60-A)/60)*25
+  ));
+
+  scoreMain.textContent = score.toFixed(1);
+  scoreSecondary.textContent = (score/2).toFixed(1);
+  bar.style.width = score + '%';
+  bar.className = 'progress-bar ' + (score<33?'bg-success':score<66?'bg-warning':'bg-danger');
+  quit.textContent = (score<33?'Low':score<66?'Medium':'High');
+
+  const totalHours = Math.round(hours * 0.25 * R);  // 25% of downtime as lost productive hours
+  const value = A * totalHours;
+  if(vLost) vLost.textContent = '$' + Math.round(value).toLocaleString();
+  if(tLost) tLost.textContent = Math.round(totalHours) + ' h';
+  if(sunk)  sunk.textContent  = '$' + Math.round(0.10 * value).toLocaleString();
+}
+
+
+  [pay, delay, restarts].forEach(el => el && el.addEventListener('input', compute));
+  compute();
+
+  const exportBtn = root.querySelector('#calcExportPngBtn');
+  if(exportBtn){
+    exportBtn.addEventListener('click', async ()=>{
+      if(window.domtoimage){
+        const node = document.getElementById('calcResults');
+        const dataUrl = await domtoimage.toPng(node, { bgcolor:'#ffffff' });
+        const a = document.createElement('a');
+        a.href = dataUrl; a.download = 'calc-report-' + new Date().toISOString().slice(0,10) + '.png'; a.click();
+      } else {
+        alert('dom-to-image not loaded.');
+      }
+    });
+  }
+})();
+</script>
+
+</body>
+</html>

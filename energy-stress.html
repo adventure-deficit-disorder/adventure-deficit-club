@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Energy–Stress Mood Dial</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet" type="text/css">
+  <link href="calc.css" rel="stylesheet" type="text/css">
+<style>
+
+</style>
+</head>
+<body>
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+<div class="wrap">
+
+  <div  class="d-flex gap-3 mb-3">
+    <!-- Inputs -->
+    <section class="card col-12 col-md-5 p-4 text-light">
+      <header><strong>1) Inputs</strong> <span class="small">Choose time, then set energy & stress</span></header>
+      <div class="body" id="inputs">
+        <div class="row">
+          <label for="tod">Time of Day</label>
+          <select id="tod">
+            <option>Wake Up</option>
+            <option>Mid Morning</option>
+            <option>Noon</option>
+            <option>Afternoon</option>
+            <option>Evening</option>
+            <option>Bedtime</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Physical Energy (1–10)<div class="badge bg-secondary" id="eV">6</div></label>
+          <input id="energy" type="range" min="1" max="10" value="6" step="1" class="slider"/>
+          <div class="hint">Snaps to Low (3), Mid (6), High (9) on release.</div>
+        </div>
+        <div class="row">
+          <label>Stress Intensity (1–10)<div class="badge bg-secondary" id="siV">4</div></label>
+          
+          <input id="sint" type="range" min="1" max="10" value="4" step="1" class="slider"/>
+          <div class="hint">Snaps to Low (3), Mid (6), High (9) on release.</div>
+        </div>
+        <div class="row">
+          <label>Stress Duration (hours)</label>
+          <div class="small">How long you’ve felt this stress (≈7–72 hours)<div class="badge bg-secondary" id="sdV">3</div></div>
+          
+          <input id="sdur" type="range" min="1" max="10" value="3" step="1" class="slider"/>
+          <div class="hint">Short = spike today. Long = built-up stress days.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dial + KPIs -->
+    <section class="card col-12 col-md-7 p-4 text-light">
+      <header><div class="v" id="zoneName">Creative Flow</div><div class="" id="zoneHint">High energy • Low stress</div> <span class="small">Zone + physics-style metrics</span></header>
+      <div class="body">
+        <div class="dial">
+            <div>
+                <canvas id="dial" width="240" height="240" aria-label="mood dial"></canvas>
+
+                
+            </div>
+          
+          <div>
+            <div class="meta">
+          <!--      <div class="kpi"><h5>Friction</h5><div class="v" id="friction">0.32</div><div class="small">Higher = harder to move</div></div> -->
+              <div class="kpi"><h5>Velocity</h5><div class="v" id="vel">0.54</div><div class="small">How fast you can work</div></div>
+              <div class="kpi"><h5>Momentum</h5><div class="v" id="mom">0.48</div><div class="small">How long you can keep it</div></div>
+              <div class="kpi"><h5>Acceleration</h5><div class="v" id="acc">+0.12</div><div class="small">Getting easier or harder</div></div>
+              <div class="kpi"><h5>Inertia</h5><div class="v" id="inertia">0.41</div><div class="small">Weight at the start</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- === Dynamic Analysis Panel (replaces Effects & Activities) === -->
+  <section id="analysis-wrap" class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="card-title mb-0 text-light">State Analysis</h5>
+        <div class="d-flex gap-2">
+          <button id="regenAnalysis" class="btn btn-outline-primary btn-sm" type="button">Update</button>
+          <button id="copyPrompt" class="btn btn-outline-secondary btn-sm" type="button">Copy Prompt</button>
+
+        </div>
+      </div>
+      <div id="analysis" class="prose small" style="white-space:pre-wrap">Move a slider or hit “Update” to analyze your current state.</div>
+  <pre id="promptPreview"
+      class="small text-muted mt-3"
+      style="max-height:200px;overflow:auto;white-space:pre-wrap;border:1px solid #eee;padding:.5rem;border-radius:8px;background:#fafafa;">
+  </pre>
+
+
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <header class="text-light"><strong>4) Breakdown of inputs & calculations</strong></header>
+    <div class="body table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>How it’s calculated</th></tr></thead>
+          <tbody id="break"></tbody>
+        </table>
+        </div>
+  </section>
+
+
+
+</div>
+<script>
+  /* ========== Tiny utils ========== */
+  const $ = (q)=>document.querySelector(q);
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+
+  /* Time-of-day tweaks (soft, ±1 step) */
+  const TOD = {
+    'Wake Up':{e:+1,s:+0}, 'Mid Morning':{e:+1,s:-1}, 'Noon':{e:0,s:0},
+    'Afternoon':{e:+0,s:+1}, 'Evening':{e:-1,s:+1}, 'Bedtime':{e:-2,s:+0}
+  };
+
+  /* Zone calc + labels */
+  const zoneKey=(en,s)=> (en>=0.6&&s<=0.4)?'flow' : (en>=0.6&&s>0.4)?'drive' : (en<0.6&&s<=0.4)?'idle' : 'over';
+  const ZN = {
+    flow:{name:'Creative Flow', hint:'High energy • Low stress'},
+    drive:{name:'Tense Drive',   hint:'High energy • High stress'},
+    idle:{name:'Low Idle',       hint:'Low energy • Low stress'},
+    over:{name:'Overloaded',     hint:'Low energy • High stress'}
+  };
+
+  /* KPI color state helper */
+  function setKPIState(boxEl, val, mode){
+    let state='neutral';
+    if(mode==='goodHigh'){ state = val>0.66?'good':(val>=0.33?'warn':'bad'); }
+    else if(mode==='goodLow'){ state = val<0.33?'good':(val<=0.66?'warn':'bad'); }
+    else if(mode==='signed'){ state = val>0.10?'good':(val<-0.10?'bad':'warn'); }
+    boxEl?.setAttribute('data-state', state);
+  }
+
+  /* ===== Metrics: now reads DOM directly (NO args) ===== */
+  function computeMetrics(){
+    const tod = $('#tod').value;
+    const energy_raw = Number($('#energy').value);
+    const stress_intensity_raw = Number($('#sint').value);
+    const stress_duration_raw = Number($('#sdur').value);
+
+    // soft circadian tweak (±1 step)
+    const adjE = clamp(energy_raw + (TOD[tod]?.e||0), 1, 10);
+    const adjS = clamp(stress_intensity_raw + (TOD[tod]?.s||0), 1, 10);
+
+    const en = adjE/10;           // 0..1
+    const sI = adjS/10;           // 0..1
+    const hours = stress_duration_raw * 7.2; // 1–10 → ~7–72h
+    $('#sdV').textContent = `${hours.toFixed(0)} h`; // show hours once
+
+    const sD = clamp(hours/72, 0, 1);                 // normalize 0..1
+    const stress = clamp(0.7*sI + 0.3*sD, 0, 1);
+    const friction = clamp(0.6*stress + 0.2*(1-en) + 0.2*sD, 0, 1);
+    const velocity = clamp(en * (1 - friction), 0, 1);
+    const momentum = clamp(velocity * (1 - 0.5*sD), 0, 1);
+    const acceleration = clamp(0.6*en - 0.4*stress, -1, 1);
+    const inertia = clamp(0.5*friction + 0.5*sD, 0, 1);
+    const zone_key = zoneKey(en, stress);
+    const zone_label = ZN[zone_key].name;
+
+    return {
+      // raw
+      tod, energy_raw, stress_intensity_raw, stress_duration_raw, stress_duration_hours: hours,
+      // adjusted/normalized
+      adjE, adjS, en, sI, sD, stress, friction, velocity, momentum, acceleration, inertia,
+      // labels
+      zone_key, zone_label
+    };
+  }
+
+  /* ===== Dial drawing ===== */
+  function drawDial(canvas, m){
+    const ctx=canvas.getContext('2d'); const W=canvas.width, H=canvas.height;
+    const R=Math.min(W,H)/2 - 12; const cx=W/2, cy=H/2;
+    ctx.clearRect(0,0,W,H);
+    // base
+    ctx.fillStyle='#ffffff'; ctx.strokeStyle='#e2e8f0';
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    // grid
+    ctx.strokeStyle='#e5e7eb';
+    for(let r=R*0.3; r<=R; r+=R*0.35){ ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke(); }
+    // axes
+    ctx.strokeStyle='#e2e8f0'; ctx.beginPath(); ctx.moveTo(cx-R,cy); ctx.lineTo(cx+R,cy); ctx.moveTo(cx,cy-R); ctx.lineTo(cx,cy+R); ctx.stroke();
+    // labels
+    ctx.fillStyle='#0f172a'; ctx.font='700 16px system-ui, Arial'; ctx.fillText('Energy', cx+R-68, cy-8);
+    ctx.save(); ctx.translate(cx-8, cy-R+18); ctx.rotate(-Math.PI/2); ctx.fillText('Stress', 0, 0); ctx.restore();
+    // point: map 0..1 to -R..R
+    const x = cx + (m.en*2-1)*(R*0.85);
+    const y = cy - (m.stress*2-1)*(R*0.85);
+    // vector color by acceleration sign
+    ctx.strokeStyle = m.acceleration>=0 ? '#10b981' : '#ef4444';
+    ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.stroke();
+    ctx.fillStyle = '#2563eb'; ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill();
+  }
+
+  /* ===== Compact LLM prompt builder & renderer ===== */
+  function buildPrompt(m){
+return "You are a pragmatic performance strategist who explains the user's current energy–stress state in simple, tactical terms. Write as if reporting observations, not selling hope. Avoid metaphors or abstract language. Focus on clarity, evidence, and what the data says about behavior and performance. "
++"Inputs: timeOfDay="+(m.tod||"")+"; energy="+m.energy_raw+"; stressIntensity="+m.stress_intensity_raw+"; stressDuration="+m.stress_duration_raw+"; hours="+(m.stress_duration_hours||"")+"; adjE="+m.adjE+"; adjS="+m.adjS+"; en="+m.en+"; sD="+m.sD+"; stress="+m.stress+"; friction="+m.friction+"; velocity="+m.velocity+"; momentum="+m.momentum+"; acceleration="+m.acceleration+"; inertia="+m.inertia+"; zone="+m.zone_key+"; label="+m.zone_label+". "
++"Scoring: adjE=energy_raw+tod_e_delta; adjS=stress_intensity_raw+tod_s_delta; en=adjE/10; sI=adjS/10; stress=0.7*sI+0.3*sD; friction=0.6*stress+0.2*(1-en)+0.2*sD; velocity=en*(1-friction); momentum=velocity*(1-0.5*sD); acceleration=0.6*en-0.4*stress; inertia=0.5*friction+0.5*sD; zone=flow(if en≥0.6,stress≤0.4),drive(if en≥0.6,stress>0.4),idle(if en<0.6,stress≤0.4),over(otherwise). "
++"Task: 1) Write a short microlesson (≤120 words) describing what this state indicates in practical, behavioral terms—what the body and brain are likely doing, and how it affects attention and follow-through. Be concrete. "
++"2) Ask 3 reflection questions that help the user notice simple physical or situational signals tied to the numbers. Example: if stress>0.6, ask about tightness or restlessness; if energy<0.5, ask about fatigue or focus drop. "
++"3) Recommend 3 small corrective actions (<3 min each) that improve state management. Keep language instructional and specific: what to do, when to do it, what result to expect. "
++"4) Predict and respond to 1–2 common objections or excuses (e.g., 'not now', 'too busy', 'this won’t work for me', 'I already tried that'). Use short, factual replies showing why these beliefs often fail to reflect current conditions. "
++"5) End with a Persona Summary: describe the user's current behavioral profile (based on data), including decision style, risk tolerance, and how inertia or overexertion typically shows up. Suggest what kind of person they are becoming if they keep operating at this level, and what it would take to shift upward. "
++"Tone: journalistic, direct, and explanatory. Every sentence should clarify cause and effect. Avoid metaphors, emotion-first phrasing, or self-help language. Use clear transitions and tactical suggestions like a coach debriefing a high-performing client. "
++"Output (Markdown): **Microlesson:** … | **Body Reflection:** 1) … 2) … 3) … | **3-Minute Adjustments:** • … • … • … | **Resistance & Response:** … | **Persona Summary:** …";
+
+  }
+
+  /* Minimal md→html (bold + <br>) */
+  function mdToHtml(md){ if(!md) return ""; return md.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\n/g,"<br>"); }
+
+  /* TODO: wire to your LLM backend */
+  async function callLLM(prompt){
+    // Replace with your real API call; return Markdown string.
+    return "**Diagnosis:** Placeholder (wire your LLM). \n**Why it feels this way:** • velocity… • inertia… \n**Do now:** Dopamine1, Dopamine2, H&N1, H&N2 \n**Ask back:** 1) … 2) … 3) …";
+  }
+
+  async function renderAnalysis(m){
+    const el = $('#analysis'); if(!el) return;
+    el.textContent = "Analyzing…";
+    const md = await callLLM(buildPrompt(m));
+    el.innerHTML = mdToHtml(md);
+  }
+  function renderBreakdown(m){
+    const rows = [
+      ["Time of day", m.tod, "–"],
+      ["Energy (raw 1–10)", m.energy_raw.toFixed(0), "User input"],
+      ["Stress intensity (raw 1–10)", m.stress_intensity_raw.toFixed(0), "User input"],
+      ["Stress duration (hours)", m.stress_duration_hours.toFixed(0)+" h", "hours = stress_duration_raw × 7.2"],
+      ["Adj. Energy (1–10)", m.adjE.toFixed(1), "adjE = clamp(energy_raw + tod_e_delta)"],
+      ["Adj. Stress (1–10)", m.adjS.toFixed(1), "adjS = clamp(stress_intensity_raw + tod_s_delta)"],
+      ["Energy (0–1)", m.en.toFixed(2), "en = adjE / 10"],
+      ["Stress duration (0–1)", m.sD.toFixed(2), "sD = hours / 72"],
+      ["Blended stress (0–1)", m.stress.toFixed(2), "stress = 0.7*sI + 0.3*sD"],
+      ["Friction (0–1)", m.friction.toFixed(2), "0.6*stress + 0.2*(1-en) + 0.2*sD"],
+      ["Velocity (0–1)", m.velocity.toFixed(2), "en * (1 - friction)"],
+      ["Momentum (0–1)", m.momentum.toFixed(2), "velocity * (1 - 0.5*sD)"],
+      ["Acceleration (−1..1)", (m.acceleration>=0?"+":"")+m.acceleration.toFixed(2), "0.6*en - 0.4*stress"],
+      ["Inertia (0–1)", m.inertia.toFixed(2), "0.5*friction + 0.5*sD"],
+      ["Zone", m.zone_label, "flow/drive/idle/over by en & stress"]
+    ];
+    const tb = document.getElementById("break");
+    if(!tb) return;
+    tb.innerHTML = rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+  }
+</script>
+
+<script>
+async function renderAnalysis(m){
+  const el = document.getElementById("analysis");
+  if(!el) return;
+  el.textContent = "Analyzing…";
+  const prompt = buildPrompt(m);
+  const pp = document.getElementById("promptPreview");
+if (pp) pp.textContent = prompt;
+  const md = await callLLM(prompt);
+  el.innerHTML = mdToHtml(md);
+}
+
+/* ===== Main render: dial + KPIs + analysis ===== */
+function render(){
+  const m = computeMetrics();
+document.getElementById("eV").textContent  = m.energy_raw.toFixed(0);
+document.getElementById("siV").textContent = m.stress_intensity_raw.toFixed(0);
+  // Update zone + KPIs
+  const Z = ZN[m.zone_key];
+  $('#zoneName').textContent = Z.name;
+  $('#zoneHint').textContent = Z.hint;
+  $('#vel').textContent = m.velocity.toFixed(2);
+  $('#mom').textContent = m.momentum.toFixed(2);
+  $('#acc').textContent = (m.acceleration>=0?'+':'')+m.acceleration.toFixed(2);
+  $('#inertia').textContent = m.inertia.toFixed(2);
+
+  setKPIState($('#vel')?.parentElement,     m.velocity,     'goodHigh');
+  setKPIState($('#mom')?.parentElement,     m.momentum,     'goodHigh');
+  setKPIState($('#acc')?.parentElement,     m.acceleration, 'signed');
+  setKPIState($('#inertia')?.parentElement, m.inertia,      'goodLow');
+
+  // Dial
+  drawDial($('#dial'), m);
+renderBreakdown(m);
+
+  // Analysis
+  renderAnalysis(m);
+}
+
+/* ===== Wire events ===== */
+(function(){
+  $('#regenAnalysis')?.addEventListener('click', render);
+  document.querySelectorAll('#tod, #energy, #sint, #sdur').forEach(el=>{
+    el.addEventListener('input', render);
+  });
+  render(); // initial
+})();
+</script>
+<script>
+/* ===== Copy Prompt Button ===== */
+$('#copyPrompt')?.addEventListener('click', ()=>{
+  if(typeof computeMetrics!=='function') return;
+  const m = computeMetrics();
+  const prompt = buildPrompt(m);
+  navigator.clipboard.writeText(prompt).then(()=>{
+    alert("✅ Prompt copied! Paste it into ChatGPT to analyze your current state.");
+  }).catch(()=>{
+    alert("⚠️ Couldn’t copy. Try manually selecting the text below.");
+    console.log(prompt);
+  });
+});
+</script>
+</body>
+</html>

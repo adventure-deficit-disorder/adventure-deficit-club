@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>5→1→Today Planner (Bootstrap, LocalStorage)</title>
+  <!-- Bootstrap 5.3 CDN -->
+    <link href="style.css" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --adc-card:#10131a; --adcb:#1b2330;
+    }
+    body{background: linear-gradient(180deg,#0b0e14,#0e121a);}
+    .sticky-top-blur{
+      backdrop-filter: blur(6px);
+      background: rgba(10,12,18,.85);
+      border-bottom: 1px solid #1f2836;
+    }
+    .board{
+      display: grid; gap: .75rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 768px){
+      .board{ grid-template-columns: repeat(5,1fr); }
+      .accordion-collapse{ display:block !important; } /* open on desktop */
+    }
+    .card{background:var(--adc-card); border-color:#1f2836}
+    .list-group-item{background:#0f1420; border-color:#1f2836}
+    .item-done{opacity:.65; text-decoration: none;}
+    .item-input{border:0; background:transparent; width:100%}
+    .btn-ghost{background:transparent; border-color:#2a3648}
+    .small-muted{font-size:.8rem; color:#9ab}
+    .export-name{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+<main class="container my-3">
+  <!-- Mobile-first: accordion; on md+ we show as grid -->
+  <div id="sectionsAccordion" class="accordion d-md-none"></div>
+  <div id="boardGrid" class="board d-none d-md-grid"></div>
+  <p class="small-muted mt-3">
+    Mobile: sections are collapsible. Desktop: all sections open in a 5-column grid. Autosaves to <code>localStorage</code> key <code>planner.v2</code>.
+  </p>
+</main>
+
+<!-- Templates -->
+<template id="sectionTemplate">
+  <section class="card shadow-sm">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <h2 class="h6 mb-0"></h2>
+        <span class="small-muted"><span class="done-count">0</span>/<span class="total-count">0</span> done</span>
+      </div>
+      <div class="progress mb-3" role="progressbar" aria-label="Section progress">
+        <div class="progress-bar" style="width:0%"></div>
+      </div>
+      <form class="row g-2 align-items-center mb-2 add-form">
+        <div class="col-9">
+          <input type="text" class="form-control form-control-sm add-input" placeholder="">
+        </div>
+        <div class="col-3 d-grid">
+          <button class="btn btn-sm btn-primary" type="submit">Add</button>
+        </div>
+      </form>
+      <ul class="list-group list-group-flush"></ul>
+    </div>
+  </section>
+</template>
+
+<template id="itemTemplate">
+  <li class="list-group-item py-2">
+    <div class="d-flex align-items-center gap-2">
+      <input class="form-check-input flex-shrink-0 mt-0" type="checkbox" aria-label="Complete">
+      <input class="item-input text-light" type="text" aria-label="Task">
+      <div class="ms-auto btn-group btn-group-sm">
+        <button class="btn btn-outline-secondary" data-move="-1" title="Move up">▲</button>
+        <button class="btn btn-outline-secondary" data-move="+1" title="Move down">▼</button>
+        <button class="btn btn-outline-danger" data-del title="Delete">✕</button>
+      </div>
+    </div>
+  </li>
+</template>
+
+
+<footer class="container pb-4">
+  <div class="small-muted">
+    Tip: Press <kbd>Enter</kbd> to save an edit. Everything syncs instantly.
+  </div>
+</footer>
+<header class=" sticky-top-blur">
+  <div class="container py-2">
+    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+      <div class="d-flex align-items-center gap-2">
+      </div>
+      <div class="d-flex gap-2">
+        <label class="btn btn-outline-secondary btn-sm m-0">
+          Import JSON <input id="importInput" type="file" accept="application/json" class="d-none">
+        </label>
+        <button id="exportBtn" class="btn btn-primary btn-sm">Export JSON</button>
+        <button id="clearBtn" class="btn btn-outline-danger btn-sm">Clear Data</button>
+      </div>
+    </div>
+  </div>
+</header>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ========= Storage ========= */
+const STORAGE_KEY = 'planner.v2';
+const DEFAULT_DATA = [
+  { id:'five',   title:'5-Year Goals',  hint:'Add long arcs', items:[] },
+  { id:'one',    title:'1-Year Goals',  hint:'Milestones for the year', items:[] },
+  { id:'today',  title:'Today',         hint:'Only what truly fits', items:[] },
+  { id:'tmrw',   title:'Tomorrow',      hint:'Stage tomorrow', items:[] },
+  { id:'after',  title:'Day After',     hint:'Keep it light', items:[] },
+];
+let state = load() || DEFAULT_DATA;
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
+  catch { return null }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  setSaved(true);
+}
+function setSaved(ok){
+  const b = document.getElementById('saveStatus');
+  b.textContent = ok ? 'Saved' : 'Saving…';
+  b.className = ok ? 'badge text-bg-secondary' : 'badge text-bg-info';
+  if(ok) b.animate([{opacity:.4},{opacity:1}],{duration:180,iterations:1});
+}
+const uid = ()=>'t'+Math.random().toString(36).slice(2,9);
+const sectionById = id => state.find(s=>s.id===id);
+
+/* ========= Rendering ========= */
+const sectionTpl = document.getElementById('sectionTemplate');
+const itemTpl = document.getElementById('itemTemplate');
+
+const boardGrid = document.getElementById('boardGrid');
+const acc = document.getElementById('sectionsAccordion');
+
+function render(){
+  // Desktop grid
+  boardGrid.innerHTML = '';
+  state.forEach(sec => boardGrid.appendChild(renderSection(sec, false)));
+
+  // Mobile accordion
+  acc.innerHTML = '';
+  state.forEach((sec, idx) => {
+    const item = document.createElement('div');
+    item.className = 'accordion-item';
+    const hdrId = 'hdr-'+sec.id, colId = 'col-'+sec.id;
+    item.innerHTML = `
+      <h2 class="accordion-header" id="${hdrId}">
+        <button class="accordion-button ${idx? 'collapsed':''}" type="button"
+          data-bs-toggle="collapse" data-bs-target="#${colId}" aria-expanded="${!idx}"
+          aria-controls="${colId}">
+          ${sec.title}
+          <span class="ms-2 small text-secondary">( <span class="done-count">0</span>/<span class="total-count">0</span> )</span>
+        </button>
+      </h2>
+      <div id="${colId}" class="accordion-collapse collapse ${idx? '':'show'}" data-bs-parent="#sectionsAccordion">
+        <div class="accordion-body p-2"></div>
+      </div>
+    `;
+    const body = item.querySelector('.accordion-body');
+    body.appendChild(renderSection(sec, true));
+    acc.appendChild(item);
+  });
+}
+
+function renderSection(section, compact){
+  const node = sectionTpl.content.firstElementChild.cloneNode(true);
+  node.dataset.sec = section.id;
+  node.querySelector('h2').textContent = section.title;
+  node.querySelector('.add-input').placeholder = section.hint;
+
+  const list = node.querySelector('.list-group');
+  list.innerHTML = '';
+  section.items.forEach((t, idx)=> list.appendChild(renderItem(section.id, t, idx)));
+
+  updateProgress(node, section.items);
+
+  // Add handler
+  node.querySelector('.add-form').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const input = e.currentTarget.querySelector('.add-input');
+    const val = input.value.trim();
+    if(!val) return;
+    section.items.push({id:uid(), text:val, done:false});
+    input.value='';
+    save(); render();
+  });
+
+  if(compact) node.classList.add('border-0','shadow-0','bg-transparent','p-0');
+  return node;
+}
+
+function renderItem(secId, item, idx){
+  const li = itemTpl.content.firstElementChild.cloneNode(true);
+  li.dataset.id = item.id;
+
+  const cb = li.querySelector('input[type="checkbox"]');
+  const text = li.querySelector('.item-input');
+
+  cb.checked = !!item.done;
+  if(item.done) li.classList.add('item-done');
+  text.value = item.text || '';
+
+  cb.addEventListener('change', ()=>{
+    const s = sectionById(secId);
+    const i = s.items.findIndex(t=>t.id===item.id);
+    s.items[i].done = cb.checked;
+    save(); render();
+  });
+
+  text.addEventListener('input', ()=> setSaved(false));
+  text.addEventListener('change', ()=>{
+    const s = sectionById(secId);
+    const i = s.items.findIndex(t=>t.id===item.id);
+    s.items[i].text = text.value.trim();
+    save(); render();
+  });
+  text.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); text.blur(); }
+  });
+
+  li.querySelector('[data-del]').addEventListener('click', ()=>{
+    const s = sectionById(secId);
+    s.items = s.items.filter(t=>t.id!==item.id);
+    save(); render();
+  });
+
+  li.querySelectorAll('[data-move]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const delta = btn.getAttribute('data-move') === '+1' ? 1 : -1;
+      moveItem(secId, item.id, delta);
+    });
+  });
+
+  return li;
+}
+
+function updateProgress(node, items){
+  const total = items.length || 0;
+  const done = items.filter(i=>i.done).length;
+  const pct = total ? Math.round(done/total*100) : 0;
+  node.querySelector('.total-count').textContent = total;
+  node.querySelector('.done-count').textContent = done;
+  node.querySelector('.progress-bar').style.width = pct + '%';
+  node.querySelector('.progress-bar').ariaValueNow = pct;
+}
+
+/* ========= Reordering ========= */
+function moveItem(secId, itemId, delta){
+  const sec = sectionById(secId);
+  const i = sec.items.findIndex(t=>t.id===itemId);
+  const j = i + delta;
+  if(j<0 || j>=sec.items.length) return;
+  const [m] = sec.items.splice(i,1);
+  sec.items.splice(j,0,m);
+  save(); render();
+}
+
+/* ========= Export / Import / Clear ========= */
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const name = `planner-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById('importInput').addEventListener('change', async (e)=>{
+  const file = e.target.files?.[0]; if(!file) return;
+  try{
+    const data = JSON.parse(await file.text());
+    if(!Array.isArray(data)) throw new Error('Invalid file format');
+    state = data; save(); render();
+  }catch(err){ alert('Import failed: ' + err.message); }
+  finally { e.target.value = ''; }
+});
+
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(!confirm('Clear all planner data from this browser?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  render(); setSaved(true);
+});
+
+/* ========= Init ========= */
+render();
+</script>
+</body>
+</html>

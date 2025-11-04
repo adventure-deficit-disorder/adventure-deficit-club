@@ -1,0 +1,736 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INERTIA — Interactive TOC Feed (v4.1 full-cover)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <style>
+    .badge {
+
+    background-color: var(--accent) !important;
+}
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+
+<div class="container app-wrap my-3">
+  <div class="row g-3">
+    <!-- Sidebar (desktop) -->
+    <aside class="col-12 col-md-3 d-none d-md-block">
+      <div class="sidebar">
+        <div class="section-title">Search</div>
+        <input id="search" class="search-input mb-3" placeholder="Search chapters…">
+        <div class="section-title">Filters</div>
+
+        <select id="partFilter" class="form-select filter-select mb-2">
+          <option value="all" selected>All Collections</option>
+          <option value="im-fine-with-being-on-fire">I'm Fine With Being On Fire</option>
+          <option value="tools-widgets">Tools & Widgets</option>
+        </select>
+
+        <select id="sort" class="form-select filter-select mb-3">
+          <option value="number" selected>Sort: Number</option>
+          <option value="title">Sort: Title</option>
+        </select>
+
+        <div class="section-title">Tags</div>
+        <div id="tagBar" class="tag-list">
+          <button class="pill" data-tag="all">All</button>
+          <button class="pill" data-tag="tldr">TLDR</button>
+          <button class="pill" data-tag="dir0">Directive Zero</button>
+          <!--
+          <button class="pill" data-tag="dir1">Directive One</button>
+          <button class="pill" data-tag="dir2">Directive Two</button>
+          <button class="pill" data-tag="dir3">Directive Three</button>
+          <button class="pill" data-tag="dir4">Directive Four</button>
+          <button class="pill" data-tag="dir5">Directive Five</button>
+          <button class="pill" data-tag="dir6">Directive Six</button>
+          -->
+
+          <button class="pill" data-tag="ditl">DITL</button>
+          <button class="pill" data-tag="perfectionism">Perfectionism</button>
+          <button class="pill" data-tag="tools">Tools</button>
+          <button class="pill" data-tag="planner">Planner</button>
+          <button class="pill" data-tag="rest">Rest</button>
+          <button class="pill" data-tag="velocity">Velocity</button>
+          <button class="pill" data-tag="energy-stress">Energy–Stress</button>
+        </div>
+
+
+      </div>
+    </aside>
+
+    <!-- Offcanvas (mobile) -->
+    <div class="offcanvas offcanvas-start offcanvas-dark d-md-none" tabindex="-1" id="filtersDrawer" aria-labelledby="filtersDrawerLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="filtersDrawerLabel">Filters</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+        <div class="mb-3">
+          <input id="m_search" class="search-input" placeholder="Search chapters…">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Part</label>
+          <select id="m_partFilter" class="form-select filter-select">
+            <option value="all" selected>All Books</option>
+            <option value="im-fine-with-being-on-fire">I'm Fine With Being On Fire</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Sort</label>
+          <select id="m_sort" class="form-select filter-select">
+            <option value="number">Sort: Number</option>
+            <option value="title">Sort: Title</option>
+          </select>
+        </div>
+        <div class="section-title">Tags</div>
+        <div id="m_tagBar" class="tag-list">
+          <button class="pill" data-tag="all">All</button>
+          <button class="pill" data-tag="tldr">TLDR</button>
+          <button class="pill" data-tag="dir0">Directive Zero</button>
+          <!--
+          <button class="pill" data-tag="dir1">Directive One</button>
+          <button class="pill" data-tag="dir2">Directive Two</button>
+          <button class="pill" data-tag="dir3">Directive Three</button>
+          <button class="pill" data-tag="dir4">Directive Four</button>
+          <button class="pill" data-tag="dir5">Directive Five</button>
+          <button class="pill" data-tag="dir6">Directive Six</button>
+          -->
+          <button class="pill" data-tag="ditl">DITL</button>
+          <button class="pill" data-tag="perfectionism">Perfectionism</button>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Main feed -->
+    <main class="col-12 col-md-9">
+      <div id="feed" class="row g-3">
+
+
+        <!-- Cover card (static image as a card) -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <article class="chapter-card card-portrait">
+            <img class="chapter-image" src="IFBOF.jpg" alt="Cover">
+          </article>
+        </div>
+
+        <!-- Chapter 0 (portrait ratio) -->
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="0" data-part="im-fine-with-being-on-fire" data-tags="tldr">
+          <article class="chapter-card card-portrait p-4">
+            <div class="toc-number">0</div>
+            <h3 class="my-2">TLDR Action Plan</h3>
+            <ol class="list-unstyled m-0">
+              <li>0 — Reject The Benefits Of Being A Good Prisoner.</li>
+              <li>1 — Treat the Future-You as your boss.</li>
+              <li>2 — Treat the Past-You as your manager.</li>
+              <li>3 — Treat the Present-You as an employee.</li>
+              <li>4 — Win loudly And Fail With Pride.</li>
+              <li>5 — Monitor energy × stress × efficacy x complexity</li>
+              <li>6 — Maintain a daily velocity of output.</li>
+            </ol>
+          </article>
+        </div>
+        <!-- Chapter 0 (portrait ratio) -->
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="1" data-part="im-fine-with-being-on-fire" data-tags="dir0">
+          <article class="chapter-card card-portrait p-0" style="background-color: #2a1841;">
+              <div class="px-3 pt-3 d-flex flex-column align-items-center" style="background: url('Rubin_Carter.jpg');background-size: cover;background-blend-mode: multiply;background-color: rebeccapurple;">
+                <div class="toc-number position-relative bg-danger">1</div>
+                <div class="toc-number position-relative bg-white my-2 text-dark">Chapter One</div>
+                <figure class="text-center my-2">
+                  <blockquote class="blockquote mb-4 ">
+                    <h5 class="fw-bold ">What A Wrongfully Imprisoned Man Can Teach Us About Long Term Commitment
+                    </h5>
+                  </blockquote>
+                </figure>         
+                     
+              </div>
+              <div class="p-0">
+                <div class="accordion accordion-flush w-100 " id="tenseAccordion">
+                                    <!-- Past Group -->
+                  <div class="accordion-item border-0">
+                    <h2 class="accordion-header py-2">
+                      <button class="accordion-button collapsed py-1 px-2 rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#rubinCarter">
+                        <strong>Rubin "Hurricane" Carter</strong>
+                      </button>
+                    </h2>
+                    <div id="rubinCarter" class="accordion-collapse collapse" data-bs-parent="#tenseAccordion">
+                      <ul class="list-unstyled mb-0 p-2">
+                        <li class="d-flex flex-column">
+                          <span>
+                Rubin “Hurricane” Carter, a championship boxer wrongfully convicted of murder in 1967, spent 19 years waging a one-man campaign of civil disobedience until his conviction was overturned in 1985.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- Past Group -->
+                  <div class="accordion-item border-0">
+                    <h2 class="accordion-header py-2">
+                      <button class="accordion-button collapsed py-1 px-2 rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#pastGroup">
+                       <span class="p-2 text-bg-dark p-1 text-center rounded-pill badge me-2">1</span>Refusing To Act Guilty
+                       
+                      </button>
+                    </h2>
+                    <div id="pastGroup" class="accordion-collapse collapse" data-bs-parent="#tenseAccordion">
+                      <ul class="list-unstyled mb-0 p-2">
+                        <li class="d-flex flex-column">
+                          <span><strong>Remove Physical Indicators → </strong>
+                          To wear prison clothes or idnetification numbers, work prison jobs, or follow schedules for prisoners.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Present Group -->
+                  <div class="accordion-item border-0">
+                    <h2 class="accordion-header py-2">
+                      <button class="accordion-button collapsed py-1 px-2" type="button" data-bs-toggle="collapse" data-bs-target="#presentGroup">
+                        <span class="p-2 text-bg-dark p-1 text-center rounded-pill badge me-2">2</span>Rejecting The Benefits
+                      </button>
+                    </h2>
+                    <div id="presentGroup" class="accordion-collapse collapse" data-bs-parent="#tenseAccordion">
+                      <ul class="list-unstyled mb-0 p-2">
+                        <li class="d-flex flex-column">
+                          <span><strong>Refusing Short-term Pleasure → </strong>
+                        Declining privileges or possessions (radio, porn, comfort items) that could be used as leverage.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <!-- Future Group -->
+                  <div class="accordion-item border-0">
+                    <h2 class="accordion-header py-2">
+                      <button class="accordion-button collapsed py-1 px-2 rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#futureGroup">
+                        <span class="p-2 text-bg-dark p-1 text-center rounded-pill badge me-2">3</span>Focusing on Leverage
+                      </button>
+                    </h2>
+                    <div id="futureGroup" class="accordion-collapse collapse" data-bs-parent="#tenseAccordion">
+                      <ul class="list-unstyled mb-0 p-2">
+                        <li class="d-flex flex-column">
+                          <span><strong>Maximum Useful Action → </strong>
+                          He studied law to aid in his defense, wrote an autobiography that renewed public interest in his case, embraced: celibacy, spirituality, and fitness to maintain image of a wrongfully imprisoned man.
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <!-- Future Group -->
+                  <div class="accordion-item border-0">
+                    <h2 class="accordion-header pt-2 ">
+                      <button class="accordion-button collapsed py-1 px-2 rounded-0 bg-warning" type="button" data-bs-toggle="collapse" data-bs-target="#timelesson">
+                        <strong>Directive </strong>
+                      </button>
+                    </h2>
+                    <div id="timelesson" class="accordion-collapse collapse" data-bs-parent="#tenseAccordion">
+                      <ul class="list-unstyled mb-0 p-2">
+                        <li class="d-flex flex-column">
+                          <span><strong>Continual Useful Action → </strong>
+                          He studied law, he wrote an autobiography that renewed interest 
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>                
+                </div>              
+              </div>  
+              <figure class="text-center">
+                <blockquote class="blockquote">
+                  <p>A well-known quote, contained in a blockquote element.</p>
+                </blockquote>
+                <figcaption class="blockquote-footer">
+                  Someone famous in <cite title="Source Title">Source Title</cite>
+                </figcaption>
+              </figure>
+          </article>
+        </div>
+
+        <!-- 
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="2" data-part="im-fine-with-being-on-fire" data-tags="dir1">
+          <article class="chapter-card card-portrait p-4">
+            <div class="toc-number">2</div>
+            <h3 class="my-2">Learn To Think In The Present Progressive Tense</h3>
+            <p class="mb-2">A quick reference guide for practicing presence, structure, and momentum. </p>
+            <ol class="list-unstyled m-0">
+              <li>0 — Learn to think in the present progressive tense.</li>
+              <li>1 — Treat the Future-You as your boss.</li>
+              <li>2 — Treat the Past-You as your manager.</li>
+              <li>3 — Treat the Present-You as an employee.</li>
+              <li>4 — Win and fail loudly.</li>
+              <li>5 — Monitor energy × stress × efficacy x complexity</li>
+              <li>6 — Maintain a daily velocity of output.</li>
+            </ol>
+          </article>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="3" data-part="im-fine-with-being-on-fire" data-tags="dir2">
+          <article class="chapter-card card-portrait p-4">
+            <div class="toc-number">3</div>
+            <h3 class="my-2">Learn To Think In The Present Progressive Tense</h3>
+            <p class="mb-2">A quick reference guide for practicing presence, structure, and momentum. </p>
+            <ol class="list-unstyled m-0">
+              <li>0 — Learn to think in the present progressive tense.</li>
+              <li>1 — Treat the Future-You as your boss.</li>
+              <li>2 — Treat the Past-You as your manager.</li>
+              <li>3 — Treat the Present-You as an employee.</li>
+              <li>4 — Win and fail loudly.</li>
+              <li>5 — Monitor energy × stress × efficacy x complexity</li>
+              <li>6 — Maintain a daily velocity of output.</li>
+            </ol>
+          </article>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="4" data-part="im-fine-with-being-on-fire" data-tags="dir3">
+          <article class="chapter-card card-portrait p-4">
+            <div class="toc-number">4</div>
+            <h3 class="my-2">Learn To Think In The Present Progressive Tense</h3>
+            <p class="mb-2">A quick reference guide for practicing presence, structure, and momentum. </p>
+            <ol class="list-unstyled m-0">
+              <li>0 — Learn to think in the present progressive tense.</li>
+              <li>1 — Treat the Future-You as your boss.</li>
+              <li>2 — Treat the Past-You as your manager.</li>
+              <li>3 — Treat the Present-You as an employee.</li>
+              <li>4 — Win and fail loudly.</li>
+              <li>5 — Monitor energy × stress × efficacy x complexity</li>
+              <li>6 — Maintain a daily velocity of output.</li>
+            </ol>
+          </article>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="5" data-part="im-fine-with-being-on-fire" data-tags="dir4">
+          <article class="chapter-card card-portrait p-4">
+            <div class="toc-number">5</div>
+            <h3 class="my-2">Learn To Think In The Present Progressive Tense</h3>
+            <p class="mb-2">A quick reference guide for practicing presence, structure, and momentum. </p>
+            <ol class="list-unstyled m-0">
+              <li>0 — Learn to think in the present progressive tense.</li>
+              <li>1 — Treat the Future-You as your boss.</li>
+              <li>2 — Treat the Past-You as your manager.</li>
+              <li>3 — Treat the Present-You as an employee.</li>
+              <li>4 — Win and fail loudly.</li>
+              <li>5 — Monitor energy × stress × efficacy x complexity</li>
+              <li>6 — Maintain a daily velocity of output.</li>
+            </ol>
+          </article>
+        </div>
+       
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="6" data-part="im-fine-with-being-on-fire" data-tags="dir4">
+          <article class="chapter-card card-portrait p-4">
+            <div class="toc-number">6</div>
+            <h3 class="my-2">Learn To Think In The Present Progressive Tense</h3>
+            <p class="mb-2">A quick reference guide for practicing presence, structure, and momentum. </p>
+            <ol class="list-unstyled m-0">
+              <li>0 — Learn to think in the present progressive tense.</li>
+              <li>1 — Treat the Future-You as your boss.</li>
+              <li>2 — Treat the Past-You as your manager.</li>
+              <li>3 — Treat the Present-You as an employee.</li>
+              <li>4 — Win and fail loudly.</li>
+              <li>5 — Monitor energy × stress × efficacy x complexity</li>
+              <li>6 — Maintain a daily velocity of output.</li>
+            </ol>
+          </article>
+        </div>
+          -->
+        <!-- Chapter 3 (portrait ratio) -->
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="5" data-part="im-fine-with-being-on-fire" data-tags="perfectionism">
+          <article class="chapter-card card-portrait">
+            <img class="chapter-image" src="pexels-binoybucky-373676213-14619626.jpg" alt="">
+            <div class="toc-number">1</div>
+            <div class="overlay">
+              <h3>I'm Fine With Being On Fire</h3>
+              <div class="meta">
+                <span>⏱ 4 mins</span>
+                <span class="pill">perfectionism</span>
+              </div>
+              <a href="#" class="stretched-link" data-bs-toggle="modal" data-bs-target="#perfectionistModal" aria-label="Open introduction"></a>
+            </div>
+          </article>
+        </div>
+        <div class="modal fade modal-theme" id="perfectionistModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+
+                <section id="directives" class="mb-5">
+                  <div class="dark-container">
+                    <article class="lead">
+                          <h1>I'm Fine With Being On Fire</h1>
+                          <p class="sub">An essay on perfectionism, formidability, and movement.</p>
+
+                          <a class="pill" href="https://adventuredeficitclub.substack.com/p/im-fine-with-being-on-fire">Read On Substack</a>
+                          <hr>
+
+                          <blockquote><em>“To be formidable is to be smarter than those who are stronger, but also stronger than those who are smarter — and more agreeable than those who are both.
+
+                            A formidable person lives without anxiety or fear because they can either survive, benefit, or remain unaffected by misfortune, mistakes, or harm. All the while being more generous than those who possess more, because they themselves possess things others cannot be generous with.
+
+                            What a perfectionist is romanticizing is a boulder.
+
+                            ”</em></blockquote>
+
+                          
+                          
+                        </article>
+                  </div>
+
+              </section>
+              </div>
+              <div class="modal-footer">
+             <!--   <a href="#" class="btn btn-warning fw-bold">Read Chapter</a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+        <!-- Energy–Stress Mood Dial
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="3" data-part="tools-widgets" data-tags="tools energy-stress planner">
+          <article class="chapter-card card-portrait">
+            <img class="chapter-image"
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop" alt="">
+            <div class="toc-number">4</div>
+            <div class="overlay">
+              <h3>Energy–Stress Mood Dial</h3>
+              <div class="meta">
+                <span>Interactive</span>
+                <span class="pill">tools</span>
+                <span class="pill">planner</span>
+              </div>
+              <a href="#" class="stretched-link" data-bs-toggle="modal"
+                data-bs-target="#modal-energy-stress" aria-label="Open Energy–Stress Mood Dial"></a>
+            </div>
+          </article>
+        </div>
+
+        <div class="modal fade modal-theme" id="modal-energy-stress" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Energy–Stress Mood Dial</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <section class="mb-4">
+                  <div class="dark-container">
+                    <p class="lead">Interactive dial + KPIs with analysis and prompt export.</p>
+                  </div>
+                </section>
+              </div>
+              <div class="modal-footer">
+                <a href="energy-stress.html" class="btn btn-warning fw-bold">Open Page</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        -->
+
+        <!-- Perfect Rest Days — Weekly Coach -->
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="5" data-part="tools-widgets" data-tags="tools rest weekly">
+          <article class="chapter-card card-portrait">
+            <img class="chapter-image"
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop" alt="">
+            <div class="toc-number">5</div>
+            <div class="overlay">
+              <h3>Perfect Rest Days — Weekly Coach</h3>
+              <div class="meta">
+                <span>Interactive</span>
+                <span class="pill">tools</span>
+                <span class="pill">rest</span>
+              </div>
+              <a href="#" class="stretched-link" data-bs-toggle="modal"
+                data-bs-target="#modal-rest-tracker" aria-label="Open Perfect Rest Days"></a>
+            </div>
+          </article>
+        </div>
+
+        <!-- 5→1→Today Planner -->
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="6" data-part="tools-widgets" data-tags="tools planner schedule">
+          <article class="chapter-card card-portrait">
+            <img class="chapter-image"
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop" alt="">
+            <div class="toc-number">6</div>
+            <div class="overlay">
+              <h3>Three Day Planner</h3>
+              <div class="meta">
+                <span>Interactive</span>
+                <span class="pill">tools</span>
+                <span class="pill">planner</span>
+              </div>
+              <a href="#" class="stretched-link" data-bs-toggle="modal"
+                data-bs-target="#modal-schedule" aria-label="Open 5→1→Today Planner"></a>
+            </div>
+          </article>
+        </div>
+
+        <!-- Velocity — Leverage Planner -->
+        <div class="col-12 col-sm-6 col-lg-4 chapter" data-number="7" data-part="tools-widgets" data-tags="tools velocity complexity">
+          <article class="chapter-card card-portrait">
+            <img class="chapter-image"
+                src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop" alt="">
+            <div class="toc-number">7</div>
+            <div class="overlay">
+              <h3>Velocity — Leverage Planner</h3>
+              <div class="meta">
+                <span>Interactive</span>
+                <span class="pill">tools</span>
+                <span class="pill">velocity</span>
+              </div>
+              <a href="#" class="stretched-link" data-bs-toggle="modal"
+                data-bs-target="#modal-velocity" aria-label="Open Velocity — Leverage Planner"></a>
+            </div>
+          </article>
+        </div>
+
+
+
+        <!-- Perfect Rest Days — Weekly Coach -->
+        <div class="modal fade modal-theme" id="modal-rest-tracker" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Perfect Rest Days — Weekly Coach</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <section class="mb-4">
+                  <div class="dark-container">
+                    <p class="lead">Plan recovery cycles that actually compound your future output.
+Balance intensity with renewal—because discipline without recovery is self-sabotage.</p>
+                  </div>
+                </section>
+              </div>
+              <div class="modal-footer">
+                <a href="rest-tracker.html" class="btn btn-warning fw-bold">Open Page</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5→1→Today Planner -->
+        <div class="modal fade modal-theme" id="modal-schedule" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Three Day Planner</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <section class="mb-4">
+                  <div class="dark-container">
+                    <p class="lead">Connect long-term ambition to today’s execution with structured focus.
+No fluff—just directional clarity in one day’s work.</p>
+                  </div>
+                </section>
+              </div>
+              <div class="modal-footer">
+                <a href="schedule.html" class="btn btn-warning fw-bold">Open Page</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Velocity — Leverage Planner -->
+        <div class="modal fade modal-theme" id="modal-velocity" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Velocity — Leverage Planner</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <section class="mb-4">
+                  <div class="dark-container">
+                    <p class="lead">Map effort, complexity, and payoff to find your highest-yield actions.
+Every task either increases leverage—or drains it.</p>
+                  </div>
+                </section>
+              </div>
+              <div class="modal-footer">
+                <a href="velocity.html" class="btn btn-warning fw-bold">Open Page</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+
+
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Footer CTA
+<div class="cta-footer">
+  <div class="container cta-inner">
+    <div>
+      <div class="cta-title">Private workshops + templates</div>
+      <div class="text-secondary small">Accountable sprints • calculators • weekly live teardown</div>
+    </div>
+    <div class="grid-cta d-flex">
+      <button class="btn btn-warning btn-cta fw-bold" data-bs-toggle="modal" data-bs-target="#joinModal">Join Skool</button>
+    </div>
+  </div>
+</div>
+ -->
+<!-- Modals -->
+<div class="modal fade modal-theme" id="joinModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Join the Skool Group</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-3">Get access to workshops, calculators, and ruthless accountability. You’ll get a weekly sprint plan and a feed of member proof-of-output.</p>
+        <div class="form-floating mb-3">
+          <input type="email" class="form-control" id="emailInput" placeholder="name@example.com">
+          <label for="emailInput">Email address</label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="https://www.skool.com" class="btn btn-warning fw-bold" target="_blank" rel="noopener">Continue to Skool</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade modal-theme" id="genericModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Chapter Preview</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">Short summary would go here. Replace with your chapter excerpt or link the cards to dedicated pages.</div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <a href="#" class="btn btn-warning fw-bold">Read Full Chapter</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Shared logic
+const cards = Array.from(document.querySelectorAll('.chapter'));
+let activeTag = 'all';
+
+function applyFilters(queryInput, partSelect){
+  const q = (queryInput.value || '').toLowerCase();
+  const part = partSelect.value;
+  cards.forEach(c => {
+    const text = c.innerText.toLowerCase();
+    const tags = (c.dataset.tags || '').toLowerCase();
+    const matchesQuery = !q || text.includes(q) || tags.includes(q);
+    const matchesPart = part === 'all' || c.dataset.part === part;
+    const matchesTag = activeTag === 'all' || tags.includes(activeTag);
+    c.style.display = (matchesQuery && matchesPart && matchesTag) ? '' : 'none';
+  });
+}
+
+function applySort(sortSelect){
+  const mode = sortSelect.value;
+  const grid = document.getElementById('feed');
+  const visible = cards.filter(c => c.style.display !== 'none');
+  visible.sort((a,b)=>{
+    if(mode === 'number'){
+      return parseInt(a.dataset.number) - parseInt(b.dataset.number);
+    }else{
+      return a.querySelector('h3').innerText.localeCompare(b.querySelector('h3').innerText);
+    }
+  });
+  visible.forEach(c => grid.appendChild(c));
+}
+
+// Desktop controls
+const d_search = document.getElementById('search');
+const d_part = document.getElementById('partFilter');
+const d_sort = document.getElementById('sort');
+const d_tagBar = document.getElementById('tagBar');
+
+if(d_search && d_part && d_sort){
+  function runDesktop(){ applyFilters(d_search, d_part); applySort(d_sort); }
+  d_search.addEventListener('input', runDesktop);
+  d_part.addEventListener('change', runDesktop);
+  d_sort.addEventListener('change', ()=>applySort(d_sort));
+  d_tagBar.addEventListener('click', e=>{
+    if(e.target.matches('button[data-tag]')){
+      activeTag = e.target.dataset.tag;
+      d_tagBar.querySelectorAll('button').forEach(b=> b.classList.remove('btn-light'));
+      e.target.classList.add('btn-light');
+      runDesktop();
+    }
+  });
+}
+
+// Mobile controls (offcanvas)
+const m_search = document.getElementById('m_search');
+const m_part = document.getElementById('m_partFilter');
+const m_sort = document.getElementById('m_sort');
+const m_tagBar = document.getElementById('m_tagBar');
+
+if(m_search && m_part && m_sort){
+  function runMobile(){ applyFilters(m_search, m_part); applySort(m_sort); }
+  m_search.addEventListener('input', runMobile);
+  m_part.addEventListener('change', runMobile);
+  m_sort.addEventListener('change', ()=>applySort(m_sort));
+  m_tagBar.addEventListener('click', e=>{
+    if(e.target.matches('button[data-tag]')){
+      activeTag = e.target.dataset.tag;
+      m_tagBar.querySelectorAll('button').forEach(b=> b.classList.remove('btn-light'));
+      e.target.classList.add('btn-light');
+      runMobile();
+    }
+  });
+
+  // Sync mobile values to desktop when drawer closes, so state persists
+  const drawer = document.getElementById('filtersDrawer');
+  drawer.addEventListener('hidden.bs.offcanvas', ()=>{
+    if(d_search){ d_search.value = m_search.value; }
+    if(d_part){ d_part.value = m_part.value; }
+    if(d_sort){ d_sort.value = m_sort.value; }
+    // trigger a desktop refresh so the visible grid reflects latest state
+    if(d_search && d_part) { applyFilters(d_search, d_part); }
+    if(d_sort){ applySort(d_sort); }
+  });
+}
+
+// Initial render
+if(d_search && d_part && d_sort){ applyFilters(d_search, d_part); applySort(d_sort); }
+</script>
+
+</body>
+</html>

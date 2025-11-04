@@ -1,0 +1,82 @@
+/* ========= Calculator scope ========= /
+/ Keep everything under #calculator-section to avoid bleeding styles */
+#calculator-section .card{
+border-radius:12px;
+box-shadow:var(--shadow);
+}
+
+/* Labels + echoes (small numeric + descriptor to the right) */
+#calculator-section .form-label{ font-weight:600 }
+#calculator-section .form-label small{
+color:#64748b;
+}
+#calculator-section .form-text{
+color:#6b7280;
+}
+
+/* Range inputs: smoother interaction */
+#calculator-section .form-range{
+accent-color: var(--accent);
+}
+
+/* Progress / severity bar in results */
+#calculator-section .progress{ height:10px }
+#calculator-section .progress-bar{ transition: width .3s ease }
+
+/* Export card header (goal + date stamp) */
+#export-card h4{ font-weight:800; letter-spacing:.2px }
+#export-card #reportSubtitle{ color:#7f8aa6 }
+
+/* Calculator “calculation trace” (optional) */
+#calc_block code, #calc_block pre, #calc_block .mono{
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+font-variant-numeric: tabular-nums;
+background:#f7f9ff;
+border:1px solid #e7ecfb;
+border-radius:8px;
+padding:.5rem .6rem;
+display:block;
+white-space:pre-wrap;
+line-height:1.3;
+}
+#calc_block .kpi{ font-weight:700 }
+#calc_block .rowline{ margin:.25rem 0 }
+
+/* Accordion: tighter on mobile */
+@media (max-width: 991.98px){
+#inputsPanel .accordion-button{ padding:.75rem 1rem }
+#inputsPanel .accordion-body{ padding: .75rem 1rem }
+#calc-results, #calc-inputs{ margin-bottom:1rem }
+}
+
+/* Optional dark card variant (if you use a dark calculator card) */
+#calculator-section .card.bg-dark .form-label{ color:#e5e7eb }
+#calculator-section .card.bg-dark .btn-warning{
+--bs-btn-color:#1f2937; font-weight:700;
+}
+
+.dial{display:grid; grid-template-columns: 240px 1fr; gap:16px; align-items:start }
+  @media (max-width:700px){ .dial{grid-template-columns:1fr} }
+  canvas{display:block; width:100%; height:auto; background:#fff; border:1px solid var(--line); border-radius:12px}
+.meta{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:10px}
+  .kpi{
+  background: #0f172a;
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(17, 24, 39, .15);
+  }
+  .kpi h5{margin:0; font-size:13px}
+  .kpi .v{font-weight:700}
+/* Add: KPI state colors */
+.kpi{ transition: background-color .25s ease, color .25s ease; color:#fff; }
+.kpi[data-state="good"]  { background:#10b981; }   /* green */
+.kpi[data-state="warn"]  { background:#f59e0b; }   /* amber */
+.kpi[data-state="bad"]   { background:#ef4444; }   /* red   */
+.kpi[data-state="neutral"]{ background:#64748b; }  /* slate (default) */
+.kpi h5,.kpi .small,.kpi .v{ color:#fff; }
+
+  .zones{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+  .zone{padding:10px; border:1px solid var(--line); border-radius:12px}
+  .zone h4{margin:0 0 4px 0; font-size:14px}
+  .zone p{margin:0; font-size:12px; color:var(--muted)}

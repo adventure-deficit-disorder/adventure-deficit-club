@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Velocity — Leverage Planner + Complexity Widget (Mobile-First + Bottom Sheet)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+
+  <!-- html2canvas for PNG capture -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+
+  <main class="container container-narrow my-4">
+    <nav class="card my-4 text-light">
+      <!-- Toggle header -->
+      <div class="card-header bg-transparent p-0">
+        <button
+          class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#dailyOutputPanel"
+          aria-expanded="true"
+          aria-controls="dailyOutputPanel"
+          style="background:#0b1220;border:none;"
+        >
+          <span>
+            <span class="kicker text-uppercase d-block small mb-1">Interactive</span>
+            <h2 class="fw-bold">Daily Output</h2>
+          </span>
+          <span class="chev ms-3" aria-hidden="true">▾</span>
+        </button>
+      </div>
+
+      <!-- Collapsible body -->
+      <div id="dailyOutputPanel" class="collapse show">
+        <div class="card-body p-4">
+
+          <div class="container text-light  small">
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+
+              <div class="col">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">1️⃣ Routines And Responsibilities</h6>
+                  <p class="mb-1">Define what actually moves the needle.</p>
+                  <p class="mb-0">List your recurring habits and key responsibilities, assign time blocks, set minimums and maximums, and rate leverage (1–5).</p>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">2️⃣ Daily Complexity</h6>
+                  <p class="mb-1">See how much you’re really managing.</p>
+                  <p class="mb-0">Each active routine adds “nodes” to your daily system. The widget visualizes how many processes you’re juggling, how interdependent they are, and how much maintenance they cost in minutes.</p>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">3️⃣ Add Routine/Responsibility</h6>
+                  <p class="mb-1">Add new work cleanly—without chaos.</p>
+                  <p class="mb-0">Select a routine, assign leverage, and define min/max effort and time block. It automatically links to your outcomes from Table A.</p>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">4️⃣ Maintain Output Log</h6>
+                  <p class="mb-1">Track momentum, not just activity.</p>
+                  <p class="mb-0">Each time you perform a task or adjust its leverage, add an entry here. The table timestamps your changes, highlights differences from the last run, and builds a visual history of progress.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </nav>
+    <!-- TABLE A -->
+    <section class="mb-4">
+      <div class="card">
+        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <h5 class="mb-0">Routines And Responsibilities</h5>
+          <div class="d-flex gap-2">
+            <button id="addRowA" class="btn btn-sm btn-outline-light">Add Row</button>
+            <button id="saveA" class="btn btn-sm btn-accent">Save Table A</button>
+            <button id="clearAll" class="btn btn-sm btn-warning">Clear Data</button>
+          </div>
+
+        </div>
+
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="tableA" class="table table-dark table-sm align-middle stackable">
+              <thead>
+                <tr>
+                  <th>Routine</th><th>Time Block</th><th>Min</th><th>Max</th>
+                  <th>Leverage</th><th>Leverage Score (1–5)</th><th>Five Year Outcome</th><th style="width:60px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Routine"><input class="form-control" value="Words/Day" autocomplete="off"></td>
+                  <td data-label="Time Block">
+                    <select class="form-select tb-select">
+                      <option selected>5:00 AM – 7:00 AM</option>
+                      <option>7:00 AM – 9:00 AM</option>
+                      <option>9:00 AM – 11:00 AM</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input class="form-control mt-2 d-none tb-custom" placeholder="e.g., 4:40 AM – 6:20 AM" autocomplete="off">
+                  </td>
+                  <td data-label="Min"><input class="form-control" type="number" inputmode="numeric" value="1000"></td>
+                  <td data-label="Max">
+                    <select class="form-select max-select">
+                      <option selected>2000</option><option>1500</option><option>2500</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input class="form-control mt-2 d-none max-custom" type="number" inputmode="numeric" placeholder="Max">
+                  </td>
+                  <td data-label="Leverage"><input class="form-control" value="Big Idea + Outline first" autocomplete="off"></td>
+                  <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" inputmode="numeric" value="4"></td>
+                  <td data-label="Five Year Outcome"><input class="form-control" value="Publish 1 novel + 2 ADC books; audience compounding"></td>
+                  <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
+                </tr>
+
+                <tr>
+                  <td data-label="Routine"><input class="form-control" value="Offers/Week" autocomplete="off"></td>
+                  <td data-label="Time Block">
+                    <select class="form-select tb-select">
+                      <option>5:00 AM – 7:00 AM</option>
+                      <option selected>7:00 AM – 9:00 AM</option>
+                      <option>9:00 AM – 11:00 AM</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input class="form-control mt-2 d-none tb-custom" placeholder="Custom block" autocomplete="off">
+                  </td>
+                  <td data-label="Min"><input class="form-control" type="number" inputmode="numeric" value="1"></td>
+                  <td data-label="Max">
+                    <select class="form-select max-select">
+                      <option>2</option><option selected>3</option><option>4</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input class="form-control mt-2 d-none max-custom" type="number" inputmode="numeric" placeholder="Max">
+                  </td>
+                  <td data-label="Leverage"><input class="form-control" value="Scarcity + Guarantee + Proof" autocomplete="off"></td>
+                  <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" inputmode="numeric" value="5"></td>
+                  <td data-label="Five Year Outcome"><input class="form-control" value="$20K+ MRR; pipeline maturity"></td>
+                  <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
+                </tr>
+
+                <tr>
+                  <td data-label="Routine"><input class="form-control" value="Workouts/Week" autocomplete="off"></td>
+                  <td data-label="Time Block">
+                    <select class="form-select tb-select">
+                      <option>12:00 PM – 1:30 PM</option>
+                      <option selected>5:00 PM – 7:00 PM</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input class="form-control mt-2 d-none tb-custom" placeholder="Custom block" autocomplete="off">
+                  </td>
+                  <td data-label="Min"><input class="form-control" type="number" inputmode="numeric" value="3"></td>
+                  <td data-label="Max">
+                    <select class="form-select max-select">
+                      <option>4</option><option selected>5</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input class="form-control mt-2 d-none max-custom" type="number" inputmode="numeric" placeholder="Max">
+                  </td>
+                  <td data-label="Leverage"><input class="form-control" value="Compound lifts + walk" autocomplete="off"></td>
+                  <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" inputmode="numeric" value="3"></td>
+                  <td data-label="Five Year Outcome"><input class="form-control" value="High baseline energy; resilient output"></td>
+                  <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- COMPLEXITY WIDGET -->
+          <section id="complexity" class="mt-4">
+            <div class="row g-3">
+              <div class="col-12 col-xl-4">
+                <div class="card p-3">
+                  <h5 class="mb-2 text-light">Daily Complexity</h5>
+                  <div class="row row-cols-2 gy-2 gx-2 mt-1">
+                    <div class="col"><div class="metric-pill"><div class="k">Processes (n)</div><div class="v text-light" id="m_n">0</div></div></div>
+                    <div class="col"><div class="metric-pill"><div class="k">Interdependencies</div><div class="v text-light" id="m_edges">0</div></div></div>
+                    <div class="col"><div class="metric-pill"><div class="k">Maintenance (mins/day)</div><div class="v text-light" id="m_maint">0</div></div></div>
+                    <div class="col"><div class="metric-pill"><div class="k">Avg Leverage Score</div><div class="v text-light" id="m_lavg">—</div></div></div>
+                  </div>
+
+                  <label class="form-label mt-3 mb-1">Upkeep minutes per task</label>
+                  <div class="d-flex align-items-center gap-2 text-light">
+                    <input id="maintSlider" type="range" min="0" max="120" step="20" value="40" class="form-range range-track flex-grow-1" aria-label="Upkeep minutes per task">
+                    <output id="maintOut" class="badge bg-transparent border border-light text-light fw-bold" style="min-width:3.2rem; text-align:center;">40</output>
+                  </div>
+                  <div class="small text-light">Use this to see how each extra task increases your daily upkeep load.</div>
+                  <div class="small text-light mt-2"><strong>Node color = Leverage Score:</strong> 1 red → 5 green.</div>
+                </div>
+                <details class="mt-3">
+                  <summary class="text-light fw-semibold">Explanation of metrics</summary>
+                  <div class="small text-light mt-2">
+                    <p class="mb-1"><strong>Processes (n):</strong> Number of active routines/responsibilities.</p>
+                    <p class="mb-1"><strong>Interdependencies:</strong> Estimated links between processes ≈ n(n−1)/2. More links = more coordination overhead.</p>
+                    <p class="mb-1"><strong>Maintenance (mins/day):</strong> n × upkeep minutes per task. Quick proxy for daily “care & feeding.”</p>
+                    <p class="mb-0"><strong>Avg Leverage Score:</strong> Mean of your 1–5 leverage ratings. Higher = more bang per unit time.</p>
+                  </div>
+                </details>
+              </div>
+
+              <div class="col-12 col-xl-8">
+                <div class="card p-3">
+                  <div class="vis-wrap">
+                    <svg id="graph" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet" aria-label="Complexity Node Graph">
+                      <g id="edges"></g><g id="nodes"></g><g id="labels"></g>
+                    </svg>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <small class="text-light">Links = n(n−1)/2. Labels = routines.</small>
+                    <small class="text-light">Powered by <strong>@AdventureDeficitClub</strong></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- INLINE FORM (desktop) -->
+    <section class="mb-4" id="inlineFormCard">
+      <div class="card">
+        <div class="card-header"><h5 class="mb-0">Add Routine/Responsibility</h5></div>
+        <div class="card-body">
+          <form id="entryForm" class="row g-2 g-md-3">
+            <div class="col-12"><label class="form-label">Routine (from Table A)</label><select class="form-select" id="routineSelect" required></select></div>
+            <div class="col-12"><label class="form-label">Leverage (text)</label><input id="leverage" class="form-control" placeholder="e.g., Scarcity+Guarantee, A/B Hooks" required autocomplete="off"></div>
+            <div class="col-6"><label class="form-label">Min</label><select id="minSelect" class="form-select" required></select><input id="minCustom" type="number" class="form-control mt-2 d-none" placeholder="Min" inputmode="numeric"></div>
+            <div class="col-6"><label class="form-label">Max</label><select id="maxSelect" class="form-select" required></select><input id="maxCustom" type="number" class="form-control mt-2 d-none" placeholder="Max" inputmode="numeric"></div>
+            <div class="col-12"><label class="form-label">Time Block</label><select id="timeBlockSelect" class="form-select" required><option value="">Select…</option></select><input id="timeBlockCustom" class="form-control mt-2 d-none" placeholder="e.g., 4:40 AM – 6:20 AM" autocomplete="off"></div>
+            <div class="col-12 d-flex gap-2"><button class="btn btn-accent flex-grow-1" type="submit">Add to Table B</button><button class="btn btn-outline-light" type="button" id="clearForm">Clear</button></div>
+            <p class="text-light mb-0">“Date Added” auto-generates. “Five Year Outcome” auto-links from Table A.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABLE B -->
+    <section class="mb-5">
+      <div id="tableBCard" class="card">
+        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <h5 class="mb-0">Output Log</h5>
+          <small class="text-light">Card timestamp: <span id="cardTimestamp"></span></small>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="tableB" class="table table-dark table-sm align-middle stackable">
+              <thead>
+                <tr>
+                  <th>Date Added</th><th>Routine</th><th>Leverage</th><th>Leverage Score (1–5)</th>
+                  <th>Time Block</th><th>Min</th><th>Max</th><th>Five Year Outcome</th><th style="width:60px;"></th>
+                </tr>
+              </thead>
+              <tbody><!-- dynamic --></tbody>
+            </table>
+          </div>
+          <div class="small text-light mt-2">Yellow = changed from your last entry for the same Routine.</div>
+        </div>
+      </div>
+    <nav class="card mt-4 text-light mt-4">
+        <div class="container d-flex flex-md-row flex-column container-narrow d-flex flex-row align-items-center justify-content-between py-2">
+            <div class="d-flex gap-2 align-items-center justify-content-between">
+                <button id="downloadPng" class="btn btn-sm btn-light">Download PNG</button>
+                <button id="downloadCsv" class="btn btn-sm btn-outline-light">Download Spreadsheet</button>
+            </div>   
+     
+        </div>
+    </nav>       
+ 
+    </section>
+
+  </main>
+
+  <!-- Mobile FAB to open bottom sheet -->
+  <button id="fabAdd" class="btn btn-accent rounded-circle" type="button" data-bs-toggle="offcanvas" data-bs-target="#addEntrySheet" aria-controls="addEntrySheet">＋</button>
+
+  <!-- Offcanvas Bottom Sheet (mobile form uses same IDs) -->
+  <div class="offcanvas offcanvas-bottom" tabindex="-1" id="addEntrySheet" aria-labelledby="addEntrySheetLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="addEntrySheetLabel">Add Entry to Table B</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <form id="entryFormMobile" class="row g-2">
+        <div class="col-12"><label class="form-label">Routine (from Table A)</label><select class="form-select" id="routineSelectMobile" required></select></div>
+        <div class="col-12"><label class="form-label">Leverage (text)</label><input id="leverageMobile" class="form-control" placeholder="e.g., Scarcity+Guarantee, A/B Hooks" required autocomplete="off"></div>
+        <div class="col-6"><label class="form-label">Min</label><select id="minSelectMobile" class="form-select" required></select><input id="minCustomMobile" type="number" class="form-control mt-2 d-none" placeholder="Min" inputmode="numeric"></div>
+        <div class="col-6"><label class="form-label">Max</label><select id="maxSelectMobile" class="form-select" required></select><input id="maxCustomMobile" type="number" class="form-control mt-2 d-none" placeholder="Max" inputmode="numeric"></div>
+        <div class="col-12"><label class="form-label">Time Block</label><select id="timeBlockSelectMobile" class="form-select" required><option value="">Select…</option></select><input id="timeBlockCustomMobile" class="form-control mt-2 d-none" placeholder="e.g., 4:40 AM – 6:20 AM" autocomplete="off"></div>
+        <div class="col-12 d-grid"><button class="btn btn-accent" type="submit">Add to Table B</button></div>
+      </form>
+    </div>
+  </div>
+
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+  <div id="saveToast" class="toast align-items-center text-bg-dark border-0" role="status" aria-live="polite" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="saveToastMsg">Saved.</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const KEY_A = 'velocity_tableA_v6';
+    const KEY_B = 'velocity_tableB_v6';
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    function nowStamp(){
+      const d = new Date();
+      const date = d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'2-digit'});
+      const time = d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+      return date+' '+time;
+    }
+    function notifySaved(msg='Saved to local storage'){
+      const el = document.getElementById('saveToast');
+      const body = document.getElementById('saveToastMsg');
+      if(body) body.textContent = msg;
+      const t = bootstrap.Toast.getOrCreateInstance(el, { delay: 1600 });
+      t.show();
+    }
+    function updateTimestamp(){ $('#cardTimestamp').textContent = nowStamp(); }
+
+    /* ===== Table A ===== */
+    function rowAtoObj(tr){
+      const tds = tr.querySelectorAll('td');
+      const getTB = () => {
+        const sel = tds[1].querySelector('.tb-select');
+        if (sel.value === '__custom__') return tds[1].querySelector('.tb-custom').value.trim();
+        return sel.value.trim();
+      };
+      const getMax = () => {
+        const sel = tds[3].querySelector('.max-select');
+        if (sel.value === '__custom__') return tds[3].querySelector('.max-custom').value.trim();
+        return sel.value.trim();
+      };
+      return {
+        routine: tds[0].querySelector('input').value.trim(),
+        timeBlock: getTB(),
+        min: tds[2].querySelector('input').value.trim(),
+        max: getMax(),
+        leverageText: tds[4].querySelector('input').value.trim(),
+        leverageScore: tds[5].querySelector('input').value.trim(),
+        outcome: tds[6].querySelector('input').value.trim(),
+      };
+    }
+    function serializeA(){
+      const rows = [];
+      $$('#tableA tbody tr').forEach(tr => rows.push(rowAtoObj(tr)));
+      localStorage.setItem(KEY_A, JSON.stringify(rows));
+      notifySaved('Table A saved');
+      refreshRoutineSelects();
+      renderComplexity();
+      ensureStackLabels('#tableA');
+    }
+    function optHTML(current, ...vals){
+      return vals.map(v=>{
+        const sel = (String(v)===String(current)) ? ' selected' : '';
+        return `<option${sel}>${v}</option>`;
+      }).join('');
+    }
+    function addRowA(prefill){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Routine"><input class="form-control" value="${prefill?.routine||''}" autocomplete="off"></td>
+        <td data-label="Time Block">
+          <select class="form-select tb-select">
+            ${optHTML(prefill?.timeBlock||'','5:00 AM – 7:00 AM','7:00 AM – 9:00 AM','9:00 AM – 11:00 AM','12:00 PM – 1:30 PM','5:00 PM – 7:00 PM')}
+            <option value="__custom__">Custom…</option>
+          </select>
+          <input class="form-control mt-2 d-none tb-custom" placeholder="Custom block" autocomplete="off">
+        </td>
+        <td data-label="Min"><input class="form-control" type="number" value="${prefill?.min||''}" inputmode="numeric"></td>
+        <td data-label="Max">
+          <select class="form-select max-select">
+            ${optHTML(prefill?.max||'','1','2','3','4','5','1000','1500','2000')}
+            <option value="__custom__">Custom…</option>
+          </select>
+          <input class="form-control mt-2 d-none max-custom" type="number" placeholder="Max" inputmode="numeric">
+        </td>
+        <td data-label="Leverage"><input class="form-control" value="${prefill?.leverageText||''}" autocomplete="off"></td>
+        <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" value="${prefill?.leverageScore||''}" inputmode="numeric"></td>
+        <td data-label="Five Year Outcome"><input class="form-control" value="${prefill?.outcome||''}"></td>
+        <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
+      `;
+      $('#tableA tbody').appendChild(tr);
+      attachSelectHandlers(tr);
+      ensureStackLabels('#tableA');
+    }
+    function loadA(){
+      const raw = localStorage.getItem(KEY_A);
+      if(!raw){ refreshRoutineSelects(); renderComplexity(); ensureStackLabels('#tableA'); return; }
+      const rows = JSON.parse(raw);
+      $('#tableA tbody').innerHTML = '';
+      rows.forEach(r => addRowA(r));
+      $$('#tableA tbody tr').forEach(tr => reflectCustomVisibility(tr));
+      refreshRoutineSelects(); renderComplexity(); ensureStackLabels('#tableA');
+    }
+    function reflectCustomVisibility(tr){
+      const tbSel = tr.querySelector('.tb-select');
+      const tbCustom = tr.querySelector('.tb-custom');
+      tbCustom.classList.toggle('d-none', tbSel.value !== '__custom__');
+      const maxSel = tr.querySelector('.max-select');
+      const maxCustom = tr.querySelector('.max-custom');
+      maxCustom.classList.toggle('d-none', maxSel.value !== '__custom__');
+    }
+    function attachSelectHandlers(scope){
+      const sc = scope || document;
+      sc.querySelectorAll('.tb-select').forEach(sel=>{
+        sel.addEventListener('change', ()=>{
+          sel.closest('td').querySelector('.tb-custom').classList.toggle('d-none', sel.value !== '__custom__');
+          serializeA();
+        });
+      });
+      sc.querySelectorAll('.max-select').forEach(sel=>{
+        sel.addEventListener('change', ()=>{
+          sel.closest('td').querySelector('.max-custom').classList.toggle('d-none', sel.value !== '__custom__');
+          serializeA();
+        });
+      });
+    }
+
+    /* ===== Fill routine selects (desktop + mobile) ===== */
+    function refreshRoutineSelects(){
+      const map = tableAMap();
+      const routines = [...map.keys()];
+      const fill = (sel) => {
+        const keep = sel.value;
+        sel.innerHTML = '<option value="">Select Routine…</option>';
+        routines.forEach(r=> sel.insertAdjacentHTML('beforeend', `<option>${r}</option>`));
+        if(routines.includes(keep)) sel.value = keep;
+      };
+      fill($('#routineSelect')); fill($('#routineSelectMobile'));
+      onRoutineChange('desktop'); onRoutineChange('mobile');
+    }
+    function tableAMap(){
+      const m = new Map();
+      $$('#tableA tbody tr').forEach(tr=>{
+        const o = rowAtoObj(tr);
+        if(o.routine) m.set(o.routine, o);
+      });
+      return m;
+    }
+
+    /* ===== Table B ===== */
+    function addRowB(obj){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="Date Added">${obj.date}</td>
+        <td data-label="Routine" contenteditable="true">${obj.routine}</td>
+        <td data-label="Leverage" contenteditable="true">${obj.leverage}</td>
+        <td data-label="Leverage Score (1–5)" contenteditable="true">${obj.leverageScore||''}</td>
+        <td data-label="Time Block" contenteditable="true">${obj.timeBlock}</td>
+        <td data-label="Min" contenteditable="true">${obj.min}</td>
+        <td data-label="Max" contenteditable="true">${obj.max}</td>
+        <td data-label="Five Year Outcome" contenteditable="true">${obj.outcome}</td>
+        <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-b">✕</button></td>
+      `;
+      $('#tableB tbody').appendChild(tr);
+      saveB(); updateTimestamp(); highlightDiffsForRow(tr); ensureStackLabels('#tableB');
+    }
+    function saveB(){
+      const rows = [];
+      $$('#tableB tbody tr').forEach(tr=>{
+        const t = tr.querySelectorAll('td');
+        rows.push({
+          date:(t[0]?.innerText||'').trim(),
+          routine:(t[1]?.innerText||'').trim(),
+          leverage:(t[2]?.innerText||'').trim(),
+          leverageScore:(t[3]?.innerText||'').trim(),
+          timeBlock:(t[4]?.innerText||'').trim(),
+          min:(t[5]?.innerText||'').trim(),
+          max:(t[6]?.innerText||'').trim(),
+          outcome:(t[7]?.innerText||'').trim()
+        });
+      });
+      localStorage.setItem(KEY_B, JSON.stringify(rows));
+      notifySaved('Output Log saved');
+
+    }
+    function loadB(){
+      const raw = localStorage.getItem(KEY_B);
+      if(!raw) return;
+      try{ JSON.parse(raw).forEach(r => addRowB(r)); }catch{}
+      ensureStackLabels('#tableB');
+    }
+
+    /* ===== Diff highlight ===== */
+    function findPrevSameRoutine(row){
+      const routine = row.querySelector('td:nth-child(2)')?.innerText.trim();
+      if(!routine) return null;
+      const all = Array.from($('#tableB tbody').children);
+      const idx = all.indexOf(row);
+      for(let i=idx-1;i>=0;i--){
+        if((all[i].querySelector('td:nth-child(2)')?.innerText.trim())===routine) return all[i];
+      }
+      return null;
+    }
+    function clearDiffStyles(row){
+      row.querySelectorAll('td').forEach(td=>{
+        td.classList.remove('diff-cell');
+        const dot = td.querySelector('.diff-dot'); if(dot) dot.remove();
+      });
+    }
+    function markChangedCell(td, prev){
+      td.classList.add('diff-cell'); td.title = `Prev: ${prev}`;
+      const dot = document.createElement('span'); dot.className='diff-dot'; td.appendChild(dot);
+    }
+    function highlightDiffsForRow(row){
+      clearDiffStyles(row);
+      const prev = findPrevSameRoutine(row); if(!prev) return;
+      [3,4,5,6,7,8].forEach(n=>{
+        const td = row.querySelector(`td:nth-child(${n})`);
+        const pv = (prev.querySelector(`td:nth-child(${n})`)?.innerText||'').trim();
+        const cv = (td?.innerText||'').trim();
+        if(cv!==pv) markChangedCell(td, pv);
+      });
+    }
+    function rehighlightAll(){ $$('#tableB tbody tr').forEach(highlightDiffsForRow); }
+
+    /* ===== Desktop form population (IDs) ===== */
+    function setSelectOptions(el, values, withCustom=true){
+      el.innerHTML = '<option value="">Select…</option>';
+      values.filter(Boolean).forEach(v=>{
+        const opt = document.createElement('option'); opt.value=v; opt.textContent=v; el.appendChild(opt);
+      });
+      if(withCustom){ const c=document.createElement('option'); c.value='__custom__'; c.textContent='Custom…'; el.appendChild(c); }
+    }
+    function currentValue(selectEl, customEl){
+      return (selectEl.value==='__custom__') ? customEl.value.trim() : selectEl.value;
+    }
+
+    /* ===== Desktop + Mobile: onRoutineChange & toggle custom ===== */
+    function onRoutineChange(which){
+      const map = tableAMap();
+      const rec = map.get(which==='mobile' ? $('#routineSelectMobile').value : $('#routineSelect').value);
+
+      const tbSel = (which==='mobile') ? $('#timeBlockSelectMobile') : $('#timeBlockSelect');
+      const tbCustom = (which==='mobile') ? $('#timeBlockCustomMobile') : $('#timeBlockCustom');
+      const minSel = (which==='mobile') ? $('#minSelectMobile') : $('#minSelect');
+      const minCustom = (which==='mobile') ? $('#minCustomMobile') : $('#minCustom');
+      const maxSel = (which==='mobile') ? $('#maxSelectMobile') : $('#maxSelect');
+      const maxCustom = (which==='mobile') ? $('#maxCustomMobile') : $('#maxCustom');
+
+      tbCustom.classList.add('d-none'); minCustom.classList.add('d-none'); maxCustom.classList.add('d-none');
+
+      if(!rec){ setSelectOptions(tbSel,[]); setSelectOptions(minSel,[]); setSelectOptions(maxSel,[]); return; }
+
+      const tbOpts = [rec.timeBlock,'5:00 AM – 7:00 AM','7:00 AM – 9:00 AM','9:00 AM – 11:00 AM','12:00 PM – 1:30 PM','5:00 PM – 7:00 PM']
+        .filter((v,i,arr)=>v && arr.indexOf(v)===i);
+      setSelectOptions(tbSel, tbOpts, true);
+
+      const mid = Math.round(((Number(rec.min)||0)+(Number(rec.max)||0))/2)||undefined;
+      const minList = [rec.min, mid].filter(Boolean);
+      const maxList = [rec.max, mid, (Number(rec.max)||0)*2].filter(Boolean);
+      setSelectOptions(minSel, [...new Set(minList.map(String))], true);
+      setSelectOptions(maxSel, [...new Set(maxList.map(String))], true);
+    }
+    function toggleCustomInputs(which){
+      const tbSel = (which==='mobile') ? $('#timeBlockSelectMobile') : $('#timeBlockSelect');
+      const tbCustom = (which==='mobile') ? $('#timeBlockCustomMobile') : $('#timeBlockCustom');
+      const minSel = (which==='mobile') ? $('#minSelectMobile') : $('#minSelect');
+      const minCustom = (which==='mobile') ? $('#minCustomMobile') : $('#minCustom');
+      const maxSel = (which==='mobile') ? $('#maxSelectMobile') : $('#maxSelect');
+      const maxCustom = (which==='mobile') ? $('#maxCustomMobile') : $('#maxCustom');
+
+      tbCustom.classList.toggle('d-none', tbSel.value!=='__custom__');
+      minCustom.classList.toggle('d-none', minSel.value!=='__custom__');
+      maxCustom.classList.toggle('d-none', maxSel.value!=='__custom__');
+    }
+
+    /* ===== Complexity widget ===== */
+    const gEdges = $('#edges'), gNodes = $('#nodes'), gLabels = $('#labels');
+    function colorForScore(s){
+      const n = Number(s);
+      if(!Number.isFinite(n)) return '#8aa1c9';
+      const clamp = Math.max(1, Math.min(5, n));
+      const t = (clamp-1)/4;
+      const r = Math.round(240 + (80-240)*t);
+      const g = Math.round(80 + (240-80)*t);
+      const b = Math.round(80 + (130-80)*t);
+      return `rgb(${r},${g},${b})`;
+    }
+    function layoutCircle(n, w=1000, h=640, pad=56){
+      const cx=w/2, cy=h/2, R=Math.min(w,h)/2 - pad;
+      return Array.from({length:n}, (_,i)=>{
+        const ang = (Math.PI*2*i)/n - Math.PI/2;
+        return {x: cx + R*Math.cos(ang), y: cy + R*Math.sin(ang)};
+      });
+    }
+    function fmt(x){ return (x>=1000) ? (Math.round(x/10)/100)+'k' : String(Math.round(x*10)/10); }
+
+    function renderComplexity(){
+      const rows = [];
+      $$('#tableA tbody tr').forEach(tr=>{
+        const o = rowAtoObj(tr);
+        if(o.routine) rows.push(o);
+      });
+      const n = rows.length;
+      const perTask = Number($('#maintSlider').value)||0;
+      $('#maintOut').textContent = perTask;
+      $('#m_n').textContent = n;
+      const edges = n*(n-1)/2;
+      $('#m_edges').textContent = fmt(edges);
+      $('#m_maint').textContent = String(n*perTask);
+      const avgL = rows.length ? (rows.reduce((a,r)=>a+(Number(r.leverageScore)||0),0)/rows.length) : NaN;
+      $('#m_lavg').textContent = Number.isFinite(avgL) ? avgL.toFixed(1) : '—';
+
+      gEdges.innerHTML=''; gNodes.innerHTML=''; gLabels.innerHTML='';
+      if(n===0) return;
+
+      const pts = layoutCircle(n);
+      const edgeAlpha = Math.max(0.08, Math.min(0.6, 12/(n*n)));
+
+      for(let i=0;i<n;i++){
+        for(let j=i+1;j<n;j++){
+          const a=pts[i], b=pts[j];
+          const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('x1',a.x); line.setAttribute('y1',a.y);
+          line.setAttribute('x2',b.x); line.setAttribute('y2',b.y);
+          line.setAttribute('class','edge'); line.setAttribute('style', `opacity:${edgeAlpha}; stroke:#6c7a99 !important; stroke-width:1px !important;`);
+          gEdges.appendChild(line);
+        }
+      }
+      const r = Math.max(8, 18 - Math.max(0,n-6));
+      rows.forEach((row,i)=>{
+        const pt = pts[i];
+        const nodeColor = colorForScore(row.leverageScore);
+
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', pt.x);
+        c.setAttribute('cy', pt.y);
+        c.setAttribute('r', r);
+        c.setAttribute('class', 'node');
+        // Force coloring even if external CSS uses !important
+        c.setAttribute('style', `fill:${nodeColor} !important; stroke:#0b1220 !important; stroke-width:2px !important;`);
+        gNodes.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x', pt.x);
+        t.setAttribute('y', pt.y - r - 6);
+        t.setAttribute('class','node-label');
+        t.textContent = row.routine;
+        gLabels.appendChild(t);
+      });
+
+    }
+
+    /* ===== CSV & PNG ===== */
+    function downloadCSV(){
+      const rows = [['Date Added','Routine','Leverage','Leverage Score','Time Block','Min','Max','Five Year Outcome']];
+      $$('#tableB tbody tr').forEach(tr=>{
+        const t=tr.querySelectorAll('td');
+        rows.push([t[0]?.innerText||'', t[1]?.innerText||'', t[2]?.innerText||'', t[3]?.innerText||'', t[4]?.innerText||'', t[5]?.innerText||'', t[6]?.innerText||'', t[7]?.innerText||'']);
+      });
+      const csv = rows.map(r=>r.map(v=>{
+        v=(v??'').toString().replaceAll('"','""');
+        return /[",\n]/.test(v) ? `"${v}"` : v;
+      }).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `velocity_tableB_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click(); URL.revokeObjectURL(a.href);
+    }
+    async function captureCard(){
+      const node = $('#tableBCard');
+      const canvas = await html2canvas(node, { scale:2, backgroundColor:getComputedStyle(node).backgroundColor });
+      const a = document.createElement('a');
+      a.download = `velocity_tableB_${Date.now()}.png`;
+      a.href = canvas.toDataURL('image/png'); a.click();
+    }
+
+    /* ===== Events ===== */
+    document.addEventListener('click', (e)=>{
+      if(e.target.id==='addRowA'){ addRowA(); }
+      if(e.target.id==='saveA'){ serializeA(); }
+      if(e.target.classList.contains('remove-row-a')){ e.target.closest('tr').remove(); serializeA(); }
+      if(e.target.classList.contains('remove-row-b')){ e.target.closest('tr').remove(); saveB(); updateTimestamp(); rehighlightAll(); ensureStackLabels('#tableB'); }
+      if(e.target.id==='downloadPng'){ captureCard(); }
+      if(e.target.id==='downloadCsv'){ downloadCSV(); }
+      if(e.target.id === 'clearAll'){
+        if(confirm('Clear all saved data (Tables A & B)? This cannot be undone.')){
+          localStorage.removeItem(KEY_A);
+          localStorage.removeItem(KEY_B);
+          // reset UI
+          $('#tableA tbody').innerHTML = '';
+          $('#tableB tbody').innerHTML = '';
+          addRowA(); // give them one fresh row to start
+          refreshRoutineSelects();
+          renderComplexity();
+          updateTimestamp();
+          ensureStackLabels('#tableA');
+          ensureStackLabels('#tableB');
+          notifySaved('All data cleared');
+        }
+      }
+
+    });
+
+    $('#tableA').addEventListener('input', ()=>{ clearTimeout(window._a); window._a=setTimeout(serializeA, 200); });
+    attachSelectHandlers(document);
+
+    // Desktop form
+    $('#clearForm')?.addEventListener('click', ()=>{ $('#entryForm').reset(); toggleCustomInputs('desktop'); });
+    $('#tableB').addEventListener('input', ()=>{ clearTimeout(window._b); window._b=setTimeout(()=>{ saveB(); rehighlightAll(); }, 200); });
+
+    // Desktop form reacts
+    $('#routineSelect')?.addEventListener('change', ()=>onRoutineChange('desktop'));
+    $('#timeBlockSelect')?.addEventListener('change', ()=>toggleCustomInputs('desktop'));
+    $('#minSelect')?.addEventListener('change', ()=>toggleCustomInputs('desktop'));
+    $('#maxSelect')?.addEventListener('change', ()=>toggleCustomInputs('desktop'));
+
+    // Desktop submit
+    $('#entryForm')?.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const routine = $('#routineSelect').value; if(!routine) return alert('Select a Routine.');
+      const leverage = $('#leverage').value.trim(); if(!leverage) return alert('Enter Leverage text.');
+      const tb = currentValue($('#timeBlockSelect'), $('#timeBlockCustom'));
+      const minVal = currentValue($('#minSelect'), $('#minCustom'));
+      const maxVal = currentValue($('#maxSelect'), $('#maxCustom'));
+      if(!tb || !minVal || !maxVal) return alert('Fill Time Block / Min / Max.');
+      const rec = tableAMap().get(routine)||{};
+      addRowB({ date: nowStamp(), routine, leverage, leverageScore: rec.leverageScore || '', timeBlock: tb, min: minVal, max: maxVal, outcome: rec.outcome || '' });
+      $('#leverage').value=''; $('#timeBlockSelect').value=''; $('#minSelect').value=''; $('#maxSelect').value=''; toggleCustomInputs('desktop');
+    });
+
+    // Mobile sheet: listeners and submit
+    $('#routineSelectMobile')?.addEventListener('change', ()=>onRoutineChange('mobile'));
+    $('#timeBlockSelectMobile')?.addEventListener('change', ()=>toggleCustomInputs('mobile'));
+    $('#minSelectMobile')?.addEventListener('change', ()=>toggleCustomInputs('mobile'));
+    $('#maxSelectMobile')?.addEventListener('change', ()=>toggleCustomInputs('mobile'));
+
+    $('#entryFormMobile')?.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const routine = $('#routineSelectMobile').value; if(!routine) return alert('Select a Routine.');
+      const leverage = $('#leverageMobile').value.trim(); if(!leverage) return alert('Enter Leverage text.');
+      const tb = currentValue($('#timeBlockSelectMobile'), $('#timeBlockCustomMobile'));
+      const minVal = currentValue($('#minSelectMobile'), $('#minCustomMobile'));
+      const maxVal = currentValue($('#maxSelectMobile'), $('#maxCustomMobile'));
+      if(!tb || !minVal || !maxVal) return alert('Fill Time Block / Min / Max.');
+      const rec = tableAMap().get(routine)||{};
+      addRowB({ date: nowStamp(), routine, leverage, leverageScore: rec.leverageScore || '', timeBlock: tb, min: minVal, max: maxVal, outcome: rec.outcome || '' });
+      // Clear + close sheet
+      $('#leverageMobile').value=''; $('#timeBlockSelectMobile').value=''; $('#minSelectMobile').value=''; $('#maxSelectMobile').value='';
+      toggleCustomInputs('mobile');
+      const sheet = bootstrap.Offcanvas.getOrCreateInstance('#addEntrySheet'); sheet.hide();
+    });
+
+    // Add data-labels for stacked view
+    function ensureStackLabels(tableSel){
+      const table = document.querySelector(tableSel);
+      if(!table) return;
+      const heads = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent.trim());
+      table.querySelectorAll('tbody tr').forEach(tr=>{
+        const tds = tr.querySelectorAll('td');
+        tds.forEach((td,i)=>{ if(!td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i] || ' '); });
+      });
+    }
+
+    // Slider → widget
+    $('#maintSlider').addEventListener('input', ()=>{ $('#maintOut').textContent = $('#maintSlider').value; renderComplexity(); });
+
+    /* ===== Init ===== */
+    window.addEventListener('load', ()=>{
+      loadA(); loadB(); updateTimestamp(); renderComplexity();
+      ensureStackLabels('#tableA'); ensureStackLabels('#tableB');
+    });
+  </script>
+</body>
+</html>

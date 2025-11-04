@@ -1,0 +1,134 @@
+[
+  {
+    "id": "ifbof-cover",
+    "number": 0,
+    "title": "I'm Fine With Being On Fire (Cover)",
+    "part": "im-fine-with-being-on-fire",
+    "tags": [
+      "perfectionism",
+      "essay"
+    ],
+    "readTime": "\u2014",
+    "image": "IFBOF.jpg",
+    "type": "cover",
+    "modalTitle": "I'm Fine With Being On Fire",
+    "modalExcerpt": "An essay on perfectionism, formidability, and movement.",
+    "link": "https://adventuredeficitclub.substack.com/p/im-fine-with-being-on-fire"
+  },
+  {
+    "id": "ifbof-essay",
+    "number": 1,
+    "title": "I'm Fine With Being On Fire",
+    "part": "im-fine-with-being-on-fire",
+    "tags": [
+      "perfectionism",
+      "essay"
+    ],
+    "readTime": "4 mins",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "modal",
+    "modalTitle": "I'm Fine With Being On Fire",
+    "modalExcerpt": "An essay on perfectionism, formidability, and movement.",
+    "link": "https://adventuredeficitclub.substack.com/p/im-fine-with-being-on-fire"
+  },
+  {
+    "id": "tldr-plan",
+    "number": 2,
+    "title": "TLDR Action Plan",
+    "part": "im-fine-with-being-on-fire",
+    "tags": [
+      "tldr",
+      "playbook"
+    ],
+    "readTime": "4 mins",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "modal",
+    "modalTitle": "TLDR Action Plan",
+    "modalExcerpt": "Inertia isn\u2019t laziness \u2014 it\u2019s psychological mass built from anxiety, shame, and avoidance.",
+    "link": "#"
+  },
+  {
+    "id": "ditl",
+    "number": 3,
+    "title": "Day In The Life",
+    "part": "im-fine-with-being-on-fire",
+    "tags": [
+      "ditl",
+      "routine"
+    ],
+    "readTime": "4 mins",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "modal",
+    "modalTitle": "Day In The Life",
+    "modalExcerpt": "Momentum doesn\u2019t come from doing more; it comes from doing what compounds.",
+    "link": "#"
+  },
+  {
+    "id": "energy-stress",
+    "number": 4,
+    "title": "Energy\u2013Stress Mood Dial",
+    "part": "tools-widgets",
+    "tags": [
+      "tools",
+      "energy-stress",
+      "planner"
+    ],
+    "readTime": "Interactive",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "page",
+    "modalTitle": "Energy\u2013Stress Mood Dial",
+    "modalExcerpt": "Interactive dial + KPIs with analysis and prompt export.",
+    "link": "energy-stress.html"
+  },
+  {
+    "id": "rest-tracker",
+    "number": 5,
+    "title": "Perfect Rest Days \u2014 Weekly Coach",
+    "part": "tools-widgets",
+    "tags": [
+      "tools",
+      "rest",
+      "weekly"
+    ],
+    "readTime": "Interactive",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "page",
+    "modalTitle": "Perfect Rest Days \u2014 Weekly Coach",
+    "modalExcerpt": "Track energy, stress, complexity and generate a shareable report.",
+    "link": "rest-tracker.html"
+  },
+  {
+    "id": "schedule",
+    "number": 6,
+    "title": "5\u21921\u2192Today Planner",
+    "part": "tools-widgets",
+    "tags": [
+      "tools",
+      "planner",
+      "schedule"
+    ],
+    "readTime": "Interactive",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "page",
+    "modalTitle": "5\u21921\u2192Today Planner",
+    "modalExcerpt": "Mobile-first planner with localStorage + import/export.",
+    "link": "schedule.html"
+  },
+  {
+    "id": "velocity",
+    "number": 7,
+    "title": "Velocity \u2014 Leverage Planner",
+    "part": "tools-widgets",
+    "tags": [
+      "tools",
+      "velocity",
+      "complexity"
+    ],
+    "readTime": "Interactive",
+    "image": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=1200&auto=format&fit=crop",
+    "type": "page",
+    "modalTitle": "Velocity \u2014 Leverage Planner",
+    "modalExcerpt": "Daily non\u2011negotiables + complexity graph + velocity log.",
+    "link": "velocity.html"
+  }
+]
