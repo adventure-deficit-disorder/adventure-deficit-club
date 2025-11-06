@@ -964,7 +964,7 @@ ease;
        :root{
   --ink: #0f172a; --muted:#cbd5e1; --paper:#0b1220; --card:#0f172a; --line:rgba(255,255,255,.12);
   --blue: #2563eb; --blue2:#06b6d4; --good:#10b981; --warn:#f59e0b; --bad:#ef4444;
-  --accent: #7c3aed; --shadow:0 10px 40px rgba(0,0,0,.6); --radius:16px;
+  --accent: #b51a15;; --shadow:0 10px 40px rgba(0,0,0,.6); --radius:16px;
   --ink-light: #111827; --ink-muted:#334155; --line-light:rgba(2,6,23,.12);
     
 }

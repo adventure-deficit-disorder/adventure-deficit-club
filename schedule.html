@@ -3,311 +3,501 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>5→1→Today Planner (Bootstrap, LocalStorage)</title>
-  <!-- Bootstrap 5.3 CDN -->
-    <link href="style.css" rel="stylesheet">
-
+  <title>Vlog Planner — Simple One-Page (Plan / Export / Prompt)</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     :root{
-      --adc-card:#10131a; --adcb:#1b2330;
+      --panel:#0f1420; --border:#1f2836; --muted:#9ab; --ink:#e6edf3; --brand:#5865f2;
     }
-    body{background: linear-gradient(180deg,#0b0e14,#0e121a);}
-    .sticky-top-blur{
-      backdrop-filter: blur(6px);
-      background: rgba(10,12,18,.85);
-      border-bottom: 1px solid #1f2836;
-    }
-    .board{
-      display: grid; gap: .75rem;
-      grid-template-columns: 1fr;
-    }
-    @media (min-width: 768px){
-      .board{ grid-template-columns: repeat(5,1fr); }
-      .accordion-collapse{ display:block !important; } /* open on desktop */
-    }
-    .card{background:var(--adc-card); border-color:#1f2836}
-    .list-group-item{background:#0f1420; border-color:#1f2836}
-    .item-done{opacity:.65; text-decoration: none;}
-    .item-input{border:0; background:transparent; width:100%}
-    .btn-ghost{background:transparent; border-color:#2a3648}
-    .small-muted{font-size:.8rem; color:#9ab}
-    .export-name{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;}
+    body{background:linear-gradient(180deg,#0b0e14,#0e121a); color:var(--ink)}
+    .container-narrow{max-width:1120px}
+    .small-muted{color:var(--muted); font-size:.85rem}
+    .card{background:var(--panel); border-color:var(--border)}
+    .sticky-top-blur{position:sticky; top:0; z-index:1030; background:rgba(10,12,18,.9); border-bottom:1px solid var(--border); backdrop-filter:blur(6px)}
+    .pill-nav{display:flex; gap:.5rem; padding:.5rem}
+    .pill-nav .btn{border-radius:999px}
+    .shot-canvas-wrap{display:flex; justify-content:center; align-items:center; padding:1rem; border:1px dashed var(--border); border-radius:12px; background:#0f1420}
+    .shot-canvas{width:360px; height:640px; background:#fff; color:#111827; border-radius:18px; overflow:auto; padding:16px; box-shadow:0 10px 30px rgba(0,0,0,.35)}
+    .shot-item{border-left:4px solid #00000010; padding-left:.5rem; margin:.35rem 0}
+    .board{display:grid; grid-template-columns:1fr; gap:.75rem}
+    @media (min-width: 768px){ .board{grid-template-columns:1fr 1fr} }
+    @media (min-width: 1200px){ .board{grid-template-columns:repeat(3,1fr)} }
   </style>
 </head>
 <body>
   <nav class="navbar navbar-dark">
-    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
-        <div>
-            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
-            <h6>Procrastination | Perfectionism | Fatigue</h6>
-        </div>
-        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
-        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
-        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
-        </div>
-        
-
+    <div class="container container-narrow d-flex flex-wrap align-items-center justify-content-between py-2 gap-3">
+      <div>
+        <a class="navbar-brand" href="#">Adventure Deficit Club</a>
+        <div class="small-muted">Procrastination • Perfectionism • Fatigue</div>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        <button id="addTaskBtn" class="btn btn-sm btn-primary">➕ Add Task</button>
+        <button id="quickSeedBtn" class="btn btn-sm btn-outline-secondary">Seed demo data</button>
+        <button id="clearMemBtn" class="btn btn-sm btn-outline-danger">Clear session</button>
+      </div>
     </div>
   </nav>
-<main class="container my-3">
-  <!-- Mobile-first: accordion; on md+ we show as grid -->
-  <div id="sectionsAccordion" class="accordion d-md-none"></div>
-  <div id="boardGrid" class="board d-none d-md-grid"></div>
-  <p class="small-muted mt-3">
-    Mobile: sections are collapsible. Desktop: all sections open in a 5-column grid. Autosaves to <code>localStorage</code> key <code>planner.v2</code>.
-  </p>
-</main>
 
-<!-- Templates -->
-<template id="sectionTemplate">
-  <section class="card shadow-sm">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-1">
-        <h2 class="h6 mb-0"></h2>
-        <span class="small-muted"><span class="done-count">0</span>/<span class="total-count">0</span> done</span>
-      </div>
-      <div class="progress mb-3" role="progressbar" aria-label="Section progress">
-        <div class="progress-bar" style="width:0%"></div>
-      </div>
-      <form class="row g-2 align-items-center mb-2 add-form">
-        <div class="col-9">
-          <input type="text" class="form-control form-control-sm add-input" placeholder="">
+  <div class="sticky-top-blur">
+    <div class="container container-narrow pill-nav">
+      <a class="btn btn-outline-light btn-sm" href="#sec-plan"   data-open="#coll-plan">Plan</a>
+      <a class="btn btn-outline-light btn-sm" href="#sec-export" data-open="#coll-export">Export</a>
+      <a class="btn btn-outline-light btn-sm" href="#sec-prompt" data-open="#coll-prompt">Prompt</a>
+    </div>
+  </div>
+
+  <main class="container container-narrow my-3">
+    <section id="sec-plan" class="mb-3">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Plan — Goals & Tasks</h5>
+          <button class="btn btn-sm btn-outline-light" data-bs-toggle="collapse" data-bs-target="#coll-plan" aria-expanded="true">Toggle</button>
         </div>
-        <div class="col-3 d-grid">
-          <button class="btn btn-sm btn-primary" type="submit">Add</button>
+        <div id="coll-plan" class="collapse show">
+          <div class="card-body">
+            <div class="mb-2">
+              <div id="mobilePlanTabs" class="d-flex gap-2 flex-wrap">
+                <button class="btn btn-sm btn-secondary active" data-view="today">Today</button>
+                <button class="btn btn-sm btn-outline-secondary" data-view="tmrw">Tomorrow</button>
+                <button class="btn btn-sm btn-outline-secondary" data-view="after">Day After</button>
+                <button class="btn btn-sm btn-outline-secondary" data-view="five">5Y</button>
+                <button class="btn btn-sm btn-outline-secondary" data-view="one">1Y</button>
+              </div>
+            </div>
+            <div id="boardGrid" class="board"></div>
+          </div>
         </div>
+      </div>
+    </section>
+
+    <section id="sec-export" class="mb-3">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">Export Panel — Shot List (9:16)</h5>
+          <button class="btn btn-sm btn-outline-light" data-bs-toggle="collapse" data-bs-target="#coll-export">Toggle</button>
+        </div>
+        <div id="coll-export" class="collapse">
+          <div class="card-body">
+            <div class="row g-3 align-items-start">
+              <div class="col-12 col-lg-7">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                  <select id="exportGoalSelect" class="form-select form-select-sm" style="min-width:220px">
+                    <option value="">All 5-Year Goals</option>
+                  </select>
+                  <select id="filterFormat" class="form-select form-select-sm"><option value="">Any Format</option></select>
+                  <select id="filterFocus"  class="form-select form-select-sm"><option value="">Any Focus</option></select>
+                  <button id="buildShotListBtn" class="btn btn-sm btn-secondary">Build Preview</button>
+                  <button id="exportPngBtn" class="btn btn-sm btn-primary">Export PNG</button>
+                </div>
+                <div class="shot-canvas-wrap">
+                  <div id="shotCanvas" class="shot-canvas">
+                    <div class="text-center" style="margin-top:40%">
+                      <div style="font-weight:700">Your 9:16 Shot List</div>
+                      <div class="small" style="color:#374151">Pick a goal → Build Preview → Export PNG</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-5">
+                <div class="small-muted">Tip: Stage Today/Tomorrow/Day After to roll into your shot list.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sec-prompt" class="mb-5">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">ChatGPT Prompt — Project Plan</h5>
+          <button class="btn btn-sm btn-outline-light" data-bs-toggle="collapse" data-bs-target="#coll-prompt">Toggle</button>
+        </div>
+        <div id="coll-prompt" class="collapse">
+          <div class="card-body">
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <label class="form-label mb-1">High-level Goal</label>
+                <input id="promptGoal" type="text" class="form-control" placeholder="e.g., Ship v2 onboarding for SaaS">
+                <div class="small-muted mt-1">We’ll blend this with your 5Y/1Y goals & tasks.</div>
+              </div>
+              <!--
+              <div class="col-6 col-md-3">
+                <label class="form-label mb-1">Preferred Format</label>
+                <select id="promptFormat" class="form-select"></select>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="form-label mb-1">Preferred Focus</label>
+                <select id="promptFocus" class="form-select"></select>
+              </div>
+              -->
+              <div class="col-12">
+                <div class="d-flex gap-2 align-items-center mt-2">
+                  <button id="buildPromptBtn" class="btn btn-secondary btn-sm">Build Prompt</button>
+                  <button id="copyPromptBtn" class="btn btn-primary btn-sm">Copy</button>
+                </div>
+                <label class="form-label mb-1 mt-2">Generated Prompt</label>
+                <textarea id="promptOut" class="form-control" rows="6" spellcheck="false"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Offcanvas Task Panel -->
+  <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="taskPanel">
+    <div class="offcanvas-header"><h5 class="offcanvas-title">Add Task</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button></div>
+    <div class="offcanvas-body">
+      <form id="taskForm" class="row g-3">
+        <input type="hidden" id="taskId">
+        <div class="col-12"><label class="form-label">Task name</label><input id="taskName" type="text" class="form-control"></div>
+        <div class="col-12 col-md-6"><label class="form-label">Format</label><select id="taskFormat" class="form-select"></select></div>
+        <div class="col-12 col-md-6"><label class="form-label">Focus</label><select id="taskFocus" class="form-select"></select></div>
+        <div class="col-12"><label class="form-label">5-Year Goal</label><div class="d-flex gap-2"><select id="taskFiveYear" class="form-select"></select><input id="newFiveYear" class="form-control" placeholder="Add new"><button type="button" id="addFiveYearBtn" class="btn btn-outline-secondary">Add</button></div></div>
+        <div class="col-12"><label class="form-label">1-Year Goal</label><div class="d-flex gap-2"><select id="taskOneYear" class="form-select"></select><input id="newOneYear" class="form-control" placeholder="Add new"><button type="button" id="addOneYearBtn" class="btn btn-outline-secondary">Add</button></div></div>
+        <div class="col-12 col-md-6"><label class="form-label">When</label><select id="taskWhen" class="form-select"><option value="today">Today</option><option value="tmrw">Tomorrow</option><option value="after">Day After</option></select></div>
+        <div class="col-12"><label class="form-label">Notes</label><textarea id="taskNotes" class="form-control" rows="3"></textarea></div>
+        <div class="col-12 d-flex justify-content-between"><span class="small-muted">Session only. No localStorage.</span><div class="d-flex gap-2"><button id="deleteTaskBtn" type="button" class="btn btn-outline-danger d-none">Delete</button><button class="btn btn-primary" type="submit">Save Task</button></div></div>
       </form>
-      <ul class="list-group list-group-flush"></ul>
-    </div>
-  </section>
-</template>
-
-<template id="itemTemplate">
-  <li class="list-group-item py-2">
-    <div class="d-flex align-items-center gap-2">
-      <input class="form-check-input flex-shrink-0 mt-0" type="checkbox" aria-label="Complete">
-      <input class="item-input text-light" type="text" aria-label="Task">
-      <div class="ms-auto btn-group btn-group-sm">
-        <button class="btn btn-outline-secondary" data-move="-1" title="Move up">▲</button>
-        <button class="btn btn-outline-secondary" data-move="+1" title="Move down">▼</button>
-        <button class="btn btn-outline-danger" data-del title="Delete">✕</button>
-      </div>
-    </div>
-  </li>
-</template>
-
-
-<footer class="container pb-4">
-  <div class="small-muted">
-    Tip: Press <kbd>Enter</kbd> to save an edit. Everything syncs instantly.
-  </div>
-</footer>
-<header class=" sticky-top-blur">
-  <div class="container py-2">
-    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-      <div class="d-flex align-items-center gap-2">
-      </div>
-      <div class="d-flex gap-2">
-        <label class="btn btn-outline-secondary btn-sm m-0">
-          Import JSON <input id="importInput" type="file" accept="application/json" class="d-none">
-        </label>
-        <button id="exportBtn" class="btn btn-primary btn-sm">Export JSON</button>
-        <button id="clearBtn" class="btn btn-outline-danger btn-sm">Clear Data</button>
-      </div>
     </div>
   </div>
-</header>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-/* ========= Storage ========= */
-const STORAGE_KEY = 'planner.v2';
-const DEFAULT_DATA = [
-  { id:'five',   title:'5-Year Goals',  hint:'Add long arcs', items:[] },
-  { id:'one',    title:'1-Year Goals',  hint:'Milestones for the year', items:[] },
-  { id:'today',  title:'Today',         hint:'Only what truly fits', items:[] },
-  { id:'tmrw',   title:'Tomorrow',      hint:'Stage tomorrow', items:[] },
-  { id:'after',  title:'Day After',     hint:'Keep it light', items:[] },
-];
-let state = load() || DEFAULT_DATA;
 
-function load() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); }
-  catch { return null }
-}
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  setSaved(true);
-}
-function setSaved(ok){
-  const b = document.getElementById('saveStatus');
-  b.textContent = ok ? 'Saved' : 'Saving…';
-  b.className = ok ? 'badge text-bg-secondary' : 'badge text-bg-info';
-  if(ok) b.animate([{opacity:.4},{opacity:1}],{duration:180,iterations:1});
-}
-const uid = ()=>'t'+Math.random().toString(36).slice(2,9);
-const sectionById = id => state.find(s=>s.id===id);
+  <div class="position-fixed" style="right:16px; bottom:16px; z-index:1031">
+    <button id="fabAddTask" class="btn btn-primary rounded-circle" style="width:56px; height:56px; font-size:28px">＋</button>
+  </div>
 
-/* ========= Rendering ========= */
-const sectionTpl = document.getElementById('sectionTemplate');
-const itemTpl = document.getElementById('itemTemplate');
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    const uid = ()=>'t'+Math.random().toString(36).slice(2,9);
+    const FORMATS=['POV Reel','Tutorial','Walkthrough','Listicle','Case Study','Behind the Scenes','Q&A','Explainer','Checklist','Challenge','Interview','Screen Capture','Before/After','Storytime'];
+    const FOCUSES=['Process','People','Data','Basics','Details','History','Curation','Product','Examples','Opinions','Case Study','Tools'];
+    let fiveYearGoals=[], oneYearGoals=[], tasks=[];
 
-const boardGrid = document.getElementById('boardGrid');
-const acc = document.getElementById('sectionsAccordion');
+    // Refs
+    const boardGrid=document.getElementById('boardGrid');
+    const addTaskBtn=document.getElementById('addTaskBtn');
+    const quickSeedBtn=document.getElementById('quickSeedBtn');
+    const clearMemBtn=document.getElementById('clearMemBtn');
+    const taskPanel=new bootstrap.Offcanvas('#taskPanel');
+    const taskForm=document.getElementById('taskForm');
+    const taskIdEl=document.getElementById('taskId');
+    const taskName=document.getElementById('taskName');
+    const taskFormat=document.getElementById('taskFormat');
+    const taskFocus=document.getElementById('taskFocus');
+    const taskFiveYear=document.getElementById('taskFiveYear');
+    const taskOneYear=document.getElementById('taskOneYear');
+    const taskWhen=document.getElementById('taskWhen');
+    const taskNotes=document.getElementById('taskNotes');
+    const newFiveYear=document.getElementById('newFiveYear');
+    const newOneYear=document.getElementById('newOneYear');
+    const deleteTaskBtn=document.getElementById('deleteTaskBtn');
+    const exportGoalSelect=document.getElementById('exportGoalSelect');
+    const buildShotListBtn=document.getElementById('buildShotListBtn');
+    const exportPngBtn=document.getElementById('exportPngBtn');
+    const shotCanvas=document.getElementById('shotCanvas');
+    const filterFormat=document.getElementById('filterFormat');
+    const filterFocus=document.getElementById('filterFocus');
+    const promptGoal=document.getElementById('promptGoal');
+    //const promptFormat=document.getElementById('promptFormat');
+    //const promptFocus=document.getElementById('promptFocus');
+    const promptOut=document.getElementById('promptOut');
+    const buildPromptBtn=document.getElementById('buildPromptBtn');
+    const copyPromptBtn=document.getElementById('copyPromptBtn');
 
-function render(){
-  // Desktop grid
-  boardGrid.innerHTML = '';
-  state.forEach(sec => boardGrid.appendChild(renderSection(sec, false)));
+      // ========= Prompt Builder =========
+  function buildPrompt(){
+    const g = promptGoal.value.trim();
+ //   const fmt = promptFormat.value;
+//const foc = promptFocus.value;
 
-  // Mobile accordion
-  acc.innerHTML = '';
-  state.forEach((sec, idx) => {
-    const item = document.createElement('div');
-    item.className = 'accordion-item';
-    const hdrId = 'hdr-'+sec.id, colId = 'col-'+sec.id;
-    item.innerHTML = `
-      <h2 class="accordion-header" id="${hdrId}">
-        <button class="accordion-button ${idx? 'collapsed':''}" type="button"
-          data-bs-toggle="collapse" data-bs-target="#${colId}" aria-expanded="${!idx}"
-          aria-controls="${colId}">
-          ${sec.title}
-          <span class="ms-2 small text-secondary">( <span class="done-count">0</span>/<span class="total-count">0</span> )</span>
-        </button>
-      </h2>
-      <div id="${colId}" class="accordion-collapse collapse ${idx? '':'show'}" data-bs-parent="#sectionsAccordion">
-        <div class="accordion-body p-2"></div>
-      </div>
-    `;
-    const body = item.querySelector('.accordion-body');
-    body.appendChild(renderSection(sec, true));
-    acc.appendChild(item);
-  });
-}
+    const fiveList = fiveYearGoals.map(g=>`- ${g.title}`).join('\\n');
+    const oneList = oneYearGoals.map(o=>`- ${o.title} (5Y: ${byId(fiveYearGoals,o.fiveId)?.title||'—'})`).join('\\n');
+    const taskList = tasks.map(t=>{
+      const five = byId(fiveYearGoals,t.fiveId)?.title||'—';
+      const one = byId(oneYearGoals,t.oneId)?.title||'—';
+      return `- ${t.name} [${t.when.toUpperCase()} | ${t.format} × ${t.focus} | 5Y:${five} → 1Y:${one}]`;
+    }).join('\\n');
 
-function renderSection(section, compact){
-  const node = sectionTpl.content.firstElementChild.cloneNode(true);
-  node.dataset.sec = section.id;
-  node.querySelector('h2').textContent = section.title;
-  node.querySelector('.add-input').placeholder = section.hint;
+const prompt = `
+You are a project manager.
+Break the following *goal* into clear sub-goals, milestones, and actionable daily tasks over a 2-week period.
+Keep the plan concrete, achievable, and accountability-driven.
 
-  const list = node.querySelector('.list-group');
-  list.innerHTML = '';
-  section.items.forEach((t, idx)=> list.appendChild(renderItem(section.id, t, idx)));
+GOAL:
+- ${g || '(user will replace this — propose a realistic breakdown anyway)'}
 
-  updateProgress(node, section.items);
+PREFERENCES:
+- Work rhythm: 5 active days per week
+- Time per day: 1–3 focused work blocks
+- Prioritize momentum, completion, and visible progress
+- Avoid perfectionist traps; focus on progress, not polish
 
-  // Add handler
-  node.querySelector('.add-form').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const input = e.currentTarget.querySelector('.add-input');
-    const val = input.value.trim();
-    if(!val) return;
-    section.items.push({id:uid(), text:val, done:false});
-    input.value='';
-    save(); render();
-  });
+MY EXISTING 5-YEAR GOALS:
+${fiveList || '- (none yet — infer 2–3 long-term themes this goal could support)'}
 
-  if(compact) node.classList.add('border-0','shadow-0','bg-transparent','p-0');
-  return node;
-}
+MY 1-YEAR GOALS (linked):
+${oneList || '- (none yet — infer 2–4 intermediate goals that ladder up logically)'}
 
-function renderItem(secId, item, idx){
-  const li = itemTpl.content.firstElementChild.cloneNode(true);
-  li.dataset.id = item.id;
+MY CURRENT TASKS:
+${taskList || '- (none yet — infer 5–10 likely action items or habits to move the goal forward)'}
 
-  const cb = li.querySelector('input[type="checkbox"]');
-  const text = li.querySelector('.item-input');
+OUTPUT FORMAT:
+1) 2-Week Goal Map:
+   - 5-Year anchor → 1-Year subgoal → 2-Week sprint objective
+2) Daily Plan (14 days):
+   - Each day’s top 1–3 focus tasks
+   - Block duration, dependencies, and success criteria
+3) Milestone Tracker:
+   - Key measurable outcomes and review points
+4) Accountability Triggers:
+   - What to track daily
+   - What to adjust weekly
+   - What to ignore until milestone review
+`.trim();
 
-  cb.checked = !!item.done;
-  if(item.done) li.classList.add('item-done');
-  text.value = item.text || '';
 
-  cb.addEventListener('change', ()=>{
-    const s = sectionById(secId);
-    const i = s.items.findIndex(t=>t.id===item.id);
-    s.items[i].done = cb.checked;
-    save(); render();
+    promptOut.value = prompt;
+  }
+
+  document.getElementById('buildPromptBtn').addEventListener('click', buildPrompt);
+  document.getElementById('copyPromptBtn').addEventListener('click', async ()=>{
+    try{
+      await navigator.clipboard.writeText(promptOut.value);
+      document.getElementById('copyPromptBtn').textContent='Copied';
+      setTimeout(()=> document.getElementById('copyPromptBtn').textContent='Copy to Clipboard', 1000);
+    } catch { alert('Copy failed. Select & copy manually.'); }
   });
 
-  text.addEventListener('input', ()=> setSaved(false));
-  text.addEventListener('change', ()=>{
-    const s = sectionById(secId);
-    const i = s.items.findIndex(t=>t.id===item.id);
-    s.items[i].text = text.value.trim();
-    save(); render();
-  });
-  text.addEventListener('keydown', (e)=>{
-    if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); text.blur(); }
-  });
 
-  li.querySelector('[data-del]').addEventListener('click', ()=>{
-    const s = sectionById(secId);
-    s.items = s.items.filter(t=>t.id!==item.id);
-    save(); render();
-  });
+    // Helpers
+    const byId=(arr,id)=>arr.find(x=>x.id===id);
+    function hydrateFrameworkSelects(){
+      [taskFormat,promptFormat,filterFormat].forEach(sel=> sel.innerHTML='');
+      [taskFocus,promptFocus,filterFocus].forEach(sel=> sel.innerHTML='');
+      filterFormat.add(new Option('Any Format',''));
+      filterFocus.add(new Option('Any Focus',''));
+      FORMATS.forEach(v=>{ taskFormat.add(new Option(v,v)); promptFormat.add(new Option(v,v)); filterFormat.add(new Option(v,v)); });
+      FOCUSES.forEach(v=>{ taskFocus.add(new Option(v,v)); promptFocus.add(new Option(v,v)); filterFocus.add(new Option(v,v)); });
+    }
+    function refreshGoalSelects(){
+      taskFiveYear.innerHTML=''; exportGoalSelect.innerHTML='<option value="">All 5-Year Goals</option>';
+      fiveYearGoals.forEach(g=>{ taskFiveYear.add(new Option(g.title,g.id)); exportGoalSelect.add(new Option(g.title,g.id)); });
+      rebuildOneYearOptions(taskFiveYear.value);
+    }
+    function rebuildOneYearOptions(fiveId){
+      taskOneYear.innerHTML='';
+      oneYearGoals.filter(g=>g.fiveId===fiveId).forEach(g=> taskOneYear.add(new Option(g.title,g.id)));
+    }
 
-  li.querySelectorAll('[data-move]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const delta = btn.getAttribute('data-move') === '+1' ? 1 : -1;
-      moveItem(secId, item.id, delta);
+    // Rendering
+    function sectionCard(title, rows, hint){
+      const wrap=document.createElement('section'); wrap.className='card shadow-sm';
+      wrap.innerHTML = '<div class="card-body">        <div class="d-flex justify-content-between align-items-center mb-1">          <h2 class="h6 mb-0"></h2><span class="small-muted"></span>        </div><div class="vstack gap-2"></div></div>';
+      wrap.querySelector('h2').textContent = title;
+      wrap.querySelector('.small-muted').textContent = hint || '';
+      const list=wrap.querySelector('.vstack');
+      rows.forEach(r=>list.appendChild(r));
+      if(!rows.length){
+        const e=document.createElement('div'); e.className='small-muted'; e.textContent='Nothing here yet.'; list.appendChild(e);
+      }
+      return wrap;
+    }
+    function rowGoal(g,type){
+      const div=document.createElement('div'); div.className='d-flex align-items-center justify-content-between p-2 rounded border border-secondary';
+      const linkCount=(type==='five')? oneYearGoals.filter(x=>x.fiveId===g.id).length : tasks.filter(x=>x.oneId===g.id).length;
+      div.innerHTML = '<div><div class="fw-semibold"></div><div class="small-muted"></div></div>      <div class="btn-group btn-group-sm"><button class="btn btn-outline-secondary" data-edit data-type>Rename</button>      <button class="btn btn-outline-danger" data-del data-type>Delete</button></div>';
+      div.querySelector('.fw-semibold').textContent = g.title;
+      div.querySelector('.small-muted').textContent = (type==='five') ? (linkCount+' linked 1‑Y goals') : (linkCount+' tasks');
+      div.querySelector('[data-edit]').setAttribute('data-type', type);
+      div.querySelector('[data-del]').setAttribute('data-type', type);
+      div.querySelector('[data-edit]').addEventListener('click',()=>{
+        const t=prompt('Rename:',g.title); if(!t) return; g.title=t.trim(); render(); refreshGoalSelects();
+      });
+      div.querySelector('[data-del]').addEventListener('click',()=>{
+        if(!confirm('Delete?')) return;
+        if(type==='five'){
+          const id=g.id; oneYearGoals=oneYearGoals.filter(o=>o.fiveId!==id);
+          tasks=tasks.map(t=>t.fiveId===id?{...t,fiveId:'',oneId:''}:t);
+          fiveYearGoals=fiveYearGoals.filter(x=>x.id!==id);
+        } else {
+          const id=g.id; tasks=tasks.map(t=>t.oneId===id?{...t,oneId:''}:t);
+          oneYearGoals=oneYearGoals.filter(x=>x.id!==id);
+        }
+        render(); refreshGoalSelects();
+      });
+      return div;
+    }
+    function taskRowsBy(when){
+      return tasks.filter(t=>t.when===when).map(t=>{
+        const div=document.createElement('div'); div.className='d-flex align-items-start justify-content-between p-2 rounded border border-secondary flex-md-row flex-column';
+        div.innerHTML = '<div class="me-2">          <div class="fw-semibold"></div>          <div class="small d-flex flex-wrap gap-1 mt-1">            <span class="badge bg-secondary text-light"></span>            <span class="badge bg-warning text-dark"></span>            <span class="badge bg-light text-dark when"></span>          </div>          <div class="small-muted mt-1 notes d-none"></div>        </div>        <div class="btn-group btn-group-sm">          <button class="btn btn-outline-secondary" data-move="up">▲</button>          <button class="btn btn-outline-secondary" data-move="down">▼</button>          <button class="btn btn-outline-secondary" data-edit>Edit</button>          <button class="btn btn-outline-danger" data-del>Delete</button>        </div>';
+        div.querySelector('.fw-semibold').textContent = t.name;
+        div.querySelectorAll('.badge')[0].textContent = t.format || '—';
+        div.querySelectorAll('.badge')[1].textContent = t.focus || '—';
+        div.querySelector('.when').textContent = t.when.toUpperCase();
+        if(t.notes){ const n=div.querySelector('.notes'); n.textContent=t.notes; n.classList.remove('d-none'); }
+        div.querySelector('[data-edit]').addEventListener('click',()=>openTaskPanel(t.id));
+        div.querySelector('[data-del]').addEventListener('click',()=>{ if(!confirm('Delete task?'))return; tasks=tasks.filter(x=>x.id!==t.id); render(); });
+        div.querySelector('[data-move="up"]').addEventListener('click',()=>moveTask(t.id,-1,when));
+        div.querySelector('[data-move="down"]').addEventListener('click',()=>moveTask(t.id,1,when));
+        return div;
+      });
+    }
+    function moveTask(id,delta,when){
+      const list=tasks.filter(t=>t.when===when);
+      const idx=list.findIndex(t=>t.id===id); if(idx<0) return;
+      const ids=list.map(t=>t.id);
+      const i=tasks.findIndex(t=>t.id===ids[idx]); const jLocal=idx+delta; if(jLocal<0||jLocal>=list.length) return;
+      const j=tasks.findIndex(t=>t.id===ids[jLocal]); const [m]=tasks.splice(i,1); tasks.splice(j,0,m);
+      render();
+    }
+    function render(){
+      boardGrid.innerHTML='';
+      boardGrid.appendChild(sectionCard('5‑Year Goals', fiveYearGoals.map(g=>rowGoal(g,'five')), 'Add via “Add Task”'));
+      boardGrid.appendChild(sectionCard('1‑Year Goals', oneYearGoals.map(g=>rowGoal(g,'one')), 'Linked to a 5‑Year goal'));
+      boardGrid.appendChild(sectionCard('Today', taskRowsBy('today'), 'What gets done today'));
+      boardGrid.appendChild(sectionCard('Tomorrow', taskRowsBy('tmrw'), 'Stage tomorrow so it’s easy'));
+      boardGrid.appendChild(sectionCard('Day After', taskRowsBy('after'), 'Only light prep items'));
+      const activeBtn=document.querySelector('#mobilePlanTabs .btn.active'); setPlanView(activeBtn?.dataset.view||'today');
+    }
+
+    // Offcanvas
+    function openTaskPanel(id){
+      //hydrateFrameworkSelects(); 
+      refreshGoalSelects();
+      if(id){
+        const t=tasks.find(x=>x.id===id); if(!t) return;
+        document.querySelector('#taskPanel .offcanvas-title').textContent='Edit Task';
+        taskIdEl.value=t.id; taskName.value=t.name; taskFormat.value=t.format||''; taskFocus.value=t.focus||'';
+        taskFiveYear.value=t.fiveId||''; rebuildOneYearOptions(taskFiveYear.value); taskOneYear.value=t.oneId||'';
+        taskWhen.value=t.when; taskNotes.value=t.notes||''; deleteTaskBtn.classList.remove('d-none');
+      } else {
+        document.querySelector('#taskPanel .offcanvas-title').textContent='Add Task';
+        taskIdEl.value=''; taskForm.reset(); deleteTaskBtn.classList.add('d-none');
+      }
+      taskPanel.show();
+    }
+    document.getElementById('fabAddTask').addEventListener('click',()=>openTaskPanel());
+    addTaskBtn.addEventListener('click',()=>openTaskPanel());
+    document.getElementById('addFiveYearBtn').addEventListener('click',()=>{
+      const t=newFiveYear.value.trim(); if(!t) return;
+      fiveYearGoals.push({id:uid(),title:t}); newFiveYear.value=''; refreshGoalSelects();
     });
-  });
+    document.getElementById('addOneYearBtn').addEventListener('click',()=>{
+      const t=newOneYear.value.trim(); if(!t||!taskFiveYear.value) return;
+      oneYearGoals.push({id:uid(),title:t,fiveId:taskFiveYear.value}); newOneYear.value=''; rebuildOneYearOptions(taskFiveYear.value);
+    });
+    taskFiveYear.addEventListener('change',()=>rebuildOneYearOptions(taskFiveYear.value));
+    taskForm.addEventListener('submit',e=>{
+      e.preventDefault();
+      const p={ id:taskIdEl.value||uid(), name:taskName.value.trim(), format:taskFormat.value, focus:taskFocus.value, fiveId:taskFiveYear.value||'', oneId:taskOneYear.value||'', when:taskWhen.value, notes:taskNotes.value.trim() };
+      if(!p.name){ alert('Task name required.'); return; }
+      const i=tasks.findIndex(t=>t.id===p.id); if(i>=0) tasks[i]=p; else tasks.push(p);
+      taskPanel.hide(); render();
+    });
+    deleteTaskBtn.addEventListener('click',()=>{
+      const id=taskIdEl.value; if(!id) return; if(!confirm('Delete?')) return;
+      tasks=tasks.filter(t=>t.id!==id); taskPanel.hide(); render();
+    });
+    clearMemBtn.addEventListener('click',()=>{
+      if(!confirm('Clear session?')) return;
+      fiveYearGoals=[]; oneYearGoals=[]; tasks=[]; render();
+    });
+    quickSeedBtn.addEventListener('click',()=>{
+      const f1={id:uid(),title:'$10k/mo MRR SaaS'}, f2={id:uid(),title:'Publish “I’m Fine with Being on Fire”'};
+      fiveYearGoals.push(f1,f2);
+      const o1={id:uid(),title:'Close first 50 paid users',fiveId:f1.id}, o2={id:uid(),title:'Ship v2 onboarding',fiveId:f1.id}, o3={id:uid(),title:'Draft Part I',fiveId:f2.id};
+      oneYearGoals.push(o1,o2,o3);
+      tasks.push(
+        {id:uid(),name:'Cold DM teardown',format:'POV Reel',focus:'Examples',fiveId:f1.id,oneId:o1.id,when:'today',notes:'3 mistakes + 1 fix'},
+        {id:uid(),name:'Onboarding walkthrough',format:'Walkthrough',focus:'Process',fiveId:f1.id,oneId:o2.id,when:'tmrw',notes:'Screen + face'},
+        {id:uid(),name:'Why perfectionism feels safe',format:'Explainer',focus:'Opinions',fiveId:f2.id,oneId:o3.id,when:'after',notes:'Hook: “Control is cheaper than uncertainty”'}
+      );
+      render();
+    });
 
-  return li;
-}
+    // Export
+    function buildShotList(){
+      const goalFilter=exportGoalSelect.value;
+      const group={};
+      tasks.forEach(t=>{
+        if(goalFilter && t.fiveId!==goalFilter) return;
+       // if(fmtFilter && t.format!==fmtFilter) return;
+       // if(focFilter && t.focus!==focFilter) return;
+        const f=t.fiveId||'_none', o=t.oneId||'_none';
+        group[f] ??= {}; group[f][o] ??= []; group[f][o].push(t);
+      });
+      const root=document.createElement('div');
+      const scope=goalFilter?(byId(fiveYearGoals,goalFilter)?.title||'—'):'All 5‑Year Goals';
+      root.innerHTML=`<h2>Shot List</h2><div class="small" style="color:#4b5563">Scope: ${scope}</div>`;
+      for(const fId in group){
+        const fTitle=fId==='_none'?'Missing 5‑Year Goals':(byId(fiveYearGoals,fId)?.title||'—');
+        const fh=document.createElement('h3'); fh.textContent=fTitle; root.appendChild(fh);
+        const byOne=group[fId];
+        for(const oId in byOne){
+          const oTitle=oId==='_none'?'Unlinked 1‑Year':(byId(oneYearGoals,oId)?.title||'—');
+          const oh=document.createElement('div'); oh.innerHTML='<strong>1‑Year:</strong> '+oTitle; root.appendChild(oh);
+          byOne[oId].forEach(t=>{
+            const row=document.createElement('div'); row.className='shot-item';
+            row.innerHTML=`<div class="fw-semibold" >${t.name}</div>
+              <div class="d-flex gap-1 mt-1">
+                <span class="badge bg-secondary-subtle text-dark-subtle">${t.format||'—'}</span>
+                <span class="badge bg-warning text-dark">${t.focus||'—'}</span>
+                <span class="badge bg-light text-dark">${t.when.toUpperCase()}</span>
+              </div>
+              ${t.notes?`<div style="font-size:12px; color:#4b5563; margin-top:2px">${t.notes}</div>`:''}`;
+            root.appendChild(row);
+          });
+        }
+      }
+      shotCanvas.innerHTML=''; shotCanvas.appendChild(root);
+    }
+    async function exportPng(){
+      if(!shotCanvas.firstChild) buildShotList();
+      const canvas=await html2canvas(shotCanvas,{backgroundColor:'#ffffff',scale:2});
+      const a=document.createElement('a'); a.href=canvas.toDataURL('image/png'); a.download='shot-list-9x16.png';
+      document.body.appendChild(a); a.click(); setTimeout(()=>a.remove(),200);
+    }
+    buildShotListBtn.addEventListener('click',buildShotList);
+    exportPngBtn.addEventListener('click',exportPng);
 
-function updateProgress(node, items){
-  const total = items.length || 0;
-  const done = items.filter(i=>i.done).length;
-  const pct = total ? Math.round(done/total*100) : 0;
-  node.querySelector('.total-count').textContent = total;
-  node.querySelector('.done-count').textContent = done;
-  node.querySelector('.progress-bar').style.width = pct + '%';
-  node.querySelector('.progress-bar').ariaValueNow = pct;
-}
+    // Day tabs
+    function setPlanView(view){
+      const map={five:'5‑Year Goals', one:'1‑Year Goals', today:'Today', tmrw:'Tomorrow', after:'Day After'};
+      document.querySelectorAll('#mobilePlanTabs .btn').forEach(b=>{
+        b.classList.toggle('active', b.dataset.view===view);
+        b.classList.toggle('btn-secondary', b.dataset.view===view);
+        b.classList.toggle('btn-outline-secondary', b.dataset.view!==view);
+      });
+      const cards=boardGrid.querySelectorAll('section.card');
+      cards.forEach(card=>{
+        const title=card.querySelector('h2')?.textContent?.trim()||'';
+        card.style.display = (title===map[view]) ? '' : 'none';
+      });
+    }
+    document.querySelectorAll('#mobilePlanTabs .btn').forEach(btn=> btn.addEventListener('click',()=> setPlanView(btn.dataset.view)));
 
-/* ========= Reordering ========= */
-function moveItem(secId, itemId, delta){
-  const sec = sectionById(secId);
-  const i = sec.items.findIndex(t=>t.id===itemId);
-  const j = i + delta;
-  if(j<0 || j>=sec.items.length) return;
-  const [m] = sec.items.splice(i,1);
-  sec.items.splice(j,0,m);
-  save(); render();
-}
+    // Quick-jump pills open section if collapsed
+    document.querySelectorAll('[data-open]').forEach(a=>{
+      a.addEventListener('click', (e)=>{
+        const sel=a.getAttribute('data-open');
+        const el=document.querySelector(sel);
+        if(el && !el.classList.contains('show')){
+          const c=bootstrap.Collapse.getOrCreateInstance(el); c.show();
+        }
+      });
+    });
 
-/* ========= Export / Import / Clear ========= */
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  const name = `planner-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
-  const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(a.href);
-});
-
-document.getElementById('importInput').addEventListener('change', async (e)=>{
-  const file = e.target.files?.[0]; if(!file) return;
-  try{
-    const data = JSON.parse(await file.text());
-    if(!Array.isArray(data)) throw new Error('Invalid file format');
-    state = data; save(); render();
-  }catch(err){ alert('Import failed: ' + err.message); }
-  finally { e.target.value = ''; }
-});
-
-document.getElementById('clearBtn').addEventListener('click', ()=>{
-  if(!confirm('Clear all planner data from this browser?')) return;
-  localStorage.removeItem(STORAGE_KEY);
-  state = JSON.parse(JSON.stringify(DEFAULT_DATA));
-  render(); setSaved(true);
-});
-
-/* ========= Init ========= */
-render();
-</script>
+    // Init
+    document.addEventListener('DOMContentLoaded',()=>{
+      //hydrateFrameworkSelects(); 
+      refreshGoalSelects(); render();
+      setPlanView('today');
+    });
+  </script>
 </body>
 </html>

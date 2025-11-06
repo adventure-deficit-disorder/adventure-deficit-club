@@ -1,0 +1,761 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>75 Hard Daily Report — 1:1 PNG Widget (Student)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0b0f14;--card:#111822;--muted:#93a2b8;--text:#e8edf5;--accent:#65d487;--warn:#f4bf50;--bad:#f06d6d;--chip:#1a2332;}
+    html,body{background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .card{background:var(--card);border:1px solid #1d2736;border-radius:16px}
+    .chip{background:var(--chip);border-radius:999px;padding:.2rem .6rem;font-size:.8rem}
+    .muted{color:var(--muted)}
+    .pill{border-radius:999px;padding:.2rem .6rem;font-size:.75rem;border:1px solid #223044;color:#bcd0f7}
+    .btn-accent{background:var(--accent);border:0;color:#072211;font-weight:700}
+    .btn-accent:hover{filter:brightness(.95)}
+    .btn-ghost{background:#162131;border:1px solid #223044;color:#cde0ff}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-label{color:#68d489;}
+    @media(max-width:576px){.grid-2{grid-template-columns:1fr}}
+    .form-range::-webkit-slider-thumb{background:var(--accent)}
+    .kpi{font-size:2.2rem;font-weight:800;letter-spacing:.5px; color: #68d489;}
+    .badge-good{background:rgba(101,212,135,.15);color:#76efab;border:1px solid #2a5}
+    .badge-warn{background:rgba(244,191,80,.12);color:#ffd990;border:1px solid #7c5}
+    .badge-bad{background:rgba(240,109,109,.12);color:#ffb3b3;border:1px solid #944}
+    .divider{height:1px;background:#1f2a3b;margin:.75rem 0}
+    .receipt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;color:#b9c6d8}
+    .export-bar{position:sticky;bottom:0;z-index:10;background:linear-gradient(180deg,transparent,rgba(11,15,20,.9) 30%);padding-top:10px}
+    .avatar-lg{width:92%;height:100%; max-width:480px;aspect-ratio:9/16;object-fit:cover;border-radius:16px;border:1px solid #1d2736;background:#0e1520}
+    .report-wrap{width:100%;display:flex;justify-content:center}
+    .report{background:linear-gradient(180deg,#0b0f14,#0a121b 40%,#0b0f14);border:1px solid #1d2736;border-radius:24px;padding:36px;box-sizing:border-box;transform-origin:top center}
+    @media(max-width:1200px){.report{transform:scale(calc(min(1,(100vw - 32px)/1080)))}}
+    .presets .btn{padding:.2rem .5rem;font-size:.75rem}
+  </style>
+</head>
+<body>
+<div class="container py-3">
+      <nav class="navbar navbar-dark">
+    <div class="container container-narrow d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+      <div>
+        <a class="navbar-brand" href="#">Adventure Deficit Club</a>
+        <h6 class="m-0">No Procrastination • No Perfectionism • No Fatigue For $2</h6>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <p class="mb-0">Tired of starting over?</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261" target="_blank" rel="noopener">
+          <mark class="px-2">Join The Club</mark>
+        </a>
+      </div>
+    </div>
+  </nav>
+  <header class="mb-3 d-flex justify-content-between align-items-center">
+    <h1 class="h4 m-0">75 Hard — Daily Report</h1>
+    <div class="d-flex gap-2">
+      <button id="loadCaseA" class="btn btn-ghost btn-sm">Load Case A</button>
+      <button id="loadCaseB" class="btn btn-ghost btn-sm">Load Case B</button>
+    </div>
+  </header>
+  <p class="muted small mb-2">Fill quick presets, tweak sliders/selects, preview the square, export PNG/JSON.</p>
+
+  <!-- Controls -->
+  <section class="card p-3 mb-3">
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Day <small class="muted">(1–75)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="day_number" data-val="1">Day 1</button>
+            <button class="btn btn-ghost btn-sm" data-set="day_number" data-val="30">30</button>
+            <button class="btn btn-ghost btn-sm" data-set="day_number" data-val="75">75</button>
+          </span>
+        </label>
+        <input type="range" min="1" max="75" value="1" class="form-range" id="day_number">
+        <div class="d-flex justify-content-between muted"><span id="day_number_val">1</span><span>75</span></div>
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Tasks Completed <small class="muted">(0–7)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="tasks_completed" data-val="3">3</button>
+            <button class="btn btn-ghost btn-sm" data-set="tasks_completed" data-val="5">5</button>
+            <button class="btn btn-ghost btn-sm" data-set="tasks_completed" data-val="7">7</button>
+          </span>
+        </label>
+        <input type="range" min="0" max="7" value="0" class="form-range" id="tasks_completed">
+        <div class="d-flex justify-content-between muted"><span id="tasks_completed_val">0</span><span>7</span></div>
+      </div>
+
+      <!-- State sliders -->
+      <div class="col-12 col-md-4">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Energy <small class="muted">(−3..+3)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="energy" data-val="-3">−3</button>
+            <button class="btn btn-ghost btn-sm" data-set="energy" data-val="0">0</button>
+            <button class="btn btn-ghost btn-sm" data-set="energy" data-val="3">+3</button>
+          </span>
+        </label>
+        <input type="range" min="-3" max="3" value="0" class="form-range" id="energy">
+        <div class="d-flex justify-content-between muted"><span>Very low</span><span id="energy_val">0</span><span>Peak</span></div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Stress Level <small class="muted">(0..10)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="stress_level" data-val="0">0</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_level" data-val="3">3</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_level" data-val="7">7</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_level" data-val="10">10</button>
+          </span>
+        </label>
+        <input type="range" min="0" max="10" value="0" class="form-range" id="stress_level">
+        <div class="d-flex justify-content-between muted"><span>Chill</span><span id="stress_level_val">0</span><span>Overwhelmed</span></div>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Stress Duration (hrs) <small class="muted">(0..36)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="stress_duration" data-val="0">0</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_duration" data-val="4">4</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_duration" data-val="12">12</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_duration" data-val="24">24</button>
+            <button class="btn btn-ghost btn-sm" data-set="stress_duration" data-val="36">36</button>
+          </span>
+        </label>
+        <input type="range" min="0" max="36" value="0" class="form-range" id="stress_duration">
+        <div class="d-flex justify-content-between muted"><span>Brief</span><span id="stress_duration_val">0</span><span>All day+</span></div>
+      </div>
+
+      <!-- Efficacy + Support -->
+      <div class="col-12 col-md-4">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Efficacy</span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm preset-select" data-set="efficacy_level" data-val="very_low">VL</button>
+            <button class="btn btn-ghost btn-sm preset-select" data-set="efficacy_level" data-val="med">Med</button>
+            <button class="btn btn-ghost btn-sm preset-select" data-set="efficacy_level" data-val="high">High</button>
+          </span>
+        </label>
+        <select id="efficacy_level" class="form-select">
+          <option value="very_low">Very Low (can’t get moving)</option>
+          <option value="low">Low (hard to start)</option>
+          <option value="med" selected>Medium (can push through)</option>
+          <option value="high">High (confident today)</option>
+          <option value="very_high">Very High (dialed in)</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Supportive People <small class="muted">(0..10)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="supportive_people" data-val="0">0</button>
+            <button class="btn btn-ghost btn-sm" data-set="supportive_people" data-val="3">3</button>
+            <button class="btn btn-ghost btn-sm" data-set="supportive_people" data-val="7">7</button>
+            <button class="btn btn-ghost btn-sm" data-set="supportive_people" data-val="10">10</button>
+          </span>
+        </label>
+        <input type="range" min="0" max="10" value="0" class="form-range" id="supportive_people">
+        <div class="d-flex justify-content-between muted"><span>Solo</span><span id="supportive_people_val">0</span><span>Fully Supported</span></div>
+      </div>
+
+      <!-- Responsibilities & Interdependence as SELECTS -->
+      <div class="col-12 col-md-4">
+        <label class="form-label">Responsibilities Count (pick what feels true)</label>
+        <select id="responsibilities_count" class="form-select">
+          <option value="0">0 — None</option>
+          <option value="3">3 — Classes only</option>
+          <option value="8">8 — Classes + 1 club</option>
+          <option value="12">12 — Classes + job (PT)</option>
+          <option value="18">18 — Classes + job + club</option>
+          <option value="25">25 — Busy (projects/exams week)</option>
+          <option value="40">40 — Maxed (finals, work, projects)</option>
+          <option value="50">50 — Meltdown zone</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">Interdependence (how linked your stuff is)</label>
+        <select id="interdependence" class="form-select">
+          <option value="0">0 — Isolated tasks (can swap easily)</option>
+          <option value="2">2 — Some overlap (minor sequencing)</option>
+          <option value="4">4 — Paired tasks (A helps B)</option>
+          <option value="6">6 — Group project vibes (coordination)</option>
+          <option value="8">8 — Lots of blockers (one slip cascades)</option>
+          <option value="10">10 — Everything blocks everything</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Maintenance Hours <small class="muted">(0..24)</small></span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm" data-set="maintenance_hours" data-val="1">1h</button>
+            <button class="btn btn-ghost btn-sm" data-set="maintenance_hours" data-val="3">3h</button>
+            <button class="btn btn-ghost btn-sm" data-set="maintenance_hours" data-val="5">5h</button>
+          </span>
+        </label>
+        <input type="range" min="0" max="24" value="0" class="form-range" id="maintenance_hours">
+        <div class="d-flex justify-content-between muted"><span>Low upkeep</span><span id="maintenance_hours_val">0</span><span>All upkeep</span></div>
+      </div>
+
+      <div class="col-12"><div class="divider"></div></div>
+
+      <!-- Vitals incl macros + water -->
+      <div class="col-6 col-md-3">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Sleep (hrs, 0..12)</span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm quick" data-set="sleep_hours" data-val="5">5</button>
+            <button class="btn btn-ghost btn-sm quick" data-set="sleep_hours" data-val="7.5">7.5</button>
+            <button class="btn btn-ghost btn-sm quick" data-set="sleep_hours" data-val="8">8</button>
+          </span>
+        </label>
+        <input type="number" id="sleep_hours" min="0" max="12" step="0.1" class="form-control" placeholder="e.g., 7.5">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Steps</span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm quick" data-set="steps" data-val="2000">2k</button>
+            <button class="btn btn-ghost btn-sm quick" data-set="steps" data-val="7500">7.5k</button>
+            <button class="btn btn-ghost btn-sm quick" data-set="steps" data-val="10000">10k</button>
+          </span>
+        </label>
+        <input type="number" id="steps" min="0" max="100000" class="form-control" placeholder="e.g., 7500">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Calories In</span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm quick" data-set="cal_in" data-val="1800">1800</button>
+            <button class="btn btn-ghost btn-sm quick" data-set="cal_in" data-val="2300">2300</button>
+          </span>
+        </label>
+        <input type="number" id="cal_in" min="0" max="10000" class="form-control" placeholder="e.g., 2300">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label d-flex justify-content-between align-items-center">
+          <span>Calories Out</span>
+          <span class="presets">
+            <button class="btn btn-ghost btn-sm quick" data-set="cal_out" data-val="2100">2100</button>
+            <button class="btn btn-ghost btn-sm quick" data-set="cal_out" data-val="2700">2700</button>
+          </span>
+        </label>
+        <input type="number" id="cal_out" min="0" max="10000" class="form-control" placeholder="e.g., 2700">
+      </div>
+
+      <div class="col-6 col-md-3">
+        <label class="form-label">Protein (g)</label>
+        <input type="number" id="protein_g" min="0" max="500" class="form-control" placeholder="e.g., 150">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Fat (g)</label>
+        <input type="number" id="fat_g" min="0" max="300" class="form-control" placeholder="e.g., 70">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Carbs (g)</label>
+        <input type="number" id="carb_g" min="0" max="1000" class="form-control" placeholder="e.g., 220">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Water (liters)</label>
+        <input type="number" id="water_l" min="0" max="10" step="0.1" class="form-control" placeholder="e.g., 2.5">
+      </div>
+
+      <!-- Progress image -->
+      <div class="col-12 col-md-6">
+        <label class="form-label">Progress Image (square recommended)</label>
+        <input type="file" id="progress_image" accept="image/*" class="form-control">
+        <small class="muted">Shows large in the report. Good lighting helps.</small>
+      </div>
+   
+
+      <!-- Toggles -->
+      <div class="col-12 mt-2">
+        <div class="form-check form-switch text-light">
+          <input class="form-check-input" type="checkbox" id="toggle_receipts" checked>
+          <label class="form-check-label text-light" for="toggle_receipts">Show receipts (math snippets)</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="toggle_vitals" checked>
+          <label class="form-check-label text-light" for="toggle_vitals">Show vitals notes on Energy card</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="toggle_compact">
+          <label class="form-check-label text-light" for="toggle_compact">Compact mode</label>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Report (1080x1080) -->
+  <section class="report-wrap mb-3">
+    <div id="report" class="report">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <div class="h6 m-0">Day <span id="r_day">1</span>/75 • <span id="r_date"></span></div>
+          <div class="small">Compliance: <span id="r_compliance">0%</span>
+            <span id="r_success" class="chip ms-2">❌ Failed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Two equal columns: KPIs (left) + Big Image (right) -->
+      <div class="grid-2" >
+        <!-- Left: stack cards -->
+        <div class="d-flex flex-column gap-2">
+          <!-- Energy -->
+          <div class="card p-3 flex-fill">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="pill">Weighted Energy</span>
+              <span id="badge_energy" class="pill">OK</span>
+            </div>
+            <div class="kpi mt-1" id="kpi_energy">0</div>
+            <div class="small muted">How fueled you are (feels + sleep/steps/food)</div>
+            <div id="rc_energy" class="receipt mt-2"></div>
+            <div id="vt_energy" class="text-light small mt-2"></div>
+          </div>
+
+          <!-- Stress -->
+          <div class="card p-3 flex-fill">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="pill">Weighted Stress</span>
+              <span id="badge_stress" class="pill">OK</span>
+            </div>
+            <div class="kpi mt-1" id="kpi_stress">0</div>
+            <div class="small muted">How hot it feels × how long it’s been × day complexity</div>
+            <div id="rc_stress" class="receipt mt-2"></div>
+          </div>
+
+          <!-- Support Gap -->
+          <div class="card p-3 flex-fill">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="pill">Support Gap</span>
+              <span id="badge_sg" class="pill">OK</span>
+            </div>
+            <div class="kpi mt-1" id="kpi_sg">0</div>
+            <div class="small muted">How much help you still need after counting your support</div>
+            <div id="rc_sg" class="receipt mt-2"></div>
+          </div>
+
+          <!-- Responsibilities -->
+          <div class="card p-3 flex-fill">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="pill">Responsibilities</span>
+              <span class="pill">Upkeep <span id="badge_upkeep" class="ms-1">0</span></span>
+            </div>
+            <div class="kpi mt-1"><span id="kpi_nr">0</span></div>
+            <div class="small muted">Interdependence: <span id="badge_interdep">0</span>/10</div>
+            <!-- Clear, audience-friendly explanation -->
+            <div id="rc_resp_explainer" class="mt-2 text-light">
+              <div class="small">What this means today:</div>
+              <ul class="small mt-1 mb-0" id="resp_points"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Big Image -->
+        <div class="d-flex align-items-center justify-content-center">
+          <img id="r_img" class="avatar-lg" alt="progress image">
+        </div>
+      </div>
+     <div class="small  lead w-100 text-center mt-4">Powered by Adventure Deficit Club</div>
+
+    </div>
+  </section>
+
+  <!-- Export bar -->
+  <div class="export-bar">
+    <div class="card p-3">
+      <div class="d-flex flex-wrap gap-2">
+        <button id="export_png" class="btn btn-accent">Export 1080×1080 PNG</button>
+        <button id="download_json" class="btn btn-ghost">Download JSON</button>
+        <span class="muted ms-auto">Receipts included on PNG if toggled on.</span>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ---------- Helpers ----------
+  const clamp=(x,min=0,max=1)=>Math.min(max,Math.max(min,x));
+  const norm=(x,min,max)=>{ if(x===''||x==null||isNaN(+x)) return null; return clamp((+x-min)/(max-min)); };
+  const map7 = x => norm(+x,-3,3);
+  const map10 = x => norm(+x,0,10);
+  const map36 = x => norm(+x,0,36);
+  const map24 = x => norm(+x,0,24);
+  const map50 = x => norm(+x,0,50);
+  const effW = {very_low:0, low:0.25, med:0.5, high:0.75, very_high:1};
+
+  const el = id => document.getElementById(id);
+  const inputs = {
+    day_number: el('day_number'),
+    tasks_completed: el('tasks_completed'),
+    energy: el('energy'),
+    stress_level: el('stress_level'),
+    stress_duration: el('stress_duration'),
+    efficacy_level: el('efficacy_level'),
+    supportive_people: el('supportive_people'),
+    responsibilities_count: el('responsibilities_count'),
+    interdependence: el('interdependence'),
+    maintenance_hours: el('maintenance_hours'),
+    sleep_hours: el('sleep_hours'),
+    steps: el('steps'),
+    cal_in: el('cal_in'),
+    cal_out: el('cal_out'),
+    protein_g: el('protein_g'),
+    fat_g: el('fat_g'),
+    carb_g: el('carb_g'),
+    water_l: el('water_l'),
+    progress_image: el('progress_image'),
+    toggle_receipts: el('toggle_receipts'),
+    toggle_vitals: el('toggle_vitals'),
+    toggle_compact: el('toggle_compact'),
+  };
+
+  const mirrors = {
+    day_number_val: el('day_number_val'),
+    tasks_completed_val: el('tasks_completed_val'),
+    energy_val: el('energy_val'),
+    stress_level_val: el('stress_level_val'),
+    stress_duration_val: el('stress_duration_val'),
+    supportive_people_val: el('supportive_people_val'),
+    maintenance_hours_val: el('maintenance_hours_val'),
+  };
+
+  const r = {
+    root: el('report'),
+    day: el('r_day'),
+    date: el('r_date'),
+    compliance: el('r_compliance'),
+    success: el('r_success'),
+    kpi_energy: el('kpi_energy'),
+    kpi_stress: el('kpi_stress'),
+    kpi_sg: el('kpi_sg'),
+    kpi_nr: el('kpi_nr'),
+    badge_energy: el('badge_energy'),
+    badge_stress: el('badge_stress'),
+    badge_sg: el('badge_sg'),
+    badge_upkeep: el('badge_upkeep'),
+    badge_interdep: el('badge_interdep'),
+    rc_energy: el('rc_energy'),
+    rc_stress: el('rc_stress'),
+    rc_sg: el('rc_sg'),
+    rc_resp_explainer: el('rc_resp_explainer'),
+    resp_points: el('resp_points'),
+    vt_energy: el('vt_energy'),
+    img: el('r_img'),
+  };
+
+  // Image preview
+  inputs.progress_image.addEventListener('change', e=>{
+    const file = e.target.files?.[0];
+    const reader = new FileReader();
+    reader.onload = ()=>{ r.img.src=reader.result;  };
+    reader.readAsDataURL(file);
+  });
+
+  // Preset buttons
+  document.querySelectorAll('.presets .btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.set;
+      const val = btn.dataset.val;
+      const node = el(id);
+      if(!node) return;
+      if(node.tagName==='SELECT'){ node.value = val; node.dispatchEvent(new Event('change')); }
+      else { node.value = val; node.dispatchEvent(new Event('input')); }
+    });
+  });
+  document.querySelectorAll('.preset-select').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.set, val = btn.dataset.val;
+      const node = el(id); if(node){ node.value=val; node.dispatchEvent(new Event('change')); }
+    });
+  });
+  document.querySelectorAll('.quick').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.dataset.set, val = btn.dataset.val;
+      const node = el(id); if(node){ node.value=val; node.dispatchEvent(new Event('input')); }
+    });
+  });
+
+  function readNumber(node, fallback=null){
+    const v = (typeof node==='string'?el(node):node).value;
+    if(v===''||v==null) return fallback;
+    const n = Number(v);
+    return isNaN(n) ? fallback : n;
+  }
+
+  function compute(){
+    // Mirror labels
+    Object.entries(mirrors).forEach(([k,node])=>{
+      const src = k.replace('_val','');
+      const srcNode = inputs[src] || el(src);
+      if(srcNode) node.textContent = srcNode.value;
+    });
+
+    const day_number = readNumber('day_number',1);
+    const tasks_completed = readNumber('tasks_completed',0);
+
+    const energy = readNumber('energy',0);
+    const stress_level = readNumber('stress_level',0);
+    const stress_duration_hours = readNumber('stress_duration',0);
+    const efficacy_level = inputs.efficacy_level.value;
+    const supportive_people = readNumber('supportive_people',0);
+
+    const responsibilities_count = readNumber('responsibilities_count',0);
+    const interdependence = readNumber('interdependence',0);
+    const maintenance_hours = readNumber('maintenance_hours',0);
+
+    let sleep_hours = inputs.sleep_hours.value===''?null:readNumber('sleep_hours',null);
+    const steps = inputs.steps.value===''?null:readNumber('steps',null);
+    let calories_in = inputs.cal_in.value===''?null:readNumber('cal_in',null);
+    const calories_out = inputs.cal_out.value===''?null:readNumber('cal_out',null);
+
+    // If macros present and calories_in empty, compute from macros
+    const p = inputs.protein_g.value===''?null:readNumber('protein_g',null);
+    const f = inputs.fat_g.value===''?null:readNumber('fat_g',null);
+    const c = inputs.carb_g.value===''?null:readNumber('carb_g',null);
+    const water_l = inputs.water_l.value===''?null:readNumber('water_l',null);
+    if(calories_in==null && (p!=null || f!=null || c!=null)){
+      const pCals = (p??0)*4, fCals=(f??0)*9, cCals=(c??0)*4;
+      calories_in = pCals + fCals + cCals;
+      inputs.cal_in.value = Math.round(calories_in);
+    }
+
+    // Compliance & success (no streak)
+    const success_threshold = 5;
+    const day_success = tasks_completed >= success_threshold ? 1 : 0;
+    const compliance_pct = clamp(tasks_completed/7,0,1);
+
+    // Weighted Energy
+    let terms = [], weights = [];
+    const energy_n = map7(energy); terms.push(energy_n); weights.push(.45);
+    if(sleep_hours!=null){ const sleep_n = norm(sleep_hours,5,8); terms.push(sleep_n); weights.push(.25); }
+    if(calories_in!=null && calories_out!=null){ const cal_score = norm(calories_out - calories_in,-1000,+1000); terms.push(cal_score); weights.push(.15); }
+    if(steps!=null){ const steps_n = norm(steps,2000,10000); terms.push(steps_n); weights.push(.15); }
+    const wsum=weights.reduce((a,b)=>a+b,0)||1;
+    const WE_raw = clamp(terms.reduce((acc,t,i)=>acc+(t*weights[i]),0)/wsum,0,1);
+    const WE = Math.round(100*WE_raw);
+
+    // Weighted Stress
+    const stress_intensity = map10(stress_level);
+    const stress_duration = map36(stress_duration_hours);
+    const complexity_load = clamp(0.6*map50(responsibilities_count)+0.2*map10(interdependence)+0.2*map24(maintenance_hours),0,1);
+    const WS_raw = clamp(0.55*stress_intensity + 0.25*stress_duration + 0.20*complexity_load,0,1);
+    const WS = Math.round(100*WS_raw);
+
+    // Available Capacity
+    const efficacy_n = effW[efficacy_level] ?? 0.5;
+    const AC_raw = clamp(0.50*WE_raw + 0.35*efficacy_n + 0.15*(1-WS_raw),0,1);
+    const AC = Math.round(100*AC_raw);
+
+    // Support Gap
+    const SR_raw = clamp(0.50*WS_raw + 0.35*complexity_load + 0.15*(1-WE_raw),0,1);
+    const SA_raw = clamp(0.65*map10(supportive_people) + 0.35*efficacy_n,0,1);
+    const SG_raw = clamp(SR_raw - SA_raw,0,1);
+    const SG = Math.round(100*SG_raw);
+
+    // Responsibilities
+    const NR = responsibilities_count;
+    const Upkeep = Math.round(100*map24(maintenance_hours));
+    const Interdep = interdependence;
+
+    // Render header
+    r.day.textContent = String(day_number);
+    r.date.textContent = dayjs().format('YYYY-MM-DD');
+    r.compliance.textContent = Math.round(compliance_pct*100)+'%';
+    r.success.textContent = day_success ? '✅ Success' : '❌ Failed';
+
+    // KPIs
+    r.kpi_energy.textContent = WE;
+    r.kpi_stress.textContent = WS;
+    r.kpi_sg.textContent = SG;
+    r.kpi_nr.textContent = NR;
+    r.badge_upkeep.textContent = Upkeep;
+    r.badge_interdep.textContent = Interdep;
+
+    // Badge tones
+    r.badge_energy.className = 'pill ' + (WE>=70?'badge-good':WE>=40?'':'badge-warn');
+    r.badge_stress.className = 'pill ' + (WS<=30?'badge-good':WS<=60?'':'badge-bad');
+    r.badge_sg.className = 'pill ' + (SG<=10?'badge-good':SG<=30?'badge-warn':'badge-bad');
+
+    const showReceipts = inputs.toggle_receipts.checked;
+    r.rc_energy.style.display = showReceipts ? 'block' : 'none';
+    r.rc_stress.style.display = showReceipts ? 'block' : 'none';
+    r.rc_sg.style.display = showReceipts ? 'block' : 'none';
+
+    // Receipts (math snippets)
+    // Energy receipt
+    let eParts = [`energy_n=${fmt(map7(energy))}`];
+    if(sleep_hours!=null) eParts.push(`sleep_n=${fmt(norm(sleep_hours,5,8))}`);
+    if(calories_in!=null && calories_out!=null) eParts.push(`cal_score=${fmt(norm(calories_out - calories_in,-1000,+1000))}`);
+    if(steps!=null) eParts.push(`steps_n=${fmt(norm(steps,2000,10000))}`);
+    r.rc_energy.textContent = `Energy = Σ(w·term)/Σ(w) = ${WE_raw.toFixed(3)} → ${WE} | ${eParts.join(' · ')}`;
+    r.vt_energy.style.display = inputs.toggle_vitals.checked ? 'block' : 'none';
+    r.vt_energy.textContent = `Macros: P${p??0}g F${f??0}g C${c??0}g • Water ${water_l??0}L`;
+
+    r.rc_stress.textContent = `Stress = 0.55*Intensity + 0.25*Duration + 0.20*Complexity = ${WS_raw.toFixed(3)} → ${WS}`;
+
+    r.rc_sg.textContent = `Support Gap = Need − Have = (${fmt(SR_raw)}) − (${fmt(SA_raw)}) = ${fmt(SG_raw)} → ${SG}`;
+
+    // Responsibilities explainer (no formula; human & social-proof friendly)
+    r.resp_points.innerHTML = buildResponsibilityBullets(NR, Interdep, maintenance_hours).map(li=>`<li>${li}</li>`).join('');
+
+    // Compact padding
+    r.root.style.padding = inputs.toggle_compact.checked ? '24px' : '36px';
+  }
+
+  function buildResponsibilityBullets(nr, interdep, maint){
+    const bullets = [];
+    // 1) Load level
+    if(nr<=3) bullets.push("Light load — mostly classwork. Easy to reshuffle.");
+    else if(nr<=12) bullets.push("Normal busy — classes plus one extra commitment.");
+    else if(nr<=25) bullets.push("Heavy week — multiple deadlines across courses.");
+    else if(nr<=40) bullets.push("Maxed — finals/project season; protect sleep and buffers.");
+    else bullets.push("Meltdown risk — say no, cut scope, or ask for help now.");
+    // 2) Interdependence impact
+    if(interdep<=2) bullets.push("Tasks are independent — a delay won’t domino.");
+    else if(interdep<=6) bullets.push("Some linking — slipping one task will slow another.");
+    else if(interdep<=8) bullets.push("High linking — one miss can cascade across your day.");
+    else bullets.push("Tightly coupled — treat your plan like Jenga; add buffers.");
+    // 3) Maintenance time
+    if(maint<=1) bullets.push("Low upkeep — most time can go to deep work.");
+    else if(maint<=3) bullets.push("Moderate upkeep — schedule deep work blocks early.");
+    else if(maint<=5) bullets.push("High upkeep — batch admin or delegate to free focus.");
+    else bullets.push("All upkeep — de-scope tasks or reschedule commitments.");
+    return bullets;
+  }
+
+  const fmt = x => (x==null?'—':Number(x).toFixed(3));
+
+  // Export PNG
+  el('export_png').addEventListener('click', async ()=>{
+    compute();
+    const prev = r.root.style.transform;
+    r.root.style.transform = 'none';
+    const canvas = await html2canvas(r.root, {backgroundColor:null, scale:1, width:1080, height:1080});
+    r.root.style.transform = prev || '';
+    const dataURL = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = dataURL;
+    a.download = `75hard_daily_${dayjs().format('YYYYMMDD')}_d${inputs.day_number.value}.png`;
+    a.click();
+  });
+
+  // Download JSON
+  el('download_json').addEventListener('click', ()=>{
+    const payload = buildJSON();
+    const blob = new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url;
+    a.download = `75hard_daily_${dayjs().format('YYYYMMDD')}_d${inputs.day_number.value}.json`;
+    a.click(); URL.revokeObjectURL(url);
+  });
+
+  function buildJSON(){
+    return {
+      day_number: Number(inputs.day_number.value),
+      date: dayjs().format('YYYY-MM-DD'),
+      tasks_completed: Number(inputs.tasks_completed.value),
+      success_flag: Number(inputs.tasks_completed.value) >= 5,
+      inputs: {
+        energy: Number(inputs.energy.value),
+        stress_level: Number(inputs.stress_level.value),
+        stress_duration_hours: Number(inputs.stress_duration.value),
+        efficacy_level: inputs.efficacy_level.value,
+        supportive_people: Number(inputs.supportive_people.value),
+        responsibilities_count: Number(inputs.responsibilities_count.value),
+        interdependence: Number(inputs.interdependence.value),
+        maintenance_hours: Number(inputs.maintenance_hours.value),
+        sleep_hours: inputs.sleep_hours.value===''?null:Number(inputs.sleep_hours.value),
+        steps: inputs.steps.value===''?null:Number(inputs.steps.value),
+        calories_in: inputs.cal_in.value===''?null:Number(inputs.cal_in.value),
+        calories_out: inputs.cal_out.value===''?null:Number(inputs.cal_out.value),
+        protein_g: inputs.protein_g.value===''?null:Number(inputs.protein_g.value),
+        fat_g: inputs.fat_g.value===''?null:Number(inputs.fat_g.value),
+        carb_g: inputs.carb_g.value===''?null:Number(inputs.carb_g.value),
+        water_l: inputs.water_l.value===''?null:Number(inputs.water_l.value),
+      },
+      // KPIs mirrored from DOM (already computed)
+      metrics: {
+        weighted_energy: Number(el('kpi_energy').textContent),
+        weighted_stress: Number(el('kpi_stress').textContent),
+        support_gap: Number(el('kpi_sg').textContent),
+        responsibilities: Number(el('kpi_nr').textContent),
+        upkeep_load: Number(el('badge_upkeep').textContent),
+        interdependence: Number(el('badge_interdep').textContent),
+        compliance_pct: Number(el('r_compliance').textContent.replace('%',''))/100
+      }
+    };
+  }
+
+  // Event wiring
+  Object.values(inputs).forEach(node=>{
+    if(!node) return;
+    node.addEventListener('input', compute);
+    node.addEventListener('change', compute);
+  });
+
+  // Case loaders
+  el('loadCaseA').addEventListener('click', ()=>{
+    inputs.day_number.value = 17;
+    inputs.tasks_completed.value = 6;
+    inputs.energy.value = 2;
+    inputs.stress_level.value = 3;
+    inputs.stress_duration.value = 4;
+    inputs.efficacy_level.value = 'high';
+    inputs.supportive_people.value = 7;
+    inputs.responsibilities_count.value = 10;
+    inputs.interdependence.value = 4;
+    inputs.maintenance_hours.value = 1;
+    inputs.sleep_hours.value = 8;
+    inputs.steps.value = 10000;
+    inputs.cal_in.value = 2300;
+    inputs.cal_out.value = 2800;
+    inputs.protein_g.value = 150;
+    inputs.fat_g.value = 70;
+    inputs.carb_g.value = 220;
+    inputs.water_l.value = 2.5;
+    compute();
+    document.querySelector('.report-wrap').scrollIntoView({behavior:'smooth'});
+  });
+
+  el('loadCaseB').addEventListener('click', ()=>{
+    inputs.day_number.value = 23;
+    inputs.tasks_completed.value = 3;
+    inputs.energy.value = -1;
+    inputs.stress_level.value = 8;
+    inputs.stress_duration.value = 24;
+    inputs.efficacy_level.value = 'low';
+    inputs.supportive_people.value = 2;
+    inputs.responsibilities_count.value = 25;
+    inputs.interdependence.value = 8;
+    inputs.maintenance_hours.value = 5;
+    inputs.sleep_hours.value = 5;
+    inputs.steps.value = 2000;
+    inputs.cal_in.value = 2600;
+    inputs.cal_out.value = 2100;
+    inputs.protein_g.value = 90;
+    inputs.fat_g.value = 80;
+    inputs.carb_g.value = 200;
+    inputs.water_l.value = 1.0;
+    compute();
+    document.querySelector('.report-wrap').scrollIntoView({behavior:'smooth'});
+  });
+
+  // Init
+  el('r_date').textContent = dayjs().format('YYYY-MM-DD');
+  compute();
+</script>
+</body>
+</html>

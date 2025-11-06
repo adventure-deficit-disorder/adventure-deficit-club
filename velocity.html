@@ -2,49 +2,179 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Velocity — Leverage Planner + Complexity Widget (Mobile-First + Bottom Sheet)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Velocity — Life Balance Visualizer + Velocity Table (Stateless)</title>
 
   <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
 
   <!-- html2canvas for PNG capture -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
+    :root{
+      --bg:#0b1220; --card:#11192b; --line:#22314d; --text:#dbe7ff; --muted:#8aa1c9; --accent:#20a5a5;
+      --table-bg:#11192b; --input-bg:#11192b;
+    }
+    html,body{background:var(--bg); color:var(--text);}
+    .navbar{background:linear-gradient(90deg,#0b1220 0%, #0e1830 60%, #0b1220 100%); border-bottom:1px solid var(--line);}
+    .container-narrow{max-width:1040px;}
+    .card{background:var(--card); border:1px solid var(--line);}
+    .btn-accent{background:var(--accent); color:#08121f; border:1px solid #128b8b;}
+    .metric-pill{display:flex; justify-content:space-between; align-items:center; border:1px dashed var(--line); border-radius:999px; padding:.35rem .75rem; }
+    .range-track::-webkit-slider-thumb{cursor:pointer;}
+    .vis-wrap{border:1px solid var(--line); border-radius:.75rem; overflow:hidden; background:#0c1526;}
+    .node-label{fill:var(--text); font-size:12px; text-anchor:middle; pointer-events:none;}
+    .edge{stroke:#6c7a99; stroke-width:2; opacity:.25;}
+    .node{stroke:#0b1220; stroke-width:2;}
+    .pill{border:1px solid var(--line); border-radius:999px; padding:.1rem .5rem; font-size:.8rem; color:var(--muted);}
+    .legend-dot{display:inline-block; width:.8rem; height:.8rem; border-radius:50%; margin-right:.4rem; vertical-align:middle;}
+    .legend{display:flex; gap:.75rem; flex-wrap:wrap;}
+    .export-bar .btn{min-width:10rem;}
 
-  </style>
+    /* Velocity Table: dark theme */
+    .vt-table .table{background:var(--table-bg); border-color:var(--line);}
+    .vt-table thead th{background:var(--table-bg); color:#cfe1ff; border-color:var(--line);}
+    .vt-table tbody td,.vt-table tbody th{color:#e7efff; background:var(--table-bg); border-color:var(--line); vertical-align:middle;}
+    .vt-table .table-hover tbody tr:hover{background:rgba(32,165,165,.10)}
+    .vt-input{background:var(--input-bg)!important; color:#fff!important; border:1px solid #27324b;}
+    .vt-input::placeholder{color:#c4d0f0;}
+    .offcanvas{background:var(--card); color:var(--text); border-left:1px solid var(--line);}
+    .tiny{font-size:.85rem; color:var(--muted)}
+
+    /* Mobile list for Velocity Table */
+    @media (max-width: 767.98px){
+      .vt-table{display:none}
+      #vtList{display:block}
+    }
+    @media (min-width: 768px){
+      #vtList{display:none}
+    }
+    /* Square export surface without changing page flow */
+    #reportCard {
+      width: 1024px;           /* exported size */
+      aspect-ratio: 1 / 1;     /* guarantees 1:1 */
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: .75rem;
+    }
+
+    .report-topbar, .report-bottombar {
+      display: grid;
+      gap: .5rem;
+    }
+
+    .report-topbar {
+      grid-template-columns: 1fr auto 1fr; /* [Processes (n)] [title] [Interdependencies] */
+    }
+
+    .report-bottombar {
+      grid-template-columns: 1fr 1fr 1fr;  /* [Maint Hours] [Avg Lev] [Interdependencies] */
+    }
+
+    /* Keep your current cards/styles; these just tighten within the report */
+    .report-panel { background: transparent; }
+
+  
+/* === Dark legibility patch (non-breaking) === */
+:root {
+  --bg-deep: #0b1220;
+  --bg-card: #0f1626;
+  --bg-card-2: #121a2b;
+  --fg-base: #e6edf3;
+  --fg-dim: #c2ccda;
+  --fg-muted: #9fb0cc;
+  --border-1: #27324b;
+  --border-2: #33415e;
+}
+body { color: var(--fg-base); }
+.card { background: var(--bg-card); }
+.metric-pill {
+  background: var(--bg-card-2);
+  border: 1.25px dashed var(--border-2);
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+.metric-pill .k { font-size: 0.9rem; color: var(--fg-muted); }
+.metric-pill .v { font-weight: 600; font-size: 1.1rem; }
+
+/* Table legibility in dark mode (scoped to card tables) */
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: var(--fg-base);
+}
+.card table thead th {
+  background: var(--bg-card-2);
+  color: var(--fg-base);
+  padding: 10px 12px;
+  border: 1.25px solid var(--border-1);
+  text-align: left;
+}
+.card table tbody td {
+  padding: 10px 12px;
+  border: 1.25px solid var(--border-1);
+}
+.card table tbody tr:nth-child(odd) { background: var(--bg-card); }
+.card table tbody tr:nth-child(even){ background: #0e1525; }
+.card table td:nth-last-child(1),
+.card table th:nth-last-child(1){
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tiny text helper */
+.tiny { color: var(--fg-muted); font-size: .85rem; }
+
+/* Visualizer label legibility */
+.node-label { 
+  fill: var(--fg-base);
+  paint-order: stroke;
+  stroke: rgba(0,0,0,.35);
+  stroke-width: 2px;
+  font-size: 14px;
+}
+
+/* Edge hint inline (no layout change) */
+#edgeLegendHint { color: var(--fg-muted); }
+
+/* Report container if present */
+#reportCard {
+  background: var(--bg-deep);
+  color: var(--fg-base);
+}
+.report-topbar, .report-bottombar { 
+  background: var(--bg-deep);
+}
+
+</style>
 </head>
 <body>
   <nav class="navbar navbar-dark">
-    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
-        <div>
-            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
-            <h6>Procrastination | Perfectionism | Fatigue</h6>
-        </div>
-        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 ">
-        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
-        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
-        </div>
-        
-
+    <div class="container container-narrow d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+      <div>
+        <a class="navbar-brand" href="#">Adventure Deficit Club</a>
+        <h6 class="m-0">Procrastination • Perfectionism • Fatigue</h6>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <p class="mb-0">Tired of starting over?</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261" target="_blank" rel="noopener">
+          <mark class="px-2">Join The Club</mark>
+        </a>
+      </div>
     </div>
   </nav>
 
   <main class="container container-narrow my-4">
-    <nav class="card my-4 text-light">
-      <!-- Toggle header -->
+
+    <!-- Overview -->
+    <nav class="card my-3 text-light">
       <div class="card-header bg-transparent p-0">
-        <button
-          class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#dailyOutputPanel"
-          aria-expanded="true"
-          aria-controls="dailyOutputPanel"
-          style="background:#0b1220;border:none;"
-        >
+        <button class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
+          type="button" data-bs-toggle="collapse" data-bs-target="#dailyOutputPanel" aria-expanded="true" aria-controls="dailyOutputPanel"
+          style="background:#0b1220;border:none;">
           <span>
             <span class="kicker text-uppercase d-block small mb-1">Interactive</span>
             <h2 class="fw-bold">Daily Output</h2>
@@ -52,573 +182,790 @@
           <span class="chev ms-3" aria-hidden="true">▾</span>
         </button>
       </div>
-
-      <!-- Collapsible body -->
       <div id="dailyOutputPanel" class="collapse show">
         <div class="card-body p-4">
-
-          <div class="container text-light  small">
-            <div class="row row-cols-1 row-cols-md-4 g-4">
-
-              <div class="col">
-                <div class="p-3 border rounded-3 h-100">
-                  <h6 class="fw-bold mb-2">1️⃣ Routines And Responsibilities</h6>
-                  <p class="mb-1">Define what actually moves the needle.</p>
-                  <p class="mb-0">List your recurring habits and key responsibilities, assign time blocks, set minimums and maximums, and rate leverage (1–5).</p>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="p-3 border rounded-3 h-100">
-                  <h6 class="fw-bold mb-2">2️⃣ Daily Complexity</h6>
-                  <p class="mb-1">See how much you’re really managing.</p>
-                  <p class="mb-0">Each active routine adds “nodes” to your daily system. The widget visualizes how many processes you’re juggling, how interdependent they are, and how much maintenance they cost in minutes.</p>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="p-3 border rounded-3 h-100">
-                  <h6 class="fw-bold mb-2">3️⃣ Add Routine/Responsibility</h6>
-                  <p class="mb-1">Add new work cleanly—without chaos.</p>
-                  <p class="mb-0">Select a routine, assign leverage, and define min/max effort and time block. It automatically links to your outcomes from Table A.</p>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="p-3 border rounded-3 h-100">
-                  <h6 class="fw-bold mb-2">4️⃣ Maintain Output Log</h6>
-                  <p class="mb-1">Track momentum, not just activity.</p>
-                  <p class="mb-0">Each time you perform a task or adjust its leverage, add an entry here. The table timestamps your changes, highlights differences from the last run, and builds a visual history of progress.</p>
-                </div>
-              </div>
+          <div class="container small">
+            <div class="row row-cols-1 row-cols-md-4 g-3">
+              <div class="col"><div class="p-3 border rounded-3 h-100">
+                <h6 class="fw-bold mb-2">1️⃣ Life Balance Visualizer</h6>
+                <p class="mb-0">Money–Body–Mind–Relationships sliders feed a radar shape + examples.</p>
+              </div></div>
+              <div class="col"><div class="p-3 border rounded-3 h-100">
+                <h6 class="fw-bold mb-2">2️⃣ Velocity Table</h6>
+                <p class="mb-0">Edit routines in a slide-out panel. Mobile shows Min/Last/Max.</p>
+              </div></div>
+              <div class="col"><div class="p-3 border rounded-3 h-100">
+                <h6 class="fw-bold mb-2">3️⃣ Complexity</h6>
+                <p class="mb-0">Upkeep load + interdependency graph (node = leverage score).</p>
+              </div></div>
+              <div class="col"><div class="p-3 border rounded-3 h-100">
+                <h6 class="fw-bold mb-2">4️⃣ Export</h6>
+                <p class="mb-0">First export free; next opens Skool join modal.</p>
+              </div></div>
             </div>
           </div>
-
-
         </div>
       </div>
     </nav>
-    <!-- TABLE A -->
-    <section class="mb-4">
+
+    <!-- Life Balance Visualizer -->
+    <section class="mb-4" id="lbvSection">
       <div class="card">
-        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
-          <h5 class="mb-0">Routines And Responsibilities</h5>
-          <div class="d-flex gap-2">
-            <button id="addRowA" class="btn btn-sm btn-outline-light">Add Row</button>
-            <button id="saveA" class="btn btn-sm btn-accent">Save Table A</button>
-            <button id="clearAll" class="btn btn-sm btn-warning">Clear Data</button>
+        <div class="card-header text-light d-flex  align-items-center p-4 flex-column">
+          <div class="w-100 d-flex justify-content-between ">  
+            <h5 class="mb-0 text-center">If You Want To Find Balance Then Seek Leverage</h5>
+            <button id="toggleInstr" class="btn btn-sm btn-outline-light">Hide Instructions</button>            
           </div>
-
-        </div>
-
-        <div class="card-body">
-          <div class="table-responsive">
-            <table id="tableA" class="table table-dark table-sm align-middle stackable">
-              <thead>
-                <tr>
-                  <th>Routine</th><th>Time Block</th><th>Min</th><th>Max</th>
-                  <th>Leverage</th><th>Leverage Score (1–5)</th><th>Five Year Outcome</th><th style="width:60px;"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td data-label="Routine"><input class="form-control" value="Words/Day" autocomplete="off"></td>
-                  <td data-label="Time Block">
-                    <select class="form-select tb-select">
-                      <option selected>5:00 AM – 7:00 AM</option>
-                      <option>7:00 AM – 9:00 AM</option>
-                      <option>9:00 AM – 11:00 AM</option>
-                      <option value="__custom__">Custom…</option>
-                    </select>
-                    <input class="form-control mt-2 d-none tb-custom" placeholder="e.g., 4:40 AM – 6:20 AM" autocomplete="off">
-                  </td>
-                  <td data-label="Min"><input class="form-control" type="number" inputmode="numeric" value="1000"></td>
-                  <td data-label="Max">
-                    <select class="form-select max-select">
-                      <option selected>2000</option><option>1500</option><option>2500</option>
-                      <option value="__custom__">Custom…</option>
-                    </select>
-                    <input class="form-control mt-2 d-none max-custom" type="number" inputmode="numeric" placeholder="Max">
-                  </td>
-                  <td data-label="Leverage"><input class="form-control" value="Big Idea + Outline first" autocomplete="off"></td>
-                  <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" inputmode="numeric" value="4"></td>
-                  <td data-label="Five Year Outcome"><input class="form-control" value="Publish 1 novel + 2 ADC books; audience compounding"></td>
-                  <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
-                </tr>
-
-                <tr>
-                  <td data-label="Routine"><input class="form-control" value="Offers/Week" autocomplete="off"></td>
-                  <td data-label="Time Block">
-                    <select class="form-select tb-select">
-                      <option>5:00 AM – 7:00 AM</option>
-                      <option selected>7:00 AM – 9:00 AM</option>
-                      <option>9:00 AM – 11:00 AM</option>
-                      <option value="__custom__">Custom…</option>
-                    </select>
-                    <input class="form-control mt-2 d-none tb-custom" placeholder="Custom block" autocomplete="off">
-                  </td>
-                  <td data-label="Min"><input class="form-control" type="number" inputmode="numeric" value="1"></td>
-                  <td data-label="Max">
-                    <select class="form-select max-select">
-                      <option>2</option><option selected>3</option><option>4</option>
-                      <option value="__custom__">Custom…</option>
-                    </select>
-                    <input class="form-control mt-2 d-none max-custom" type="number" inputmode="numeric" placeholder="Max">
-                  </td>
-                  <td data-label="Leverage"><input class="form-control" value="Scarcity + Guarantee + Proof" autocomplete="off"></td>
-                  <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" inputmode="numeric" value="5"></td>
-                  <td data-label="Five Year Outcome"><input class="form-control" value="$20K+ MRR; pipeline maturity"></td>
-                  <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
-                </tr>
-
-                <tr>
-                  <td data-label="Routine"><input class="form-control" value="Workouts/Week" autocomplete="off"></td>
-                  <td data-label="Time Block">
-                    <select class="form-select tb-select">
-                      <option>12:00 PM – 1:30 PM</option>
-                      <option selected>5:00 PM – 7:00 PM</option>
-                      <option value="__custom__">Custom…</option>
-                    </select>
-                    <input class="form-control mt-2 d-none tb-custom" placeholder="Custom block" autocomplete="off">
-                  </td>
-                  <td data-label="Min"><input class="form-control" type="number" inputmode="numeric" value="3"></td>
-                  <td data-label="Max">
-                    <select class="form-select max-select">
-                      <option>4</option><option selected>5</option>
-                      <option value="__custom__">Custom…</option>
-                    </select>
-                    <input class="form-control mt-2 d-none max-custom" type="number" inputmode="numeric" placeholder="Max">
-                  </td>
-                  <td data-label="Leverage"><input class="form-control" value="Compound lifts + walk" autocomplete="off"></td>
-                  <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" inputmode="numeric" value="3"></td>
-                  <td data-label="Five Year Outcome"><input class="form-control" value="High baseline energy; resilient output"></td>
-                  <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
-                </tr>
-
-              </tbody>
-            </table>
-          </div>
-
-          <!-- COMPLEXITY WIDGET -->
-          <section id="complexity" class="mt-4">
-            <div class="row g-3">
-              <div class="col-12 col-xl-4">
-                <div class="card p-3">
-                  <h5 class="mb-2 text-light">Daily Complexity</h5>
-                  <div class="row row-cols-2 gy-2 gx-2 mt-1">
-                    <div class="col"><div class="metric-pill"><div class="k">Processes (n)</div><div class="v text-light" id="m_n">0</div></div></div>
-                    <div class="col"><div class="metric-pill"><div class="k">Interdependencies</div><div class="v text-light" id="m_edges">0</div></div></div>
-                    <div class="col"><div class="metric-pill"><div class="k">Maintenance (mins/day)</div><div class="v text-light" id="m_maint">0</div></div></div>
-                    <div class="col"><div class="metric-pill"><div class="k">Avg Leverage Score</div><div class="v text-light" id="m_lavg">—</div></div></div>
-                  </div>
-
-                  <label class="form-label mt-3 mb-1">Upkeep minutes per task</label>
-                  <div class="d-flex align-items-center gap-2 text-light">
-                    <input id="maintSlider" type="range" min="0" max="120" step="20" value="40" class="form-range range-track flex-grow-1" aria-label="Upkeep minutes per task">
-                    <output id="maintOut" class="badge bg-transparent border border-light text-light fw-bold" style="min-width:3.2rem; text-align:center;">40</output>
-                  </div>
-                  <div class="small text-light">Use this to see how each extra task increases your daily upkeep load.</div>
-                  <div class="small text-light mt-2"><strong>Node color = Leverage Score:</strong> 1 red → 5 green.</div>
-                </div>
-                <details class="mt-3">
-                  <summary class="text-light fw-semibold">Explanation of metrics</summary>
-                  <div class="small text-light mt-2">
-                    <p class="mb-1"><strong>Processes (n):</strong> Number of active routines/responsibilities.</p>
-                    <p class="mb-1"><strong>Interdependencies:</strong> Estimated links between processes ≈ n(n−1)/2. More links = more coordination overhead.</p>
-                    <p class="mb-1"><strong>Maintenance (mins/day):</strong> n × upkeep minutes per task. Quick proxy for daily “care & feeding.”</p>
-                    <p class="mb-0"><strong>Avg Leverage Score:</strong> Mean of your 1–5 leverage ratings. Higher = more bang per unit time.</p>
-                  </div>
-                </details>
+          <div id="instrWrap" class="mb-3 d-none">
+              <span class="pill">Center = Opportunity Efficiency</span>
+              <p class="lead">Opportunity Efficiency measures how effectively your resources — time, energy, focus, and money — are turned into meaningful progress.
+                It represents how leveraged and balanced your core life domains are.</p>            
+              <div class="legend">
+                <span><span class="legend-dot" style="background:#808b99"></span>1 (gray) → low leverage</span>
+                <span><span class="legend-dot" style="background:#20a5a5"></span>3 (teal) → stable leverage</span>
+                <span><span class="legend-dot" style="background:#1fbf82"></span>5 (emerald/blue) → high leverage</span>
+                <span class="lead">The radar chart is your Opportunity Efficiency Map.
+                    Each axis (Mind, Body, Money, Relationships) represents a domain of leverage.
+                    The shape shows how balanced your leverage is — wide and even means your resources reinforce each other, narrow or skewed means one area is bottlenecking your potential.
+                </span>
               </div>
+          </div>            
+        </div>
+        </div>
+        
+        <div class="card-body text-light">
 
-              <div class="col-12 col-xl-8">
-                <div class="card p-3">
-                  <div class="vis-wrap">
-                    <svg id="graph" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet" aria-label="Complexity Node Graph">
-                      <g id="edges"></g><g id="nodes"></g><g id="labels"></g>
-                    </svg>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <div class="card h-100 text-light rounded-0">
+                <div class="card-body d-flex flex-column">
+                  <div class="p-3 border rounded-3 d-flex justify-content-between mb-2">
+                    <h6 class="fw-bold mb-2">Leverage</h6>
+                    <span class="tiny ms-2">(Sliders set leverage scores)</span>
                   </div>
-                  <div class="d-flex justify-content-between align-items-center mt-2">
-                    <small class="text-light">Links = n(n−1)/2. Labels = routines.</small>
-                    <small class="text-light">Powered by <strong>@AdventureDeficitClub</strong></small>
+                  <div class="col-12">
+                    <label for="mindLv" class="form-label">Mind <span><span id="mindDot" class="legend-dot"></span></span><div class="tiny">Structure & focus under uncertainty</div></label>
+                    <input id="mindLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Mind slider">
+                  </div>
+                  <div class="col-12">
+                    <label for="bodyLv" class="form-label">Body <span><span id="bodyDot" class="legend-dot"></span></span><div class="tiny">Energy, sleep, physical regulation</div></label>
+                    <input id="bodyLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Body slider">
+                  </div>
+                  <div class="col-12">
+                    <label for="moneyLv" class="form-label">Money <span><span id="moneyDot" class="legend-dot"></span></span><div class="tiny">Financial stability; buy back time</div></label>
+                    <input id="moneyLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Money slider">
+                  </div>
+                  <div class="col-12">
+                    <label for="relLv" class="form-label">Relationships <span><span id="relDot" class="legend-dot"></span></span><div class="tiny">Support, accountability, stress buffer</div></label>
+                    <input id="relLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Relationships slider">
+                  </div>
+                  <div class="col-12">
+                  <span class="pill">Center = Opportunity Efficiency</span>
+                    <p>
+                      Leverage measures how much output or impact you get for the energy, time, and focus you invest in a given area of life.
+A high leverage score means your actions in that domain create compounding benefits — they make other goals easier or more efficient to achieve.
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
-          </section>
 
-        </div>
-      </div>
-    </section>
-
-    <!-- INLINE FORM (desktop) -->
-    <section class="mb-4" id="inlineFormCard">
-      <div class="card">
-        <div class="card-header"><h5 class="mb-0">Add Routine/Responsibility</h5></div>
-        <div class="card-body">
-          <form id="entryForm" class="row g-2 g-md-3">
-            <div class="col-12"><label class="form-label">Routine (from Table A)</label><select class="form-select" id="routineSelect" required></select></div>
-            <div class="col-12"><label class="form-label">Leverage (text)</label><input id="leverage" class="form-control" placeholder="e.g., Scarcity+Guarantee, A/B Hooks" required autocomplete="off"></div>
-            <div class="col-6"><label class="form-label">Min</label><select id="minSelect" class="form-select" required></select><input id="minCustom" type="number" class="form-control mt-2 d-none" placeholder="Min" inputmode="numeric"></div>
-            <div class="col-6"><label class="form-label">Max</label><select id="maxSelect" class="form-select" required></select><input id="maxCustom" type="number" class="form-control mt-2 d-none" placeholder="Max" inputmode="numeric"></div>
-            <div class="col-12"><label class="form-label">Time Block</label><select id="timeBlockSelect" class="form-select" required><option value="">Select…</option></select><input id="timeBlockCustom" class="form-control mt-2 d-none" placeholder="e.g., 4:40 AM – 6:20 AM" autocomplete="off"></div>
-            <div class="col-12 d-flex gap-2"><button class="btn btn-accent flex-grow-1" type="submit">Add to Table B</button><button class="btn btn-outline-light" type="button" id="clearForm">Clear</button></div>
-            <p class="text-light mb-0">“Date Added” auto-generates. “Five Year Outcome” auto-links from Table A.</p>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- TABLE B -->
-    <section class="mb-5">
-      <div id="tableBCard" class="card">
-        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center">
-          <h5 class="mb-0">Output Log</h5>
-          <small class="text-light">Card timestamp: <span id="cardTimestamp"></span></small>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table id="tableB" class="table table-dark table-sm align-middle stackable">
-              <thead>
-                <tr>
-                  <th>Date Added</th><th>Routine</th><th>Leverage</th><th>Leverage Score (1–5)</th>
-                  <th>Time Block</th><th>Min</th><th>Max</th><th>Five Year Outcome</th><th style="width:60px;"></th>
-                </tr>
-              </thead>
-              <tbody><!-- dynamic --></tbody>
-            </table>
+            <div class="col-12 col-md-8">
+              <div class="card h-100 text-light rounded-0">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong>Opportunity Efficiency</strong>
+                    <output id="tranqOut" class="pill">—</output>
+                  </div>
+                  <div class="vis-wrap p-3 rounded-0">
+                    <svg id="lbGraph" viewBox="0 0 420 360" preserveAspectRatio="xMidYMid meet" aria-label="Life Balance">
+                      <g id="lbEdges"></g>
+                      <g id="lbNodes"></g>
+                      <g id="lbLabels"></g>
+                    </svg>
+                  </div>
+                  <div class="row row-cols-1 row-cols-md-2 g-0 mt-2" id="examplesWrap"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="small text-light mt-2">Yellow = changed from your last entry for the same Routine.</div>
         </div>
       </div>
-    <nav class="card mt-4 text-light mt-4">
-        <div class="container d-flex flex-md-row flex-column container-narrow d-flex flex-row align-items-center justify-content-between py-2">
-            <div class="d-flex gap-2 align-items-center justify-content-between">
-                <button id="downloadPng" class="btn btn-sm btn-light">Download PNG</button>
-                <button id="downloadCsv" class="btn btn-sm btn-outline-light">Download Spreadsheet</button>
-            </div>   
-     
+    </section>
+
+    <!-- Velocity Table -->
+    <section class="mb-4">
+      <div class="card">
+        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center p-4">
+          <h5 class="mb-0 text-light">2) Velocity Table</h5>
+          <button id="addRow" class="btn btn-sm btn-outline-light">+ Add Routine</button>
         </div>
-    </nav>       
- 
+        <div class="card-body">
+          <!-- Desktop/Table view -->
+          <div class="card vt-table">
+            <div class="table-responsive">
+              <table id="velocityTable" class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Routine</th>
+                    <th>Time Block</th>
+                    <th style="width:90px">Min</th>
+                    <th style="width:90px">Last</th>
+                    <th style="width:90px">Max</th>
+                    <th>Leverage</th>
+                    <th style="width:160px">Leverage Score (1–5)</th>
+                    <th>Five Year Outcome</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="p-2 tiny">Tip: Click any row to edit; Save in the panel.</div>
+          </div>
+
+          <!-- Mobile list view -->
+          <div id="vtList" class="vstack gap-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Complexity Widget -->
+    <section class="mb-5">
+      <div class="row g-3">
+        <div class="col-12 col-md-5">
+          <div class="card p-3">
+            <h5 class="mb-2 text-light">3) Daily Complexity</h5>
+            <div class="row row-cols-2 gy-2 gx-2 mt-1 text-light">
+              <div class="col"><div class="metric-pill"><div class="k">Processes (n)</div><div class="v text-light" id="m_n">0</div></div></div>
+              <div class="col"><div class="metric-pill"><div class="k">Interdependencies</div><div class="v text-light" id="m_edges">0</div></div></div>
+              <div class="col"><div class="metric-pill"><div class="k">Maintenance (mins/day)</div><div class="v text-light" id="m_maint">0</div></div></div>
+              <div class="col"><div class="metric-pill"><div class="k">Avg Leverage Score</div><div class="v text-light" id="m_lavg">—</div></div></div>
+            </div>
+
+            <label class="form-label mt-3 mb-1 text-light">Upkeep minutes per task</label>
+            <div class="d-flex align-items-center gap-2 text-light">
+              <input id="maintSlider" type="range" min="0" max="120" step="20" value="40" class="form-range range-track flex-grow-1" aria-label="Upkeep minutes per task">
+              <output id="maintOut" class="badge bg-transparent border border-light text-light fw-bold" style="min-width:3.2rem; text-align:center;">40</output>
+            </div>
+            <div class="tiny mt-2">
+              <strong>Node color = Leverage Score</strong> · 
+              <span id="edgeLegendHint">Edges react to Upkeep per task + Interdependencies + total Maintenance.</span>
+          </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-7">
+          <div class="card p-3">
+            <div class="vis-wrap">
+              <svg id="graph" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet" aria-label="Complexity Node Graph">
+                <g id="edges"></g><g id="nodes"></g><g id="labels"></g>
+              </svg>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <small class="text-light">Links = n(n−1)/2. Labels = routines.</small>
+              <small class="text-light">Powered by <strong>@AdventureDeficitClub</strong></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Export Bar -->
+    <section class="mb-5">
+      <div class="card export-bar">
+        <div class="card-body d-flex flex-wrap gap-2 justify-content-between align-items-center">
+          <div class="small text-muted">Session resets on refresh. First export is free. Next opens Skool to unlock unlimited.</div>
+          <div class="d-flex gap-2 ms-auto">
+            <button id="btnPng" class="btn btn-light">Download PNG</button>
+            <button id="btnPrint" class="btn btn-outline-light">Printable Report</button>
+            <button id="btnJson" class="btn btn-outline-light">Download JSON</button>
+          </div>
+        </div>
+      </div>
     </section>
 
   </main>
 
-  <!-- Mobile FAB to open bottom sheet -->
-  <button id="fabAdd" class="btn btn-accent rounded-circle" type="button" data-bs-toggle="offcanvas" data-bs-target="#addEntrySheet" aria-controls="addEntrySheet">＋</button>
+  <!-- Gating Modal -->
+  <div class="modal fade" id="gateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background:var(--card); border:1px solid var(--line); color:var(--text)">
+        <div class="modal-header">
+          <h5 class="modal-title">Unlock Unlimited Exports & Deeper Insights</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Join Adventure Deficit Club on Skool for <strong>$2/month</strong> to get unlimited exports, richer analysis, and pro templates.
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-accent" href="https://www.skool.com/adventure-deficit-club-8261" target="_blank" rel="noopener">Join on Skool</a>
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- Offcanvas Bottom Sheet (mobile form uses same IDs) -->
-  <div class="offcanvas offcanvas-bottom" tabindex="-1" id="addEntrySheet" aria-labelledby="addEntrySheetLabel">
+  <!-- Velocity Table Editor -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="vtEditor" aria-labelledby="vtEditorLabel">
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="addEntrySheetLabel">Add Entry to Table B</h5>
-      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <h5 class="offcanvas-title" id="vtEditorLabel">Edit Routine</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-      <form id="entryFormMobile" class="row g-2">
-        <div class="col-12"><label class="form-label">Routine (from Table A)</label><select class="form-select" id="routineSelectMobile" required></select></div>
-        <div class="col-12"><label class="form-label">Leverage (text)</label><input id="leverageMobile" class="form-control" placeholder="e.g., Scarcity+Guarantee, A/B Hooks" required autocomplete="off"></div>
-        <div class="col-6"><label class="form-label">Min</label><select id="minSelectMobile" class="form-select" required></select><input id="minCustomMobile" type="number" class="form-control mt-2 d-none" placeholder="Min" inputmode="numeric"></div>
-        <div class="col-6"><label class="form-label">Max</label><select id="maxSelectMobile" class="form-select" required></select><input id="maxCustomMobile" type="number" class="form-control mt-2 d-none" placeholder="Max" inputmode="numeric"></div>
-        <div class="col-12"><label class="form-label">Time Block</label><select id="timeBlockSelectMobile" class="form-select" required><option value="">Select…</option></select><input id="timeBlockCustomMobile" class="form-control mt-2 d-none" placeholder="e.g., 4:40 AM – 6:20 AM" autocomplete="off"></div>
-        <div class="col-12 d-grid"><button class="btn btn-accent" type="submit">Add to Table B</button></div>
+      <form id="vtForm" class="vstack gap-3">
+        <div>
+          <label class="form-label">Routine</label>
+          <input type="text" class="form-control vt-input" id="f_routine" placeholder="e.g., Words/Day">
+        </div>
+        <div>
+          <label class="form-label">Time Block</label>
+          <input type="text" class="form-control vt-input" id="f_block" placeholder="e.g., 5:00–7:00 AM">
+        </div>
+        <div class="row g-2">
+          <div class="col-4">
+            <label class="form-label">Min</label>
+            <input type="number" class="form-control vt-input" id="f_min" inputmode="numeric">
+          </div>
+          <div class="col-4">
+            <label class="form-label">Last</label>
+            <input type="number" class="form-control vt-input" id="f_last" inputmode="numeric">
+          </div>
+          <div class="col-4">
+            <label class="form-label">Max</label>
+            <input type="number" class="form-control vt-input" id="f_max" inputmode="numeric">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Leverage</label>
+          <input type="text" class="form-control vt-input" id="f_lev" placeholder="What increases payoff?">
+        </div>
+        <div>
+          <label class="form-label">Leverage Score (1–5)</label>
+          <input type="number" class="form-control vt-input" id="f_score" min="1" max="5" inputmode="numeric">
+        </div>
+        <div>
+          <label class="form-label">Five Year Outcome</label>
+          <input type="text" class="form-control vt-input" id="f_outcome" placeholder="What does this lead to?">
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" id="saveRow" class="btn btn-success">Save</button>
+          <button type="button" id="deleteRow" class="btn btn-outline-danger">Delete</button>
+        </div>
+        <div class="tiny">All inputs use <code>#11192b</code> background; text is white.</div>
       </form>
     </div>
   </div>
-
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
-  <div id="saveToast" class="toast align-items-center text-bg-dark border-0" role="status" aria-live="polite" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body" id="saveToastMsg">Saved.</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-</div>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    const KEY_A = 'velocity_tableA_v6';
-    const KEY_B = 'velocity_tableB_v6';
+    /* =====================
+       STATE (Session-only)
+       ===================== */
+    const state = {
+      balance: { Mind:3, Body:3, Money:3, Relationships:3, tranquility: null },
+      flags: { firstExportDone: false }
+    };
+
+    /* =====================
+       Utilities
+       ===================== */
     const $ = s => document.querySelector(s);
     const $$ = s => document.querySelectorAll(s);
+    const clamp = (n,min,max)=> Math.max(min, Math.min(max, n));
 
-    function nowStamp(){
-      const d = new Date();
-      const date = d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'2-digit'});
-      const time = d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
-      return date+' '+time;
+    // Shared color ramp for levels (1 gray → 3 teal → 5 emerald/blue)
+    function colorRamp(v){
+      const t = (clamp(Number(v),1,5)-1)/4; // 0..1
+      // interpolate between #808b99 (gray) at t=0, #20a5a5 at t=0.5, #1fbf82 at t=1
+      function hexToRgb(h){ const n=parseInt(h.slice(1),16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+      function mix(a,b,u){ return {r:Math.round(a.r+(b.r-a.r)*u), g:Math.round(a.g+(b.g-a.g)*u), b:Math.round(a.b+(b.b-a.b)*u)}; }
+      const c1 = hexToRgb('#808b99'), c2 = hexToRgb('#20a5a5'), c3 = hexToRgb('#1fbf82');
+      let c;
+      if(t<=0.5){ c = mix(c1,c2,t/0.5); } else { c = mix(c2,c3,(t-0.5)/0.5); }
+      return `rgb(${c.r},${c.g},${c.b})`;
     }
-    function notifySaved(msg='Saved to local storage'){
-      const el = document.getElementById('saveToast');
-      const body = document.getElementById('saveToastMsg');
-      if(body) body.textContent = msg;
-      const t = bootstrap.Toast.getOrCreateInstance(el, { delay: 1600 });
-      t.show();
-    }
-    function updateTimestamp(){ $('#cardTimestamp').textContent = nowStamp(); }
 
-    /* ===== Table A ===== */
-    function rowAtoObj(tr){
-      const tds = tr.querySelectorAll('td');
-      const getTB = () => {
-        const sel = tds[1].querySelector('.tb-select');
-        if (sel.value === '__custom__') return tds[1].querySelector('.tb-custom').value.trim();
-        return sel.value.trim();
+    const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+    const stddev = arr => { const m=mean(arr); return Math.sqrt(mean(arr.map(x=>(x-m)*(x-m)))); };
+
+    /* =====================
+       Life Balance Visualizer (Radar)
+       ===================== */
+    const lbNodesG = document.getElementById('lbNodes'), lbEdgesG = document.getElementById('lbEdges'), lbLabelsG = document.getElementById('lbLabels');
+
+    function updateSliderDots(){
+      const dotMap = {
+        Mind:  document.getElementById('mindDot'),
+        Body:  document.getElementById('bodyDot'),
+        Money: document.getElementById('moneyDot'),
+        Relationships: document.getElementById('relDot')
       };
-      const getMax = () => {
-        const sel = tds[3].querySelector('.max-select');
-        if (sel.value === '__custom__') return tds[3].querySelector('.max-custom').value.trim();
-        return sel.value.trim();
-      };
-      return {
-        routine: tds[0].querySelector('input').value.trim(),
-        timeBlock: getTB(),
-        min: tds[2].querySelector('input').value.trim(),
-        max: getMax(),
-        leverageText: tds[4].querySelector('input').value.trim(),
-        leverageScore: tds[5].querySelector('input').value.trim(),
-        outcome: tds[6].querySelector('input').value.trim(),
-      };
+      Object.entries(dotMap).forEach(([k,el])=>{ if(el) el.style.background = colorRamp(state.balance[k]); });
     }
-    function serializeA(){
-      const rows = [];
-      $$('#tableA tbody tr').forEach(tr => rows.push(rowAtoObj(tr)));
-      localStorage.setItem(KEY_A, JSON.stringify(rows));
-      notifySaved('Table A saved');
-      refreshRoutineSelects();
+
+    function renderLB(){
+      const vals = state.balance;
+      const arr = [vals.Mind, vals.Body, vals.Money, vals.Relationships];
+      // Opportunity Efficiency
+      const maxStd = stddev([1,1,1,5]);
+      const oppEff = clamp((mean(arr)/5) * (1 - (stddev(arr) / maxStd)), 0, 1);
+      state.balance.tranquility = Math.round(oppEff*100);
+
+      const tOut = document.getElementById('tranqOut');
+      tOut.textContent = state.balance.tranquility + '%';
+      tOut.classList.toggle('text-bg-success', oppEff >= 0.7);
+      tOut.classList.toggle('text-bg-warning', oppEff >= 0.4 && oppEff < 0.7);
+      tOut.classList.toggle('text-bg-danger', oppEff < 0.4);
+
+      // Radar geometry
+      const cx = 210, cy = 180, minR = 20, maxR = 120;
+      const axes = [
+        {key:'Mind', angle:-Math.PI/2},
+        {key:'Money', angle:0},
+        {key:'Relationships', angle:Math.PI/2},
+        {key:'Body', angle:Math.PI}
+      ];
+      const scale = v => minR + (clamp(Number(v),1,5)-1)*((maxR-minR)/4);
+
+      // clear
+      lbEdgesG.innerHTML = ''; lbNodesG.innerHTML = ''; lbLabelsG.innerHTML = '';
+
+      // grid rings
+      for(let i=1;i<=5;i++){
+        const r = minR + (i-1)*((maxR-minR)/4);
+        const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circ.setAttribute('cx',cx); circ.setAttribute('cy',cy); circ.setAttribute('r',r);
+        circ.setAttribute('fill','none'); circ.setAttribute('stroke','rgba(108,122,153,0.15)'); circ.setAttribute('stroke-width','1');
+        lbEdgesG.appendChild(circ);
+      }
+
+      // axes + points + labels
+      const pts = [];
+      axes.forEach(ax=>{
+        // axis line
+        const axLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+        axLine.setAttribute('x1',cx); axLine.setAttribute('y1',cy);
+        axLine.setAttribute('x2', cx + Math.cos(ax.angle)*maxR);
+        axLine.setAttribute('y2', cy + Math.sin(ax.angle)*maxR);
+        axLine.setAttribute('stroke','#6c7a99'); axLine.setAttribute('opacity','0.25');
+        lbEdgesG.appendChild(axLine);
+
+        // point
+        const rNow = scale(vals[ax.key]);
+        const px = cx + Math.cos(ax.angle)*rNow;
+        const py = cy + Math.sin(ax.angle)*rNow;
+        const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        dot.setAttribute('cx',px); dot.setAttribute('cy',py); dot.setAttribute('r',6);
+        dot.setAttribute('fill', colorRamp(vals[ax.key])); dot.setAttribute('class','node');
+        lbNodesG.appendChild(dot);
+        pts.push({x:px,y:py});
+
+        // label
+        const lx = cx + Math.cos(ax.angle)*(maxR+18);
+        const ly = cy + Math.sin(ax.angle)*(maxR+18);
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',lx); t.setAttribute('y',ly); t.setAttribute('class','node-label'); t.textContent = ax.key;
+        lbLabelsG.appendChild(t);
+      });
+
+      // polygon
+      const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+      poly.setAttribute('points', pts.map(p=>`${p.x},${p.y}`).join(' '));
+      poly.setAttribute('fill','rgba(31,191,130,0.22)');
+      poly.setAttribute('stroke','rgba(31,191,130,0.9)'); poly.setAttribute('stroke-width','2');
+      lbNodesG.appendChild(poly);
+
+      // center indicator
+      const center = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      center.setAttribute('cx',cx); center.setAttribute('cy',cy); center.setAttribute('r',10);
+      center.setAttribute('fill', oppEff>=0.7 ? '#1fbf82' : (oppEff>=0.4 ? '#20a5a5' : '#808b99'));
+      lbNodesG.appendChild(center);
+
+      const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+      t2.setAttribute('x',cx); t2.setAttribute('y',cy+4); t2.setAttribute('class','node-label'); t2.textContent='Opportunity Efficiency';
+      lbLabelsG.appendChild(t2);
+
+      updateSliderDots();
+    }
+      // ---- Upkeep slider wiring (minimal) ----
+    const maintSlider = document.getElementById('maintSlider');
+    const maintOut    = document.getElementById('maintOut');
+
+
+    function recalcComplexityAndRedraw(){
+      // n = # of active routines/nodes currently rendered
+      const n = document.querySelectorAll('#nodes .node').length || 0;
+
+      // interdependencies = n(n-1)/2
+      const edges = (n * (n - 1)) / 2;
+
+      // upkeep minutes per task (slider) and total maintenance
+      const per = Number(maintSlider?.value ?? 0);
+      const totalMaint = n * per;
+
+      // update metric pills
+      const mN     = document.getElementById('m_n');
+      const mE     = document.getElementById('m_edges');
+      const mMaint = document.getElementById('m_maint');
+
+      if (mN)     mN.textContent     = n;
+      if (mE)     mE.textContent     = edges;
+      if (mMaint) mMaint.textContent = totalMaint;
+
+      // ---- Edge restyle: color + opacity + width from load ----
+      function restyleEdgesByLoad({ n, edges, per, totalMaint }){
+        const edgeEls = document.querySelectorAll('#edges .edge');
+        if (!edgeEls.length || !n) return;
+
+        // Normalize factors:
+        // per task upkeep: 0..120 (your slider max); clamp to 0..1
+        const perNorm = clamp(per / 120, 0, 1);
+
+        // interdependency intensity: edges grows ~n^2; cap to 45 (n≈10) for stability
+        const edgesNorm = clamp(edges / 45, 0, 1);
+
+        // total maintenance per node ~ per; keep as soft check (redundant but user-intuitive)
+        const totalNorm = clamp((totalMaint / (n * 120)), 0, 1); // ≈ perNorm
+
+        // Composite intensity (weights tuned to make slider clearly “in charge”)
+        const intensity = clamp(0.6 * perNorm + 0.25 * edgesNorm + 0.15 * totalNorm, 0, 1);
+
+        // Map intensity → stroke color/opacity/width
+        // Hue: blue(200) → red(20) as load increases; no custom CSS needed
+        const hue      = Math.round(200 - 180 * intensity);
+        const opacity  = 0.15 + 0.55 * intensity; // was ≈0.1875 static
+        const width    = 1 + 2 * intensity;
+
+        edgeEls.forEach(line => {
+          line.style.stroke      = `hsl(${hue} 60% 55%)`;
+          line.style.opacity     = opacity.toFixed(3);
+          line.style.strokeWidth = `${width.toFixed(2)}px`;
+        });
+
+        // Optional: tiny legend hint (keeps layout)
+        const hint = document.getElementById('edgeLegendHint');
+        if (hint) {
+          hint.textContent = `Edge color/width react to Upkeep per task, Interdependencies, and total Maintenance.`;
+        }
+      }
+
+
+      // if you already have renderComplexity/renderVelocity, keep them:
+      if (typeof renderComplexity === 'function') renderComplexity();
+      if (typeof renderVelocity   === 'function') renderVelocity();
+
+      // if you show “Maintenance Hours” elsewhere, you can update it here:
+      const hoursEl = document.getElementById('maintHours');
+      if (hoursEl) hoursEl.textContent = (totalMaint/60).toFixed(1);
+    }
+
+    if (maintSlider && maintOut) {
+      maintSlider.addEventListener('input', (e) => {
+        maintOut.textContent = e.target.value;
+        recalcComplexityAndRedraw();
+      });
+    }
+
+    /* =====================
+       Examples (domain → list)
+       ===================== */
+    const exampleBank = {
+      Money: [
+        'Automate savings transfers',
+        'Productize a service (starter offer)',
+        'Weekly offer sprint (2 hrs)',
+        'Hire a coach for pricing & GTM',
+        'Close loops: invoice & collect'
+      ],
+      Body: [
+        'Trainer 2x/week (compound lifts)',
+        '10k steps + sunlight walk',
+        'Sleep window: 10:30–6:30',
+        'Meal prep Sun/Wed (30m)',
+        'Mobility 10m post-workout'
+      ],
+      Mind: [
+        '25m deep-work blocks (3x/day)',
+        'Meditation 10m (AM)',
+        'Therapy/coaching weekly',
+        'Distraction audit + blockers',
+        'Write 200 words before phone'
+      ],
+      Relationships: [
+        'Weekly accountability call',
+        'Date night planned Wed',
+        'Text 1 friend daily',
+        'No-phone dinner block',
+        'Volunteer or group session'
+      ]
+    };
+// ---- Params you can tune ----
+const W = { A:0.5, D:0.5, R:0.5, C:0.5 };
+const L_TARGET = 3.0;           // "high leverage" threshold
+const AMPL_MAX = 4.0;           // cap
+// === Auto-compute a provable leverage score from existing fields (no UI changes) ===
+// OECD identity: Productivity = Output / Input.
+// Output = 'last' (fallback to 'min'); Input = upkeep minutes per task (maintSlider).
+// Baseline productivity P0 = (min / input); Amplification = 1 by default.
+function computeAutoScore(row, perTask){
+  const input = Number(perTask) > 0 ? Number(perTask) : 1;
+  const output = Number(row.last) || Number(row.min) || 0;
+  if (!Number.isFinite(output) || output <= 0) return '';
+
+  const baselineOut = Number(row.min) || output;
+  const P0 = baselineOut / input;
+  const prod = output / input;
+
+  const prodNorm = prod / (P0 || 1e-9);
+  const ampl = 1;
+  const lev  = prodNorm * ampl;
+
+  const L_norm = Math.min(1, lev / L_TARGET);
+  const score = 1 + 4 * L_norm;   // 1..5
+  return Number(score.toFixed(1));
+}
+
+
+// Safe helpers
+const clamp01 = x => Math.max(0, Math.min(1, x));
+
+// Core identities
+function productivity(outputUnits, inputMinutes){
+  if (!inputMinutes) return 0;
+  return outputUnits / inputMinutes;   // OECD identity
+}
+
+function amplification({A=0, D=0, R=0, C=0}){
+  const amp = (1 + W.A*clamp01(A)) *
+              (1 + W.D*clamp01(D)) *
+              (1 + W.R*clamp01(R)) *
+              (1 + W.C*clamp01(C));
+  return Math.min(amp, AMPL_MAX);
+}
+
+function leverageScore({output, input, baselineP, A=0, D=0, R=0, C=0}){
+  const prod = productivity(output, input);
+  const P0   = Math.max(baselineP || 0, 1e-9); // avoid 0 baseline
+  const prodNorm = prod / P0;
+
+  const ampl = amplification({A,D,R,C});
+  const lev  = prodNorm * ampl;
+
+  const L_norm = Math.min(1, lev / L_TARGET);
+  return 1 + 4 * L_norm; // 1..5
+}
+
+// Example aggregator by domain
+function domainScore(routines){ // [{domain, output, input, baselineP, A,D,R,C}, ...]
+  const byDomain = new Map();
+  for (const r of routines){
+    const s = leverageScore(r);
+    if (!Number.isFinite(s)) continue;
+    if (!byDomain.has(r.domain)) byDomain.set(r.domain, []);
+    byDomain.get(r.domain).push(s);
+  }
+  const domainScores = {};
+  for (const [dom, arr] of byDomain){
+    domainScores[dom] = arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : NaN;
+  }
+  // Opportunity Efficiency %
+  const four = ["Mind","Body","Money","Relationships"].map(d => domainScores[d]).filter(Number.isFinite);
+  const oppEff = four.length ? (four.reduce((a,b)=>a+b,0)/four.length)/5*100 : NaN;
+  return { domainScores, oppEff };
+}
+    function regenExamples(){
+      const wrap = document.getElementById('examplesWrap'); wrap.innerHTML='';
+      Object.keys(exampleBank).forEach(domain=>{
+        const level = state.balance[domain];
+        const n = clamp(level,1,5);
+        const list = exampleBank[domain].slice(0,n);
+        const card = document.createElement('div'); card.className='col';
+        card.innerHTML = `
+          <div class="card h-100 text-light rounded-0">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>${domain}</strong>
+                <span class="pill">Lv ${level}</span>
+              </div>
+              <ul class="mb-3 text-light" style="padding-left:1.1rem;">
+                ${list.map(x=>`<li>${x}</li>`).join('')}
+              </ul>
+              <div class="mt-auto">
+                <button class="btn btn-sm btn-accent w-100" data-domain="${domain}">Pin top example to Velocity</button>
+              </div>
+            </div>
+          </div>`;
+        wrap.appendChild(card);
+      });
+    }
+
+    /* =====================
+       Velocity Table (replaces Routine cards)
+       ===================== */
+    const tableBody = document.querySelector('#velocityTable tbody');
+    const listWrap  = document.getElementById('vtList');
+    const editorEl  = document.getElementById('vtEditor');
+    const offcanvas = new bootstrap.Offcanvas(editorEl);
+    let editIndex = null;
+
+    // Source of truth
+    window.velocityData = window.velocityData || [
+      {routine:'Words/Day', block:'5:00–7:00 AM', min:1000, last:1200, max:2000, lev:'Outline → Draft → Edit', score:4, outcome:'1 novel + 2 ADC books'},
+      {routine:'Strength (A/B)', block:'3:30–4:30 PM', min:30, last:40, max:60, lev:'Coach + progressive overload', score:5, outcome:'Lean mass + energy stability'}
+    ];
+    function nextName(base){
+    const names = new Set((window.velocityData||[]).map(r => (r.routine||'').trim()));
+    if(!names.has(base)) return base;
+    let i = 2, name = `${base} (${i})`;
+    while(names.has(name)) name = `${base} (${++i})`;
+    return name;
+    }
+    function renderVelocity(){
+  const perTask = Number(document.getElementById('maintSlider').value)||0;
+  const rowsWithAuto = (window.velocityData||[]).map(r=>({ ...r, _autoScore: computeAutoScore(r, perTask) }));
+      // desktop
+        tableBody.innerHTML = rowsWithAuto.map((row,i)=>`
+        <tr class="vt-row" data-idx="${i}">
+          <th scope="row">${row.routine||'—'}</th>
+          <td>${row.block||'—'}</td>
+          <td>${row.min??'—'}</td>
+          <td>${row.last??'—'}</td>
+          <td>${row.max??'—'}</td>
+          <td>${row.lev||'—'}</td>
+          <td>${(row.score||row._autoScore||'') || '<span class="badge text-bg-danger">set</span>'}</td>
+          <td>${row.outcome||'—'}</td>
+        </tr>`).join('');
+
+      // mobile
+        listWrap.innerHTML = rowsWithAuto.map((row,i)=>`
+        <div class="card p-3" data-idx="${i}">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-semibold">${row.routine||'—'}</div>
+              <div class="small text-muted">${row.block||'—'}</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-secondary">${row.score||row._autoScore||'—'}</span>
+              <button class="btn btn-sm btn-outline-light vt-edit" data-idx="${i}">Edit</button>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mt-2">
+            <div><div class="small text-muted">Min</div><div>${row.min??'—'}</div></div>
+            <div><div class="small text-muted">Last</div><div>${row.last??'—'}</div></div>
+            <div><div class="small text-muted">Max</div><div>${row.max??'—'}</div></div>
+          </div>
+        </div>`).join('');
+    }
+
+    function openEditor(idx){
+      editIndex = idx;
+      const r = window.velocityData[idx] || {routine:'', block:'', min:'', last:'', max:'', lev:'', score:'', outcome:''};
+      document.getElementById('f_routine').value = r.routine||'';
+      document.getElementById('f_block').value   = r.block||'';
+      document.getElementById('f_min').value     = r.min ?? '';
+      document.getElementById('f_last').value    = r.last ?? '';
+      document.getElementById('f_max').value     = r.max ?? '';
+      document.getElementById('f_lev').value     = r.lev||'';
+      document.getElementById('f_score').value   = r.score ?? '';
+      document.getElementById('f_outcome').value = r.outcome||'';
+      offcanvas.show();
+    }
+
+    document.addEventListener('click', (e)=>{
+      const tr = e.target.closest('tr.vt-row');
+      if(tr && tr.dataset.idx){ openEditor(Number(tr.dataset.idx)); }
+      if(e.target.matches('.vt-edit')){ openEditor(Number(e.target.dataset.idx)); }
+
+      // Pin from examples
+      const pinBtn = e.target.closest('button[data-domain]');
+      if(pinBtn){
+      const domain = pinBtn.getAttribute('data-domain');
+      const topExample = (exampleBank[domain] && exampleBank[domain][0]) || (domain + ' focus');
+      const base = `${domain}: ${topExample}`;
+      const routineName = nextName(base);
+      const level = clamp(state.balance[domain] ?? 3, 1, 5);
+
+
+      window.velocityData.push({
+      routine: routineName,
+      block: '—',
+      min: '',
+      last: '',
+      max: '',
+      lev: `${domain} leverage`,
+      score: level,
+      outcome: ''
+      });
+
+
+      renderVelocity();
       renderComplexity();
-      ensureStackLabels('#tableA');
-    }
-    function optHTML(current, ...vals){
-      return vals.map(v=>{
-        const sel = (String(v)===String(current)) ? ' selected' : '';
-        return `<option${sel}>${v}</option>`;
-      }).join('');
-    }
-    function addRowA(prefill){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td data-label="Routine"><input class="form-control" value="${prefill?.routine||''}" autocomplete="off"></td>
-        <td data-label="Time Block">
-          <select class="form-select tb-select">
-            ${optHTML(prefill?.timeBlock||'','5:00 AM – 7:00 AM','7:00 AM – 9:00 AM','9:00 AM – 11:00 AM','12:00 PM – 1:30 PM','5:00 PM – 7:00 PM')}
-            <option value="__custom__">Custom…</option>
-          </select>
-          <input class="form-control mt-2 d-none tb-custom" placeholder="Custom block" autocomplete="off">
-        </td>
-        <td data-label="Min"><input class="form-control" type="number" value="${prefill?.min||''}" inputmode="numeric"></td>
-        <td data-label="Max">
-          <select class="form-select max-select">
-            ${optHTML(prefill?.max||'','1','2','3','4','5','1000','1500','2000')}
-            <option value="__custom__">Custom…</option>
-          </select>
-          <input class="form-control mt-2 d-none max-custom" type="number" placeholder="Max" inputmode="numeric">
-        </td>
-        <td data-label="Leverage"><input class="form-control" value="${prefill?.leverageText||''}" autocomplete="off"></td>
-        <td data-label="Leverage Score (1–5)"><input class="form-control" type="number" min="1" max="5" value="${prefill?.leverageScore||''}" inputmode="numeric"></td>
-        <td data-label="Five Year Outcome"><input class="form-control" value="${prefill?.outcome||''}"></td>
-        <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-a">✕</button></td>
-      `;
-      $('#tableA tbody').appendChild(tr);
-      attachSelectHandlers(tr);
-      ensureStackLabels('#tableA');
-    }
-    function loadA(){
-      const raw = localStorage.getItem(KEY_A);
-      if(!raw){ refreshRoutineSelects(); renderComplexity(); ensureStackLabels('#tableA'); return; }
-      const rows = JSON.parse(raw);
-      $('#tableA tbody').innerHTML = '';
-      rows.forEach(r => addRowA(r));
-      $$('#tableA tbody tr').forEach(tr => reflectCustomVisibility(tr));
-      refreshRoutineSelects(); renderComplexity(); ensureStackLabels('#tableA');
-    }
-    function reflectCustomVisibility(tr){
-      const tbSel = tr.querySelector('.tb-select');
-      const tbCustom = tr.querySelector('.tb-custom');
-      tbCustom.classList.toggle('d-none', tbSel.value !== '__custom__');
-      const maxSel = tr.querySelector('.max-select');
-      const maxCustom = tr.querySelector('.max-custom');
-      maxCustom.classList.toggle('d-none', maxSel.value !== '__custom__');
-    }
-    function attachSelectHandlers(scope){
-      const sc = scope || document;
-      sc.querySelectorAll('.tb-select').forEach(sel=>{
-        sel.addEventListener('change', ()=>{
-          sel.closest('td').querySelector('.tb-custom').classList.toggle('d-none', sel.value !== '__custom__');
-          serializeA();
-        });
-      });
-      sc.querySelectorAll('.max-select').forEach(sel=>{
-        sel.addEventListener('change', ()=>{
-          sel.closest('td').querySelector('.max-custom').classList.toggle('d-none', sel.value !== '__custom__');
-          serializeA();
-        });
-      });
-    }
+      }
+    });
 
-    /* ===== Fill routine selects (desktop + mobile) ===== */
-    function refreshRoutineSelects(){
-      const map = tableAMap();
-      const routines = [...map.keys()];
-      const fill = (sel) => {
-        const keep = sel.value;
-        sel.innerHTML = '<option value="">Select Routine…</option>';
-        routines.forEach(r=> sel.insertAdjacentHTML('beforeend', `<option>${r}</option>`));
-        if(routines.includes(keep)) sel.value = keep;
-      };
-      fill($('#routineSelect')); fill($('#routineSelectMobile'));
-      onRoutineChange('desktop'); onRoutineChange('mobile');
-    }
-    function tableAMap(){
+    document.getElementById('addRow').addEventListener('click', ()=>{
+      window.velocityData.push({routine:'', block:'', min:'', last:'', max:'', lev:'', score:'', outcome:''});
+      renderVelocity();
+      openEditor(window.velocityData.length-1);
+    });
+
+    document.getElementById('saveRow').addEventListener('click', ()=>{
+      if(editIndex==null) return;
+      const r = window.velocityData[editIndex] || {};
+      r.routine = document.getElementById('f_routine').value.trim();
+      r.block   = document.getElementById('f_block').value.trim();
+      r.min     = Number(document.getElementById('f_min').value)||'';
+      r.last    = Number(document.getElementById('f_last').value)||'';
+      r.max     = Number(document.getElementById('f_max').value)||'';
+      r.lev     = document.getElementById('f_lev').value.trim();
+      const s   = Number(document.getElementById('f_score').value);
+      r.score   = (s>=1 && s<=5) ? s : '';
+      r.outcome = document.getElementById('f_outcome').value.trim();
+      window.velocityData[editIndex] = r;
+      renderVelocity();
+      renderComplexity();
+      offcanvas.hide();
+    });
+
+    document.getElementById('deleteRow').addEventListener('click', ()=>{
+      if(editIndex==null) return;
+      window.velocityData.splice(editIndex,1);
+      renderVelocity();
+      renderComplexity();
+      offcanvas.hide();
+    });
+
+    // routinesMap shim: Complexity reads from Velocity Table data
+    window.routinesMap = function(){
       const m = new Map();
-      $$('#tableA tbody tr').forEach(tr=>{
-        const o = rowAtoObj(tr);
-        if(o.routine) m.set(o.routine, o);
+      (window.velocityData||[]).forEach(r=>{
+        const key = (r.routine||'').trim();
+        if(!key) return;
+        m.set(key, {
+          routine: r.routine||'',
+          timeBlock: r.block||'',
+          min: r.min||'',
+          last: r.last||'',
+          max: r.max||'',
+          leverageText: r.lev||'',
+          leverageScore: r.score||'',
+          outcome: r.outcome||''
+        });
       });
       return m;
-    }
+    };
+    
 
-    /* ===== Table B ===== */
-    function addRowB(obj){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td data-label="Date Added">${obj.date}</td>
-        <td data-label="Routine" contenteditable="true">${obj.routine}</td>
-        <td data-label="Leverage" contenteditable="true">${obj.leverage}</td>
-        <td data-label="Leverage Score (1–5)" contenteditable="true">${obj.leverageScore||''}</td>
-        <td data-label="Time Block" contenteditable="true">${obj.timeBlock}</td>
-        <td data-label="Min" contenteditable="true">${obj.min}</td>
-        <td data-label="Max" contenteditable="true">${obj.max}</td>
-        <td data-label="Five Year Outcome" contenteditable="true">${obj.outcome}</td>
-        <td data-label=" "><button class="btn btn-sm btn-outline-danger remove-row-b">✕</button></td>
-      `;
-      $('#tableB tbody').appendChild(tr);
-      saveB(); updateTimestamp(); highlightDiffsForRow(tr); ensureStackLabels('#tableB');
-    }
-    function saveB(){
-      const rows = [];
-      $$('#tableB tbody tr').forEach(tr=>{
-        const t = tr.querySelectorAll('td');
-        rows.push({
-          date:(t[0]?.innerText||'').trim(),
-          routine:(t[1]?.innerText||'').trim(),
-          leverage:(t[2]?.innerText||'').trim(),
-          leverageScore:(t[3]?.innerText||'').trim(),
-          timeBlock:(t[4]?.innerText||'').trim(),
-          min:(t[5]?.innerText||'').trim(),
-          max:(t[6]?.innerText||'').trim(),
-          outcome:(t[7]?.innerText||'').trim()
-        });
-      });
-      localStorage.setItem(KEY_B, JSON.stringify(rows));
-      notifySaved('Output Log saved');
+    /* =====================
+       Complexity Graph
+       ===================== */
+    const gEdges = document.getElementById('edges'), gNodes = document.getElementById('nodes'), gLabels = document.getElementById('labels');
 
-    }
-    function loadB(){
-      const raw = localStorage.getItem(KEY_B);
-      if(!raw) return;
-      try{ JSON.parse(raw).forEach(r => addRowB(r)); }catch{}
-      ensureStackLabels('#tableB');
-    }
+    // Use the same ramp for leverage score
+    const colorForScore = (s)=> (Number(s) >= 1 ? colorRamp(s) : '#ff3b30');
 
-    /* ===== Diff highlight ===== */
-    function findPrevSameRoutine(row){
-      const routine = row.querySelector('td:nth-child(2)')?.innerText.trim();
-      if(!routine) return null;
-      const all = Array.from($('#tableB tbody').children);
-      const idx = all.indexOf(row);
-      for(let i=idx-1;i>=0;i--){
-        if((all[i].querySelector('td:nth-child(2)')?.innerText.trim())===routine) return all[i];
-      }
-      return null;
-    }
-    function clearDiffStyles(row){
-      row.querySelectorAll('td').forEach(td=>{
-        td.classList.remove('diff-cell');
-        const dot = td.querySelector('.diff-dot'); if(dot) dot.remove();
-      });
-    }
-    function markChangedCell(td, prev){
-      td.classList.add('diff-cell'); td.title = `Prev: ${prev}`;
-      const dot = document.createElement('span'); dot.className='diff-dot'; td.appendChild(dot);
-    }
-    function highlightDiffsForRow(row){
-      clearDiffStyles(row);
-      const prev = findPrevSameRoutine(row); if(!prev) return;
-      [3,4,5,6,7,8].forEach(n=>{
-        const td = row.querySelector(`td:nth-child(${n})`);
-        const pv = (prev.querySelector(`td:nth-child(${n})`)?.innerText||'').trim();
-        const cv = (td?.innerText||'').trim();
-        if(cv!==pv) markChangedCell(td, pv);
-      });
-    }
-    function rehighlightAll(){ $$('#tableB tbody tr').forEach(highlightDiffsForRow); }
-
-    /* ===== Desktop form population (IDs) ===== */
-    function setSelectOptions(el, values, withCustom=true){
-      el.innerHTML = '<option value="">Select…</option>';
-      values.filter(Boolean).forEach(v=>{
-        const opt = document.createElement('option'); opt.value=v; opt.textContent=v; el.appendChild(opt);
-      });
-      if(withCustom){ const c=document.createElement('option'); c.value='__custom__'; c.textContent='Custom…'; el.appendChild(c); }
-    }
-    function currentValue(selectEl, customEl){
-      return (selectEl.value==='__custom__') ? customEl.value.trim() : selectEl.value;
-    }
-
-    /* ===== Desktop + Mobile: onRoutineChange & toggle custom ===== */
-    function onRoutineChange(which){
-      const map = tableAMap();
-      const rec = map.get(which==='mobile' ? $('#routineSelectMobile').value : $('#routineSelect').value);
-
-      const tbSel = (which==='mobile') ? $('#timeBlockSelectMobile') : $('#timeBlockSelect');
-      const tbCustom = (which==='mobile') ? $('#timeBlockCustomMobile') : $('#timeBlockCustom');
-      const minSel = (which==='mobile') ? $('#minSelectMobile') : $('#minSelect');
-      const minCustom = (which==='mobile') ? $('#minCustomMobile') : $('#minCustom');
-      const maxSel = (which==='mobile') ? $('#maxSelectMobile') : $('#maxSelect');
-      const maxCustom = (which==='mobile') ? $('#maxCustomMobile') : $('#maxCustom');
-
-      tbCustom.classList.add('d-none'); minCustom.classList.add('d-none'); maxCustom.classList.add('d-none');
-
-      if(!rec){ setSelectOptions(tbSel,[]); setSelectOptions(minSel,[]); setSelectOptions(maxSel,[]); return; }
-
-      const tbOpts = [rec.timeBlock,'5:00 AM – 7:00 AM','7:00 AM – 9:00 AM','9:00 AM – 11:00 AM','12:00 PM – 1:30 PM','5:00 PM – 7:00 PM']
-        .filter((v,i,arr)=>v && arr.indexOf(v)===i);
-      setSelectOptions(tbSel, tbOpts, true);
-
-      const mid = Math.round(((Number(rec.min)||0)+(Number(rec.max)||0))/2)||undefined;
-      const minList = [rec.min, mid].filter(Boolean);
-      const maxList = [rec.max, mid, (Number(rec.max)||0)*2].filter(Boolean);
-      setSelectOptions(minSel, [...new Set(minList.map(String))], true);
-      setSelectOptions(maxSel, [...new Set(maxList.map(String))], true);
-    }
-    function toggleCustomInputs(which){
-      const tbSel = (which==='mobile') ? $('#timeBlockSelectMobile') : $('#timeBlockSelect');
-      const tbCustom = (which==='mobile') ? $('#timeBlockCustomMobile') : $('#timeBlockCustom');
-      const minSel = (which==='mobile') ? $('#minSelectMobile') : $('#minSelect');
-      const minCustom = (which==='mobile') ? $('#minCustomMobile') : $('#minCustom');
-      const maxSel = (which==='mobile') ? $('#maxSelectMobile') : $('#maxSelect');
-      const maxCustom = (which==='mobile') ? $('#maxCustomMobile') : $('#maxCustom');
-
-      tbCustom.classList.toggle('d-none', tbSel.value!=='__custom__');
-      minCustom.classList.toggle('d-none', minSel.value!=='__custom__');
-      maxCustom.classList.toggle('d-none', maxSel.value!=='__custom__');
-    }
-
-    /* ===== Complexity widget ===== */
-    const gEdges = $('#edges'), gNodes = $('#nodes'), gLabels = $('#labels');
-    function colorForScore(s){
-      const n = Number(s);
-      if(!Number.isFinite(n)) return '#8aa1c9';
-      const clamp = Math.max(1, Math.min(5, n));
-      const t = (clamp-1)/4;
-      const r = Math.round(240 + (80-240)*t);
-      const g = Math.round(80 + (240-80)*t);
-      const b = Math.round(80 + (130-80)*t);
-      return `rgb(${r},${g},${b})`;
-    }
     function layoutCircle(n, w=1000, h=640, pad=56){
       const cx=w/2, cy=h/2, R=Math.min(w,h)/2 - pad;
       return Array.from({length:n}, (_,i)=>{
@@ -629,39 +976,43 @@
     function fmt(x){ return (x>=1000) ? (Math.round(x/10)/100)+'k' : String(Math.round(x*10)/10); }
 
     function renderComplexity(){
-      const rows = [];
-      $$('#tableA tbody tr').forEach(tr=>{
-        const o = rowAtoObj(tr);
-        if(o.routine) rows.push(o);
-      });
+      const rows = Array.from(routinesMap().values());
       const n = rows.length;
-      const perTask = Number($('#maintSlider').value)||0;
-      $('#maintOut').textContent = perTask;
-      $('#m_n').textContent = n;
-      const edges = n*(n-1)/2;
-      $('#m_edges').textContent = fmt(edges);
-      $('#m_maint').textContent = String(n*perTask);
-      const avgL = rows.length ? (rows.reduce((a,r)=>a+(Number(r.leverageScore)||0),0)/rows.length) : NaN;
-      $('#m_lavg').textContent = Number.isFinite(avgL) ? avgL.toFixed(1) : '—';
 
-      gEdges.innerHTML=''; gNodes.innerHTML=''; gLabels.innerHTML='';
-      if(n===0) return;
+      const perTask = Number(document.getElementById('maintSlider').value) || 0;
+      document.getElementById('maintOut').textContent = perTask;
+      document.getElementById('m_n').textContent = n;
+
+      const edges = n * (n - 1) / 2;
+      document.getElementById('m_edges').textContent = fmt(edges);
+      document.getElementById('m_maint').textContent = String(n * perTask);
+
+      const scores = rows
+      .map(r => Number(r.leverageScore))
+      .filter(v => Number.isFinite(v) && v >= 1);
+      const avgL = scores.length ? (scores.reduce((a,b)=>a+b,0) / scores.length) : NaN;
+      document.getElementById('m_lavg').textContent = Number.isFinite(avgL) ? avgL.toFixed(1) : '—';
+
+      gEdges.innerHTML = ''; gNodes.innerHTML = ''; gLabels.innerHTML = '';
+      if (n === 0) return;
 
       const pts = layoutCircle(n);
-      const edgeAlpha = Math.max(0.08, Math.min(0.6, 12/(n*n)));
+      const edgeAlpha = Math.max(0.08, Math.min(0.6, 12 / (n * n)));
 
-      for(let i=0;i<n;i++){
-        for(let j=i+1;j<n;j++){
-          const a=pts[i], b=pts[j];
-          const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-          line.setAttribute('x1',a.x); line.setAttribute('y1',a.y);
-          line.setAttribute('x2',b.x); line.setAttribute('y2',b.y);
-          line.setAttribute('class','edge'); line.setAttribute('style', `opacity:${edgeAlpha}; stroke:#6c7a99 !important; stroke-width:1px !important;`);
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const a = pts[i], b = pts[j];
+          const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+          line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+          line.setAttribute('class', 'edge');
+          line.setAttribute('style', `opacity:${edgeAlpha}; stroke:#6c7a99; stroke-width:1px;`);
           gEdges.appendChild(line);
         }
       }
-      const r = Math.max(8, 18 - Math.max(0,n-6));
-      rows.forEach((row,i)=>{
+
+      const r = Math.max(8, 18 - Math.max(0, n - 6));
+      rows.forEach((row, i) => {
         const pt = pts[i];
         const nodeColor = colorForScore(row.leverageScore);
 
@@ -670,140 +1021,152 @@
         c.setAttribute('cy', pt.y);
         c.setAttribute('r', r);
         c.setAttribute('class', 'node');
-        // Force coloring even if external CSS uses !important
-        c.setAttribute('style', `fill:${nodeColor} !important; stroke:#0b1220 !important; stroke-width:2px !important;`);
+        c.setAttribute('style', `fill:${nodeColor}; stroke:#0b1220; stroke-width:2px;`);
         gNodes.appendChild(c);
 
         const t = document.createElementNS('http://www.w3.org/2000/svg','text');
         t.setAttribute('x', pt.x);
         t.setAttribute('y', pt.y - r - 6);
-        t.setAttribute('class','node-label');
+        t.setAttribute('class', 'node-label');
         t.textContent = row.routine;
         gLabels.appendChild(t);
       });
-
     }
 
-    /* ===== CSV & PNG ===== */
-    function downloadCSV(){
-      const rows = [['Date Added','Routine','Leverage','Leverage Score','Time Block','Min','Max','Five Year Outcome']];
-      $$('#tableB tbody tr').forEach(tr=>{
-        const t=tr.querySelectorAll('td');
-        rows.push([t[0]?.innerText||'', t[1]?.innerText||'', t[2]?.innerText||'', t[3]?.innerText||'', t[4]?.innerText||'', t[5]?.innerText||'', t[6]?.innerText||'', t[7]?.innerText||'']);
-      });
-      const csv = rows.map(r=>r.map(v=>{
-        v=(v??'').toString().replaceAll('"','""');
-        return /[",\n]/.test(v) ? `"${v}"` : v;
-      }).join(',')).join('\n');
-      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `velocity_tableB_${new Date().toISOString().slice(0,10)}.csv`;
-      a.click(); URL.revokeObjectURL(a.href);
-    }
-    async function captureCard(){
-      const node = $('#tableBCard');
-      const canvas = await html2canvas(node, { scale:2, backgroundColor:getComputedStyle(node).backgroundColor });
-      const a = document.createElement('a');
-      a.download = `velocity_tableB_${Date.now()}.png`;
-      a.href = canvas.toDataURL('image/png'); a.click();
-    }
-
-    /* ===== Events ===== */
-    document.addEventListener('click', (e)=>{
-      if(e.target.id==='addRowA'){ addRowA(); }
-      if(e.target.id==='saveA'){ serializeA(); }
-      if(e.target.classList.contains('remove-row-a')){ e.target.closest('tr').remove(); serializeA(); }
-      if(e.target.classList.contains('remove-row-b')){ e.target.closest('tr').remove(); saveB(); updateTimestamp(); rehighlightAll(); ensureStackLabels('#tableB'); }
-      if(e.target.id==='downloadPng'){ captureCard(); }
-      if(e.target.id==='downloadCsv'){ downloadCSV(); }
-      if(e.target.id === 'clearAll'){
-        if(confirm('Clear all saved data (Tables A & B)? This cannot be undone.')){
-          localStorage.removeItem(KEY_A);
-          localStorage.removeItem(KEY_B);
-          // reset UI
-          $('#tableA tbody').innerHTML = '';
-          $('#tableB tbody').innerHTML = '';
-          addRowA(); // give them one fresh row to start
-          refreshRoutineSelects();
-          renderComplexity();
-          updateTimestamp();
-          ensureStackLabels('#tableA');
-          ensureStackLabels('#tableB');
-          notifySaved('All data cleared');
-        }
+    /* =====================
+       Exports (with gating)
+       ===================== */
+    function gateOr(fn){
+      if(!state.flags.firstExportDone){
+        state.flags.firstExportDone = true; fn();
+      }else{
+        const modal = new bootstrap.Modal('#gateModal'); modal.show();
       }
-
-    });
-
-    $('#tableA').addEventListener('input', ()=>{ clearTimeout(window._a); window._a=setTimeout(serializeA, 200); });
-    attachSelectHandlers(document);
-
-    // Desktop form
-    $('#clearForm')?.addEventListener('click', ()=>{ $('#entryForm').reset(); toggleCustomInputs('desktop'); });
-    $('#tableB').addEventListener('input', ()=>{ clearTimeout(window._b); window._b=setTimeout(()=>{ saveB(); rehighlightAll(); }, 200); });
-
-    // Desktop form reacts
-    $('#routineSelect')?.addEventListener('change', ()=>onRoutineChange('desktop'));
-    $('#timeBlockSelect')?.addEventListener('change', ()=>toggleCustomInputs('desktop'));
-    $('#minSelect')?.addEventListener('change', ()=>toggleCustomInputs('desktop'));
-    $('#maxSelect')?.addEventListener('change', ()=>toggleCustomInputs('desktop'));
-
-    // Desktop submit
-    $('#entryForm')?.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const routine = $('#routineSelect').value; if(!routine) return alert('Select a Routine.');
-      const leverage = $('#leverage').value.trim(); if(!leverage) return alert('Enter Leverage text.');
-      const tb = currentValue($('#timeBlockSelect'), $('#timeBlockCustom'));
-      const minVal = currentValue($('#minSelect'), $('#minCustom'));
-      const maxVal = currentValue($('#maxSelect'), $('#maxCustom'));
-      if(!tb || !minVal || !maxVal) return alert('Fill Time Block / Min / Max.');
-      const rec = tableAMap().get(routine)||{};
-      addRowB({ date: nowStamp(), routine, leverage, leverageScore: rec.leverageScore || '', timeBlock: tb, min: minVal, max: maxVal, outcome: rec.outcome || '' });
-      $('#leverage').value=''; $('#timeBlockSelect').value=''; $('#minSelect').value=''; $('#maxSelect').value=''; toggleCustomInputs('desktop');
-    });
-
-    // Mobile sheet: listeners and submit
-    $('#routineSelectMobile')?.addEventListener('change', ()=>onRoutineChange('mobile'));
-    $('#timeBlockSelectMobile')?.addEventListener('change', ()=>toggleCustomInputs('mobile'));
-    $('#minSelectMobile')?.addEventListener('change', ()=>toggleCustomInputs('mobile'));
-    $('#maxSelectMobile')?.addEventListener('change', ()=>toggleCustomInputs('mobile'));
-
-    $('#entryFormMobile')?.addEventListener('submit', (e)=>{
-      e.preventDefault();
-      const routine = $('#routineSelectMobile').value; if(!routine) return alert('Select a Routine.');
-      const leverage = $('#leverageMobile').value.trim(); if(!leverage) return alert('Enter Leverage text.');
-      const tb = currentValue($('#timeBlockSelectMobile'), $('#timeBlockCustomMobile'));
-      const minVal = currentValue($('#minSelectMobile'), $('#minCustomMobile'));
-      const maxVal = currentValue($('#maxSelectMobile'), $('#maxCustomMobile'));
-      if(!tb || !minVal || !maxVal) return alert('Fill Time Block / Min / Max.');
-      const rec = tableAMap().get(routine)||{};
-      addRowB({ date: nowStamp(), routine, leverage, leverageScore: rec.leverageScore || '', timeBlock: tb, min: minVal, max: maxVal, outcome: rec.outcome || '' });
-      // Clear + close sheet
-      $('#leverageMobile').value=''; $('#timeBlockSelectMobile').value=''; $('#minSelectMobile').value=''; $('#maxSelectMobile').value='';
-      toggleCustomInputs('mobile');
-      const sheet = bootstrap.Offcanvas.getOrCreateInstance('#addEntrySheet'); sheet.hide();
-    });
-
-    // Add data-labels for stacked view
-    function ensureStackLabels(tableSel){
-      const table = document.querySelector(tableSel);
-      if(!table) return;
-      const heads = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent.trim());
-      table.querySelectorAll('tbody tr').forEach(tr=>{
-        const tds = tr.querySelectorAll('td');
-        tds.forEach((td,i)=>{ if(!td.hasAttribute('data-label')) td.setAttribute('data-label', heads[i] || ' '); });
-      });
     }
 
-    // Slider → widget
-    $('#maintSlider').addEventListener('input', ()=>{ $('#maintOut').textContent = $('#maintSlider').value; renderComplexity(); });
+    async function downloadPNG(){
+      const card = document.createElement('div');
+      card.style.background = getComputedStyle(document.body).backgroundColor;
+      card.style.padding = '16px';
+      card.style.color = getComputedStyle(document.body).color;
+      card.innerHTML = `
+        <div style="border:1px solid var(--line); border-radius:12px; padding:12px;">
+          <h3 style="margin:0 0 8px 0;">Opportunity Efficiency Summary</h3>
+          <div id="captureArea"></div>
+        </div>`;
+      document.body.appendChild(card);
+      const capture = card.querySelector('#captureArea');
+      capture.appendChild(document.getElementById('velocityTable').cloneNode(true));
+      const meta = document.createElement('div');
+      meta.style.marginTop = '8px';
+      capture.appendChild(meta);
+      const canvas = await html2canvas(card, {scale:2, backgroundColor:getComputedStyle(card).backgroundColor});
+      const a = document.createElement('a');
+      a.download = `velocity_summary_${Date.now()}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      card.remove();
+    }
+function printReport(){
+  const rows = Array.from(routinesMap().values());
+  const win = window.open('', '_blank');
 
-    /* ===== Init ===== */
-    window.addEventListener('load', ()=>{
-      loadA(); loadB(); updateTimestamp(); renderComplexity();
-      ensureStackLabels('#tableA'); ensureStackLabels('#tableB');
-    });
+  const css = `body{font:14px system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:#111; padding:16px;}
+    h1,h2,h3{margin:.2em 0;} table{border-collapse:collapse; width:100%;}
+    th,td{border:1px solid #ccc; padding:6px; font-size:12px;}
+    .muted{color:#666; font-size:12px}`;
+
+  const html = `
+    <html>
+    <head>
+      <title>Printable Report</title>
+      <style>${css}</style>
+    </head>
+    <body>
+      <h1>Opportunity Efficiency Report</h1>
+      <div class="muted">Opportunity Efficiency: <strong>${state.balance.tranquility}%</strong></div>
+      <h2>Routines</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Routine</th><th>Time Block</th><th>Min</th><th>Last</th>
+            <th>Max</th><th>Leverage</th><th>Leverage Score</th><th>Five Year Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r =>
+            `<tr>
+              <td>${r.routine||''}</td>
+              <td>${r.timeBlock||''}</td>
+              <td>${r.min??''}</td>
+              <td>${r.last??''}</td>
+              <td>${r.max??''}</td>
+              <td>${r.leverageText||''}</td>
+              <td>${r.leverageScore??''}</td>
+              <td>${r.outcome||''}</td>
+            </tr>`
+          ).join('')}
+        </tbody>
+      </table>
+    </body>
+    </html>`;
+
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  win.print();
+}
+
+function downloadJSON(){
+  const payload = {
+    balance: state.balance,
+    routines: Array.from(routinesMap().values()),
+    generatedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `velocity_state_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* =====================
+   Listeners & Init
+   ===================== */
+// Instructions toggle
+document.getElementById('toggleInstr').addEventListener('click', ()=>{
+  const wrap = document.getElementById('instrWrap');
+  wrap.classList.toggle('d-none');
+  document.getElementById('toggleInstr').textContent =
+    wrap.classList.contains('d-none') ? 'Show Instructions' : 'Hide Instructions';
+});
+
+// Sliders
+['mindLv','bodyLv','moneyLv','relLv'].forEach(id => {
+  document.getElementById(id).addEventListener('input', ()=>{
+    state.balance.Mind = Number(document.getElementById('mindLv').value);
+    state.balance.Body = Number(document.getElementById('bodyLv').value);
+    state.balance.Money = Number(document.getElementById('moneyLv').value);
+    state.balance.Relationships = Number(document.getElementById('relLv').value);
+    renderLB(); regenExamples();
+  });
+});
+
+// Exports
+document.getElementById('btnPng').addEventListener('click', ()=> gateOr(downloadPNG));
+document.getElementById('btnPrint').addEventListener('click', ()=> gateOr(printReport));
+document.getElementById('btnJson').addEventListener('click', ()=> gateOr(downloadJSON));
+
+// Init
+window.addEventListener('load', ()=>{
+  state.balance.Mind = Number(document.getElementById('mindLv').value);
+  state.balance.Body = Number(document.getElementById('bodyLv').value);
+  state.balance.Money = Number(document.getElementById('moneyLv').value);
+  state.balance.Relationships = Number(document.getElementById('relLv').value);
+  renderLB(); regenExamples();
+  renderVelocity(); renderComplexity();
+});
   </script>
 </body>
 </html>
