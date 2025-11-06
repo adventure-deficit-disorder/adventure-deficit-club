@@ -26,10 +26,28 @@
 </head>
 <body>
   <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 gap-2">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+
+  <nav class="navbar navbar-dark">
     <div class="container container-narrow d-flex flex-wrap align-items-center justify-content-between py-2 gap-3">
       <div>
-        <a class="navbar-brand" href="#">Adventure Deficit Club</a>
-        <div class="small-muted">Procrastination • Perfectionism • Fatigue</div>
+        <div class="container container-narrow pill-nav">
+          <a class="btn btn-outline-light btn-sm" href="#sec-plan"   data-open="#coll-plan">Plan</a>
+          <a class="btn btn-outline-light btn-sm" href="#sec-export" data-open="#coll-export">Export</a>
+          <a class="btn btn-outline-light btn-sm" href="#sec-prompt" data-open="#coll-prompt">Prompt</a>
+        </div>
       </div>
       <div class="d-flex flex-wrap gap-2">
         <button id="addTaskBtn" class="btn btn-sm btn-primary">➕ Add Task</button>
@@ -39,13 +57,7 @@
     </div>
   </nav>
 
-  <div class="sticky-top-blur">
-    <div class="container container-narrow pill-nav">
-      <a class="btn btn-outline-light btn-sm" href="#sec-plan"   data-open="#coll-plan">Plan</a>
-      <a class="btn btn-outline-light btn-sm" href="#sec-export" data-open="#coll-export">Export</a>
-      <a class="btn btn-outline-light btn-sm" href="#sec-prompt" data-open="#coll-prompt">Prompt</a>
-    </div>
-  </div>
+
 
   <main class="container container-narrow my-3">
     <section id="sec-plan" class="mb-3">

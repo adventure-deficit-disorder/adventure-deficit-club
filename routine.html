@@ -1,0 +1,1066 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Velocity — Life Balance Visualizer + Velocity Table (Stateless)</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- html2canvas for PNG capture -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1220; --card:#11192b; --line:#22314d; --text:#dbe7ff; --muted:#8aa1c9; --accent:#20a5a5;
+      --table-bg:#11192b; --input-bg:#11192b;
+    }
+    html,body{background:var(--bg); color:var(--text);}
+    .navbar{background:linear-gradient(90deg,#0b1220 0%, #0e1830 60%, #0b1220 100%); border-bottom:1px solid var(--line);}
+    .container-narrow{max-width:1040px;}
+    .card{background:var(--card); border:1px solid var(--line); color:white ;}
+    .card h6, .list-group-item {
+    color: #4da98a;
+    }
+    .btn-accent{background:var(--accent); color:#08121f; border:1px solid #128b8b;}
+    .metric-pill{display:flex; justify-content:space-between; align-items:center; border:1px dashed var(--line); border-radius:999px; padding:.35rem .75rem; }
+    .range-track::-webkit-slider-thumb{cursor:pointer;}
+    .vis-wrap{border:1px solid var(--line); border-radius:.75rem; overflow:hidden; background:#0c1526;}
+    .node-label{fill:var(--text); font-size:12px; text-anchor:middle; pointer-events:none;}
+    .edge{stroke:#6c7a99; stroke-width:2; opacity:.25;}
+    .node{stroke:#0b1220; stroke-width:2;}
+    .pill{border:1px solid var(--line); border-radius:999px; padding:.1rem .5rem; font-size:.8rem; color:var(--muted);}
+    .legend-dot{display:inline-block; width:.8rem; height:.8rem; border-radius:50%; margin-right:.4rem; vertical-align:middle;}
+    .legend{display:flex; gap:.75rem; flex-wrap:wrap;}
+    .export-bar .btn{min-width:10rem;}
+
+    /* Velocity Table: dark theme */
+    .vt-table .table{background:var(--table-bg); border-color:var(--line);}
+    .vt-table thead th{background:var(--table-bg); color:#cfe1ff; border-color:var(--line);}
+    .vt-table tbody td,.vt-table tbody th{color:#e7efff; background:var(--table-bg); border-color:var(--line); vertical-align:middle;}
+    .vt-table .table-hover tbody tr:hover{background:rgba(32,165,165,.10)}
+    .vt-input{background:var(--input-bg)!important; color:#fff!important; border:1px solid #27324b;}
+    .vt-input::placeholder{color:#c4d0f0;}
+    .offcanvas{background:var(--card); color:var(--text); border-left:1px solid var(--line);}
+    .tiny{font-size:.85rem; color:var(--muted)}
+
+    /* Mobile list for Velocity Table */
+    @media (max-width: 767.98px){
+      .vt-table{display:none}
+      #vtList{display:block}
+    }
+    @media (min-width: 768px){
+      #vtList{display:none}
+    }
+    /* Square export surface without changing page flow */
+    #reportCard {
+      width: 1024px;           /* exported size */
+      aspect-ratio: 1 / 1;     /* guarantees 1:1 */
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: .75rem;
+    }
+
+    .report-topbar, .report-bottombar {
+      display: grid;
+      gap: .5rem;
+    }
+
+    .report-topbar {
+      grid-template-columns: 1fr auto 1fr; /* [Processes (n)] [title] [Interdependencies] */
+    }
+
+    .report-bottombar {
+      grid-template-columns: 1fr 1fr 1fr;  /* [Maint Hours] [Avg Lev] [Interdependencies] */
+    }
+
+    /* Keep your current cards/styles; these just tighten within the report */
+    .report-panel { background: transparent; }
+
+  
+/* === Dark legibility patch (non-breaking) === */
+:root {
+  --bg-deep: #0b1220;
+  --bg-card: #0f1626;
+  --bg-card-2: #121a2b;
+  --fg-base: #e6edf3;
+  --fg-dim: #c2ccda;
+  --fg-muted: #9fb0cc;
+  --border-1: #27324b;
+  --border-2: #33415e;
+}
+body { color: var(--fg-base); }
+.card { background: var(--bg-card); }
+.metric-pill {
+  background: var(--bg-card-2);
+  border: 1.25px dashed var(--border-2);
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+.metric-pill .k { font-size: 0.9rem; color: var(--fg-muted); }
+.metric-pill .v { font-weight: 600; font-size: 1.1rem; }
+
+/* Table legibility in dark mode (scoped to card tables) */
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  color: var(--fg-base);
+}
+.card table thead th {
+  background: var(--bg-card-2);
+  color: var(--fg-base);
+  padding: 10px 12px;
+  border: 1.25px solid var(--border-1);
+  text-align: left;
+  font-size:12px;
+}
+.card table tbody td {
+  padding: 10px 12px;
+  border: 1.25px solid var(--border-1);
+}
+.card table tbody tr:nth-child(odd) { background: var(--bg-card); }
+.card table tbody tr:nth-child(even){ background: #0e1525; }
+.card table td:nth-last-child(1),
+.card table th:nth-last-child(1){
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tiny text helper */
+.tiny { color: var(--fg-muted); font-size: .85rem; }
+
+/* Visualizer label legibility */
+.node-label { 
+  fill: var(--fg-base);
+  paint-order: stroke;
+  stroke: rgba(0,0,0,.35);
+  stroke-width: 2px;
+  font-size: 14px;
+}
+
+/* Edge hint inline (no layout change) */
+#edgeLegendHint { color: var(--fg-muted); }
+
+/* Report container if present */
+#reportCard {
+  background: var(--bg-deep);
+  color: var(--fg-base);
+}
+.report-topbar, .report-bottombar { 
+  background: var(--bg-deep);
+}
+
+</style>
+</head>
+<body>
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 gap-2">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+
+  <main class="container container-narrow my-4">
+
+    <!-- Overview -->
+    <nav class="card my-3 text-light">
+      <div class="card-header bg-transparent p-0">
+        <button class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
+          type="button" data-bs-toggle="collapse" data-bs-target="#dailyOutputPanel" aria-expanded="true" aria-controls="dailyOutputPanel"
+          style="background:#0b1220;border:none;">
+          <span>
+            <span class="kicker text-uppercase d-block small mb-1 text-warning">Directives</span>
+            <h2 class="fw-bold">Daily Routine Builder</h2>
+          </span>
+          <span class="chev ms-3 badge bg-warning text-dark" aria-hidden="true">▾</span>
+        </button>
+      </div>
+      <div id="dailyOutputPanel" class="collapse hide">
+        <div class="card-body p-4">
+            <div class="row">
+              <div class="col my-4">
+                <h3 class="mb-2 text-light">Directives</h3>
+                <h6 class="m-0 text-light mb-4">Strategies For Balancing Stress, Energy, Complexity, Support And Efficacy</h6>
+                <ol class="list-group list-group-numbered bg-dark text-light" style="background-color:#0c1526">
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Track patterns, not moods</strong>
+                    <div class="small text-light">Velocity comes from proof of motion. Measure what repeats, not what you feel.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Balance energy across domains</strong>
+                    <div class="small text-light">Mind, Body, Money, and Relationships reinforce or drain one another — keep them in sync.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Design friction out</strong>
+                    <div class="small text-light">If it takes too much setup, it won’t sustain. Automate, template, or batch it.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Let data replace doubt</strong>
+                    <div class="small text-light">Every routine gives feedback. Use numbers to steer, not emotions to guess.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Protect minimum viable motion</strong>
+                    <div class="small text-light">When energy is low, do the smallest version that keeps the chain alive.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Use leverage as your compass</strong>
+                    <div class="small text-light">High leverage routines amplify others. Prioritize what multiplies, not what merely adds.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Audit complexity weekly</strong>
+                    <div class="small text-light">Every routine adds maintenance. Trim or merge low-impact loops before they stall momentum.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Build proof before pride</strong>
+                    <div class="small text-light">Momentum is earned through consistency, not confidence. Let output earn belief.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Translate friction into structure</strong>
+                    <div class="small text-light">Where effort spikes, add scaffolding — checklists, templates, or scheduled cues.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Velocity > Intensity</strong>
+                    <div class="small text-light">Slow consistent motion beats bursts and collapse. Keep moving; refine later.</div>
+                  </li>
+                </ol>
+
+              </div>
+            </div>
+
+        </div>
+      </div>
+    </nav>
+    <section class="mb-4" id="lbvSection">
+      <div class="card">
+        <div class="card-header text-light d-flex  align-items-center p-4 flex-column">
+          <div class="w-100 d-flex justify-content-between "> 
+
+                <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Simple Survives Complex Breaks</p>
+            <button id="toggleInstr" class="btn btn-sm btn-outline-light">Hide Instructions</button>            
+          </div>
+          <div id="instrWrap" class="mb-3 d-none">
+              <p class="lead mt-3">Complexity feels powerful — it flatters intelligence and creates the illusion of control — but under stress, every extra moving part becomes a failure point. Simplicity, by contrast, is antifragile: it endures because it demands less to maintain and more to adapt. The goal isn’t to make life easy; it’s to make progress frictionless. A simple routine survives interruptions, fatigue, and chaos. Complexity collapses the moment your energy or focus dips. When systems break, simplify until momentum returns — then rebuild only what compounds output, not what decorates it.</p>            
+              <div class="row row-cols-1 row-cols-md-4 g-3">
+                    <div class="col"><div class="p-3 border rounded-3 h-100">
+                      <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 1</span> Routine</h6>
+                      <p class="mb-0 text-light">Define each repeatable task or habit — what you actually do daily.</p>
+                    </div></div>
+                    <div class="col"><div class="p-3 border rounded-3 h-100">
+                      <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 2</span> Time Block </h6>
+                      <p class="mb-0 text-light">Assign a fixed window to anchor consistency.</p>
+                    </div></div>
+                    <div class="col"><div class="p-3 border rounded-3 h-100">
+                      <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 3</span> Min / Last / Max</h6>
+                      <p class="mb-0 text-light">Track smallest, latest, and best effort to visualize progress.</p>
+                    </div></div>
+                    <div class="col">
+                      <div class="p-3 border rounded-3 h-100">
+                        <h6 class="fw-bold mb-2"><span class="badge text-bg-warning">4</span> Leverage</h6>
+                        <p class="mb-0 text-light">Note what multiplies results — tool, person, or structure. Rate efficiency: 1 = force, 5 = flow.</p>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="p-3 border rounded-3 h-100">
+                        <h6 class="fw-bold mb-2"><span class="badge text-bg-warning">5</span> Five Year Outcome</h6>
+                        <p class="mb-0 text-light">Describe what compounding this routine leads to.</p>
+                      </div>
+                    </div>                    
+                </div>
+          </div>            
+        </div>
+      </div>
+    </section>
+    <!-- Velocity Table -->
+    <section class="mb-4">
+      <div class="card">
+        <div class="card-header d-flex flex-wrap gap-2 justify-content-between align-items-center p-4">
+          <p class="mb-0 text-light d-flex justify-content-center align-items-center gap-2 lead">
+            <span class="badge text-bg-warning"> 1</span><Strong class="h4 mb-0 text-warning fw-semibold"> Daily Routine -</Strong> Align Long-term Goals With Short-term Actions</p>
+          <div class="btn-group btn-group-sm" role="group">
+            <button id="addRow" class="btn btn-sm btn-outline-light">+ Add Routine</button>
+            <button id="btnPng" class="btn btn-sm btn-outline-light">Export PNG</button>
+            <button id="btnDeleteAll" class="btn btn-sm btn-outline-danger">Delete All</button>
+            <!-- Hidden placeholders to satisfy existing listeners without changing JS -->
+            <button id="btnPrint" class="btn btn-sm btn-outline-light d-none">Print</button>
+            <button id="btnJson" class="btn btn-sm btn-outline-light d-none">Download JSON</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- Desktop/Table view -->
+          <div class="card vt-table">
+            <div class="table-responsive">
+              <table id="velocityTable" class="table table-hover align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Routine</th>
+                    <th>Time Block</th>
+                    <th style="width:90px">Min</th>
+                    <th style="width:90px">Last</th>
+                    <th style="width:90px">Max</th>
+                    <th>Leverage</th>
+                    <th style="width:160px">Leverage Score (1–5)</th>
+                    <th>Five Year Outcome</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="p-2 tiny">Tip: Click any row to edit; Save in the panel.</div>
+          </div>
+
+          <!-- Mobile list view -->
+          <div id="vtList" class="vstack gap-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Complexity Widget -->
+    <section class="mb-5">
+      <div class="row g-3">
+        <div class="col-12 col-md-5">
+          <div class="card p-3">
+          <p class="mb-0 text-light d-flex justify-content-start align-items-center gap-2 lead">
+            <span class="badge text-bg-warning"> 2</span><Strong class="h4 mb-0 text-warning fw-semibold">Complexity</Strong></p>
+          <div class="row row-cols-2 gy-2 gx-2 mt-1 text-light">
+              <div class="col"><div class="metric-pill"><div class="k">Processes (n)</div><div class="v text-light" id="m_n">0</div></div></div>
+              <div class="col"><div class="metric-pill"><div class="k">Interdependencies</div><div class="v text-light" id="m_edges">0</div></div></div>
+              <div class="col"><div class="metric-pill"><div class="k">Maintainence (mins/day)</div><div class="v text-light" id="m_maint">0</div></div></div>
+              <div class="col"><div class="metric-pill"><div class="k">Avg Leverage Score</div><div class="v text-light" id="m_lavg">—</div></div></div>
+            </div>
+
+            <label class="form-label mt-3 mb-1 text-light">Upkeep minutes per task</label>
+            <div class="d-flex align-items-center gap-2 text-light">
+              <input id="maintSlider" type="range" min="0" max="120" step="20" value="40" class="form-range range-track flex-grow-1" aria-label="Upkeep minutes per task">
+              <output id="maintOut" class="badge bg-transparent border border-light text-light fw-bold" style="min-width:3.2rem; text-align:center;">40</output>
+            </div>
+            <div class="tiny mt-2">
+              <strong>Node color = Leverage Score</strong> · 
+              <span id="edgeLegendHint">Edges react to Upkeep per task + Interdependencies + total Maintenance.</span>
+          </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-7">
+          <div class="card p-3">
+            <div class="vis-wrap">
+              <svg id="graph" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid meet" aria-label="Complexity Node Graph">
+                <g id="edges"></g><g id="nodes"></g><g id="labels"></g>
+              </svg>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <small class="text-light">Links = n(n−1)/2. Labels = routines.</small>
+              <small class="text-light">Powered by <strong>@AdventureDeficitClub</strong></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+  </main>
+
+  <!-- Gating Modal -->
+  <div class="modal fade" id="gateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background:var(--card); border:1px solid var(--line); color:var(--text)">
+        <div class="modal-header">
+          <h5 class="modal-title">Unlock Unlimited Exports & Deeper Insights</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Join Adventure Deficit Club on Skool for <strong>$2/month</strong> to get unlimited exports, richer analysis, and pro templates.
+        </div>
+        <div class="modal-footer">
+          <a class="btn btn-accent" href="https://www.skool.com/adventure-deficit-club-8261" target="_blank" rel="noopener">Join on Skool</a>
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Velocity Table Editor -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="vtEditor" aria-labelledby="vtEditorLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="vtEditorLabel">Edit Routine</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <form id="vtForm" class="vstack gap-3">
+        <div>
+          <label class="form-label">Routine</label>
+          <input type="text" class="form-control vt-input" id="f_routine" placeholder="e.g., Words/Day">
+        </div>
+        <div>
+          <label class="form-label">Time Block</label>
+          <input type="text" class="form-control vt-input" id="f_block" placeholder="e.g., 5:00–7:00 AM">
+        </div>
+        <div class="row g-2">
+          <div class="col-4">
+            <label class="form-label text-light text-opacity-75">Min</label>
+            <input type="number" class="form-control vt-input" id="f_min" inputmode="numeric">
+          </div>
+          <div class="col-4">
+            <label class="form-label">Last</label>
+            <input type="number" class="form-control vt-input" id="f_last" inputmode="numeric">
+          </div>
+          <div class="col-4">
+            <label class="form-label">Max</label>
+            <input type="number" class="form-control vt-input" id="f_max" inputmode="numeric">
+          </div>
+        </div>
+        <div>
+          <label class="form-label">Leverage</label>
+          <input type="text" class="form-control vt-input" id="f_lev" placeholder="What increases payoff?">
+        </div>
+        <div>
+          <label class="form-label">Leverage Score (1–5)</label>
+          <input type="number" class="form-control vt-input" id="f_score" min="1" max="5" inputmode="numeric">
+        </div>
+        <div>
+          <label class="form-label">Five Year Outcome</label>
+          <input type="text" class="form-control vt-input" id="f_outcome" placeholder="What does this lead to?">
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" id="saveRow" class="btn btn-success">Save</button>
+          <button type="button" id="deleteRow" class="btn btn-outline-danger">Delete</button>
+        </div>
+        <div class="tiny">All inputs use <code>#11192b</code> background; text is white.</div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* =====================
+       STATE (Session-only)
+       ===================== */
+    const state = {
+      balance: { Mind:3, Body:3, Money:3, Relationships:3, tranquility: null },
+      flags: { firstExportDone: false }
+    };
+
+    /* =====================
+       Utilities
+       ===================== */
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+    const clamp = (n,min,max)=> Math.max(min, Math.min(max, n));
+
+    // Shared color ramp for levels (1 gray → 3 teal → 5 emerald/blue)
+    function colorRamp(v){
+      const t = (clamp(Number(v),1,5)-1)/4; // 0..1
+      // interpolate between #808b99 (gray) at t=0, #20a5a5 at t=0.5, #1fbf82 at t=1
+      function hexToRgb(h){ const n=parseInt(h.slice(1),16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+      function mix(a,b,u){ return {r:Math.round(a.r+(b.r-a.r)*u), g:Math.round(a.g+(b.g-a.g)*u), b:Math.round(a.b+(b.b-a.b)*u)}; }
+      const c1 = hexToRgb('#808b99'), c2 = hexToRgb('#20a5a5'), c3 = hexToRgb('#1fbf82');
+      let c;
+      if(t<=0.5){ c = mix(c1,c2,t/0.5); } else { c = mix(c2,c3,(t-0.5)/0.5); }
+      return `rgb(${c.r},${c.g},${c.b})`;
+    }
+
+    const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
+    const stddev = arr => { const m=mean(arr); return Math.sqrt(mean(arr.map(x=>(x-m)*(x-m)))); };
+
+    // ---- Upkeep slider wiring (visualizer removed)
+    const maintSlider = document.getElementById('maintSlider');
+    const maintOut    = document.getElementById('maintOut');
+
+
+    function recalcComplexityAndRedraw(){
+      // n = # of active routines/nodes currently rendered
+      const n = document.querySelectorAll('#nodes .node').length || 0;
+
+      // interdependencies = n(n-1)/2
+      const edges = (n * (n - 1)) / 2;
+
+      // upkeep minutes per task (slider) and total maintenance
+      const per = Number(maintSlider?.value ?? 0);
+      const totalMaint = n * per;
+
+      // update metric pills
+      const mN     = document.getElementById('m_n');
+      const mE     = document.getElementById('m_edges');
+      const mMaint = document.getElementById('m_maint');
+
+      if (mN)     mN.textContent     = n;
+      if (mE)     mE.textContent     = edges;
+      if (mMaint) mMaint.textContent = totalMaint;
+
+      // ---- Edge restyle: color + opacity + width from load ----
+      function restyleEdgesByLoad({ n, edges, per, totalMaint }){
+        const edgeEls = document.querySelectorAll('#edges .edge');
+        if (!edgeEls.length || !n) return;
+
+        // Normalize factors:
+        // per task upkeep: 0..120 (your slider max); clamp to 0..1
+        const perNorm = clamp(per / 120, 0, 1);
+
+        // interdependency intensity: edges grows ~n^2; cap to 45 (n≈10) for stability
+        const edgesNorm = clamp(edges / 45, 0, 1);
+
+        // total maintenance per node ~ per; keep as soft check (redundant but user-intuitive)
+        const totalNorm = clamp((totalMaint / (n * 120)), 0, 1); // ≈ perNorm
+
+        // Composite intensity (weights tuned to make slider clearly “in charge”)
+        const intensity = clamp(0.6 * perNorm + 0.25 * edgesNorm + 0.15 * totalNorm, 0, 1);
+
+        // Map intensity → stroke color/opacity/width
+        // Hue: blue(200) → red(20) as load increases; no custom CSS needed
+        const hue      = Math.round(200 - 180 * intensity);
+        const opacity  = 0.15 + 0.55 * intensity; // was ≈0.1875 static
+        const width    = 1 + 2 * intensity;
+
+        edgeEls.forEach(line => {
+          line.style.stroke      = `hsl(${hue} 60% 55%)`;
+          line.style.opacity     = opacity.toFixed(3);
+          line.style.strokeWidth = `${width.toFixed(2)}px`;
+        });
+
+        // Optional: tiny legend hint (keeps layout)
+        const hint = document.getElementById('edgeLegendHint');
+        if (hint) {
+          hint.textContent = `Edge color/width react to Upkeep per task, Interdependencies, and total Maintenance.`;
+        }
+      }
+
+
+      // if you already have renderComplexity/renderVelocity, keep them:
+      if (typeof renderComplexity === 'function') renderComplexity();
+      if (typeof renderVelocity   === 'function') renderVelocity();
+
+      // if you show “Maintenance Hours” elsewhere, you can update it here:
+      const hoursEl = document.getElementById('maintHours');
+      if (hoursEl) hoursEl.textContent = (totalMaint/60).toFixed(1);
+    }
+
+    if (maintSlider && maintOut) {
+      maintSlider.addEventListener('input', (e) => {
+        maintOut.textContent = e.target.value;
+        recalcComplexityAndRedraw();
+      });
+    }
+
+    /* =====================
+       Examples (domain → list)
+       ===================== */
+    const exampleBank = {
+      Money: [
+        'Automate savings transfers',
+        'Productize a service (starter offer)',
+        'Weekly offer sprint (2 hrs)',
+        'Hire a coach for pricing & GTM',
+        'Close loops: invoice & collect'
+      ],
+      Body: [
+        'Trainer 2x/week (compound lifts)',
+        '10k steps + sunlight walk',
+        'Sleep window: 10:30–6:30',
+        'Meal prep Sun/Wed (30m)',
+        'Mobility 10m post-workout'
+      ],
+      Mind: [
+        '25m deep-work blocks (3x/day)',
+        'Meditation 10m (AM)',
+        'Therapy/coaching weekly',
+        'Distraction audit + blockers',
+        'Write 200 words before phone'
+      ],
+      Relationships: [
+        'Weekly accountability call',
+        'Date night planned Wed',
+        'Text 1 friend daily',
+        'No-phone dinner block',
+        'Volunteer or group session'
+      ]
+    };
+// ---- Params you can tune ----
+const W = { A:0.5, D:0.5, R:0.5, C:0.5 };
+const L_TARGET = 3.0;           // "high leverage" threshold
+const AMPL_MAX = 4.0;           // cap
+// === Auto-compute a provable leverage score from existing fields (no UI changes) ===
+// OECD identity: Productivity = Output / Input.
+// Output = 'last' (fallback to 'min'); Input = upkeep minutes per task (maintSlider).
+// Baseline productivity P0 = (min / input); Amplification = 1 by default.
+function computeAutoScore(row, perTask){
+  const input = Number(perTask) > 0 ? Number(perTask) : 1;
+  const output = Number(row.last) || Number(row.min) || 0;
+  if (!Number.isFinite(output) || output <= 0) return '';
+
+  const baselineOut = Number(row.min) || output;
+  const P0 = baselineOut / input;
+  const prod = output / input;
+
+  const prodNorm = prod / (P0 || 1e-9);
+  const ampl = 1;
+  const lev  = prodNorm * ampl;
+
+  const L_norm = Math.min(1, lev / L_TARGET);
+  const score = 1 + 4 * L_norm;   // 1..5
+  return Number(score.toFixed(1));
+}
+
+
+// Safe helpers
+const clamp01 = x => Math.max(0, Math.min(1, x));
+
+// Core identities
+function productivity(outputUnits, inputMinutes){
+  if (!inputMinutes) return 0;
+  return outputUnits / inputMinutes;   // OECD identity
+}
+
+function amplification({A=0, D=0, R=0, C=0}){
+  const amp = (1 + W.A*clamp01(A)) *
+              (1 + W.D*clamp01(D)) *
+              (1 + W.R*clamp01(R)) *
+              (1 + W.C*clamp01(C));
+  return Math.min(amp, AMPL_MAX);
+}
+
+function leverageScore({output, input, baselineP, A=0, D=0, R=0, C=0}){
+  const prod = productivity(output, input);
+  const P0   = Math.max(baselineP || 0, 1e-9); // avoid 0 baseline
+  const prodNorm = prod / P0;
+
+  const ampl = amplification({A,D,R,C});
+  const lev  = prodNorm * ampl;
+
+  const L_norm = Math.min(1, lev / L_TARGET);
+  return 1 + 4 * L_norm; // 1..5
+}
+
+// Example aggregator by domain
+function domainScore(routines){ // [{domain, output, input, baselineP, A,D,R,C}, ...]
+  const byDomain = new Map();
+  for (const r of routines){
+    const s = leverageScore(r);
+    if (!Number.isFinite(s)) continue;
+    if (!byDomain.has(r.domain)) byDomain.set(r.domain, []);
+    byDomain.get(r.domain).push(s);
+  }
+  const domainScores = {};
+  for (const [dom, arr] of byDomain){
+    domainScores[dom] = arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : NaN;
+  }
+  // Opportunity Efficiency %
+  const four = ["Mind","Body","Money","Relationships"].map(d => domainScores[d]).filter(Number.isFinite);
+  const oppEff = four.length ? (four.reduce((a,b)=>a+b,0)/four.length)/5*100 : NaN;
+  return { domainScores, oppEff };
+}
+    function regenExamples(){
+      const wrap = document.getElementById('examplesWrap'); wrap.innerHTML='';
+      Object.keys(exampleBank).forEach(domain=>{
+        const level = state.balance[domain];
+        const n = clamp(level,1,5);
+        const list = exampleBank[domain].slice(0,n);
+        const card = document.createElement('div'); card.className='col';
+        card.innerHTML = `
+          <div class="card h-100 text-light rounded-0">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong class="text-warning">${domain}</strong>
+                <span class="pill">Lv ${level}</span>
+              </div>
+              <ul class="mb-3 text-light" style="padding-left:1.1rem;">
+                ${list.map(x=>`<li>${x}</li>`).join('')}
+              </ul>
+              <div class="mt-auto">
+                <button class="btn btn-sm btn-accent w-100" data-domain="${domain}">Pin top example to Velocity</button>
+              </div>
+            </div>
+          </div>`;
+        wrap.appendChild(card);
+      });
+    }
+
+    /* =====================
+       Velocity Table (replaces Routine cards)
+       ===================== */
+    const tableBody = document.querySelector('#velocityTable tbody');
+    const listWrap  = document.getElementById('vtList');
+    const editorEl  = document.getElementById('vtEditor');
+    const offcanvas = new bootstrap.Offcanvas(editorEl);
+    let editIndex = null;
+
+    // Source of truth
+    window.velocityData = window.velocityData || [
+      {routine:'Outdoor Workout (min)', block:'6:00–7:00 AM', min:45, last:45, max:45, lev:'No excuses (weather = leverage)', score:5, outcome:'Discipline + resilience'},
+      {routine:'Indoor Training (min)', block:'6:00–7:00 PM', min:45, last:45, max:45, lev:'Resistance + cardio rotation', score:4, outcome:'Strength + endurance'},
+      {routine:'Progress Photo', block:'Post-workout', min:2, last:2, max:2, lev:'Daily visual accountability', score:3, outcome:'Consistency + feedback loop'},
+      {routine:'Read 10 Pages (pages)', block:'9:00–9:30 PM', min:10, last:10, max:10, lev:'Input → Reflection → Application', score:4, outcome:'Knowledge + mental focus'},
+      {routine:'Gallon of Water (fl oz)', block:'Throughout Day', min:64, last:120, max:128, lev:'Hydration = cognitive clarity', score:3, outcome:'Energy + discipline'},
+      {routine:'Diet Adherence (meals)', block:'All meals', min:3, last:3, max:4, lev:'Clean inputs, no cheat meals', score:5, outcome:'Body comp + self-control'},
+      {routine:'No Alcohol / Junk', block:'24h', min:1, last:1, max:1, lev:'Eliminate numbing behaviors', score:5, outcome:'Focus + emotional stability'}
+    ];
+    function nextName(base){
+    const names = new Set((window.velocityData||[]).map(r => (r.routine||'').trim()));
+    if(!names.has(base)) return base;
+    let i = 2, name = `${base} (${i})`;
+    while(names.has(name)) name = `${base} (${++i})`;
+    return name;
+    }
+    function renderVelocity(){
+  const perTask = Number(document.getElementById('maintSlider').value)||0;
+  const rowsWithAuto = (window.velocityData||[]).map(r=>({ ...r, _autoScore: computeAutoScore(r, perTask) }));
+      // desktop
+        tableBody.innerHTML = rowsWithAuto.map((row,i)=>`
+        <tr class="vt-row" data-idx="${i}">
+          <th scope="row">${row.routine||'—'}</th>
+          <td>${row.block||'—'}</td>
+          <td>${row.min??'—'}</td>
+          <td>${row.last??'—'}</td>
+          <td>${row.max??'—'}</td>
+          <td>${row.lev||'—'}</td>
+          <td>${(row.score||row._autoScore||'') || '<span class="badge text-bg-danger">set</span>'}</td>
+          <td>${row.outcome||'—'}</td>
+        </tr>`).join('');
+
+      // mobile
+        listWrap.innerHTML = rowsWithAuto.map((row,i)=>`
+        <div class="card p-3" data-idx="${i}">
+          <div class="d-flex justify-content-between align-items-start text-warning">
+            <div>
+              <div class="fw-semibold">${row.routine||'—'}</div>
+              <div class="small ">${row.block||'—'}</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-secondary">${row.score||row._autoScore||'—'}</span>
+              <button class="btn btn-sm btn-outline-light vt-edit" data-idx="${i}">Edit</button>
+            </div>
+          </div>
+          <div class="d-flex gap-3 mt-2">
+            <div><div class="small ">Min</div><div>${row.min??'—'}</div></div>
+            <div><div class="small ">Last</div><div>${row.last??'—'}</div></div>
+            <div><div class="small ">Max</div><div>${row.max??'—'}</div></div>
+          </div>
+        </div>`).join('');
+    }
+
+    function openEditor(idx){
+      editIndex = idx;
+      const r = window.velocityData[idx] || {routine:'', block:'', min:'', last:'', max:'', lev:'', score:'', outcome:''};
+      document.getElementById('f_routine').value = r.routine||'';
+      document.getElementById('f_block').value   = r.block||'';
+      document.getElementById('f_min').value     = r.min ?? '';
+      document.getElementById('f_last').value    = r.last ?? '';
+      document.getElementById('f_max').value     = r.max ?? '';
+      document.getElementById('f_lev').value     = r.lev||'';
+      document.getElementById('f_score').value   = r.score ?? '';
+      document.getElementById('f_outcome').value = r.outcome||'';
+      offcanvas.show();
+    }
+
+    document.addEventListener('click', (e)=>{
+      const tr = e.target.closest('tr.vt-row');
+      if(tr && tr.dataset.idx){ openEditor(Number(tr.dataset.idx)); }
+      if(e.target.matches('.vt-edit')){ openEditor(Number(e.target.dataset.idx)); }
+
+      // Pin from examples
+      const pinBtn = e.target.closest('button[data-domain]');
+      if(pinBtn){
+      const domain = pinBtn.getAttribute('data-domain');
+      const topExample = (exampleBank[domain] && exampleBank[domain][0]) || (domain + ' focus');
+      const base = `${domain}: ${topExample}`;
+      const routineName = nextName(base);
+      const level = clamp(state.balance[domain] ?? 3, 1, 5);
+
+
+      window.velocityData.push({
+      routine: routineName,
+      block: '—',
+      min: '',
+      last: '',
+      max: '',
+      lev: `${domain} leverage`,
+      score: level,
+      outcome: ''
+      });
+
+
+      renderVelocity();
+      renderComplexity();
+      }
+    });
+
+    document.getElementById('addRow').addEventListener('click', ()=>{
+      window.velocityData.push({routine:'', block:'', min:'', last:'', max:'', lev:'', score:'', outcome:''});
+      renderVelocity();
+      openEditor(window.velocityData.length-1);
+    });
+
+    document.getElementById('saveRow').addEventListener('click', ()=>{
+      if(editIndex==null) return;
+      const r = window.velocityData[editIndex] || {};
+      r.routine = document.getElementById('f_routine').value.trim();
+      r.block   = document.getElementById('f_block').value.trim();
+      r.min     = Number(document.getElementById('f_min').value)||'';
+      r.last    = Number(document.getElementById('f_last').value)||'';
+      r.max     = Number(document.getElementById('f_max').value)||'';
+      r.lev     = document.getElementById('f_lev').value.trim();
+      const s   = Number(document.getElementById('f_score').value);
+      r.score   = (s>=1 && s<=5) ? s : '';
+      r.outcome = document.getElementById('f_outcome').value.trim();
+      window.velocityData[editIndex] = r;
+      renderVelocity();
+      renderComplexity();
+      offcanvas.hide();
+    });
+
+    document.getElementById('deleteRow').addEventListener('click', ()=>{
+      if(editIndex==null) return;
+      window.velocityData.splice(editIndex,1);
+      renderVelocity();
+      renderComplexity();
+      offcanvas.hide();
+    });
+
+    // routinesMap shim: Complexity reads from Velocity Table data
+    window.routinesMap = function(){
+      const m = new Map();
+      (window.velocityData||[]).forEach(r=>{
+        const key = (r.routine||'').trim();
+        if(!key) return;
+        m.set(key, {
+          routine: r.routine||'',
+          timeBlock: r.block||'',
+          min: r.min||'',
+          last: r.last||'',
+          max: r.max||'',
+          leverageText: r.lev||'',
+          leverageScore: r.score||'',
+          outcome: r.outcome||''
+        });
+      });
+      return m;
+    };
+    
+
+    /* =====================
+       Complexity Graph
+       ===================== */
+    const gEdges = document.getElementById('edges'), gNodes = document.getElementById('nodes'), gLabels = document.getElementById('labels');
+
+    // Use the same ramp for leverage score
+    const colorForScore = (s)=> (Number(s) >= 1 ? colorRamp(s) : '#ff3b30');
+
+    function layoutCircle(n, w=1000, h=640, pad=56){
+      const cx=w/2, cy=h/2, R=Math.min(w,h)/2 - pad;
+      return Array.from({length:n}, (_,i)=>{
+        const ang = (Math.PI*2*i)/n - Math.PI/2;
+        return {x: cx + R*Math.cos(ang), y: cy + R*Math.sin(ang)};
+      });
+    }
+    function fmt(x){ return (x>=1000) ? (Math.round(x/10)/100)+'k' : String(Math.round(x*10)/10); }
+
+    function renderComplexity(){
+      const rows = Array.from(routinesMap().values());
+      const n = rows.length;
+
+      const perTask = Number(document.getElementById('maintSlider').value) || 0;
+      document.getElementById('maintOut').textContent = perTask;
+      document.getElementById('m_n').textContent = n;
+
+      const edges = n * (n - 1) / 2;
+      document.getElementById('m_edges').textContent = fmt(edges);
+      document.getElementById('m_maint').textContent = String(n * perTask);
+
+      const scores = rows
+      .map(r => Number(r.leverageScore))
+      .filter(v => Number.isFinite(v) && v >= 1);
+      const avgL = scores.length ? (scores.reduce((a,b)=>a+b,0) / scores.length) : NaN;
+      document.getElementById('m_lavg').textContent = Number.isFinite(avgL) ? avgL.toFixed(1) : '—';
+
+      gEdges.innerHTML = ''; gNodes.innerHTML = ''; gLabels.innerHTML = '';
+      if (n === 0) return;
+
+      const pts = layoutCircle(n);
+      const edgeAlpha = Math.max(0.08, Math.min(0.6, 12 / (n * n)));
+
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const a = pts[i], b = pts[j];
+          const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+          line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+          line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+          line.setAttribute('class', 'edge');
+          line.setAttribute('style', `opacity:${edgeAlpha}; stroke:#6c7a99; stroke-width:1px;`);
+          gEdges.appendChild(line);
+        }
+      }
+
+      const r = Math.max(8, 18 - Math.max(0, n - 6));
+      rows.forEach((row, i) => {
+        const pt = pts[i];
+        const nodeColor = colorForScore(row.leverageScore);
+
+        const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        c.setAttribute('cx', pt.x);
+        c.setAttribute('cy', pt.y);
+        c.setAttribute('r', r);
+        c.setAttribute('class', 'node');
+        c.setAttribute('style', `fill:${nodeColor}; stroke:#0b1220; stroke-width:2px;`);
+        gNodes.appendChild(c);
+
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x', pt.x);
+        t.setAttribute('y', pt.y - r - 6);
+        t.setAttribute('class', 'node-label');
+        t.textContent = row.routine;
+        gLabels.appendChild(t);
+      });
+    }
+
+    /* =====================
+       Exports (with gating)
+       ===================== */
+    function gateOr(fn){
+      if(!state.flags.firstExportDone){
+        state.flags.firstExportDone = true; fn();
+      }else{
+        const modal = new bootstrap.Modal('#gateModal'); modal.show();
+      }
+    }
+
+    async function downloadPNG(){
+      const card = document.createElement('div');
+      card.style.background = getComputedStyle(document.body).backgroundColor;
+      card.style.padding = '16px';
+      card.style.color = getComputedStyle(document.body).color;
+      card.innerHTML = `
+        <div style="border:1px solid var(--line); border-radius:12px; padding:12px;">
+          <h3 style="margin:0 0 8px 0;">Daily Routine</h3>
+          <div id="captureArea"></div>
+        </div>`;
+      document.body.appendChild(card);
+      const capture = card.querySelector('#captureArea');
+      capture.appendChild(document.getElementById('velocityTable').cloneNode(true));
+      const meta = document.createElement('div');
+      meta.style.marginTop = '8px';
+      capture.appendChild(meta);
+      const canvas = await html2canvas(card, {scale:2, backgroundColor:getComputedStyle(card).backgroundColor});
+      const a = document.createElement('a');
+      a.download = `velocity_summary_${Date.now()}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      card.remove();
+    }
+function printReport(){
+  const rows = Array.from(routinesMap().values());
+  const win = window.open('', '_blank');
+
+  const css = `body{font:14px system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:#111; padding:16px;}
+    h1,h2,h3{margin:.2em 0;} table{border-collapse:collapse; width:100%;}
+    th,td{border:1px solid #ccc; padding:6px; font-size:12px;}
+    .muted{color:#666; font-size:12px}`;
+
+  const html = `
+    <html>
+    <head>
+      <title>Printable Report</title>
+      <style>${css}</style>
+    </head>
+    <body>
+      <h1>Opportunity Efficiency Report</h1>
+      <div class="muted">Opportunity Efficiency: <strong>${state.balance.tranquility}%</strong></div>
+      <h2>Routines</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Routine</th><th>Time Block</th><th>Min</th><th>Last</th>
+            <th>Max</th><th>Leverage</th><th>Leverage Score</th><th>Five Year Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map(r =>
+            `<tr>
+              <td>${r.routine||''}</td>
+              <td>${r.timeBlock||''}</td>
+              <td>${r.min??''}</td>
+              <td>${r.last??''}</td>
+              <td>${r.max??''}</td>
+              <td>${r.leverageText||''}</td>
+              <td>${r.leverageScore??''}</td>
+              <td>${r.outcome||''}</td>
+            </tr>`
+          ).join('')}
+        </tbody>
+      </table>
+    </body>
+    </html>`;
+
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  win.print();
+}
+
+function downloadJSON(){
+  const payload = {
+    balance: state.balance,
+    routines: Array.from(routinesMap().values()),
+    generatedAt: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `velocity_state_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+/* =====================
+   Listeners & Init
+   ===================== */
+
+  // instructions toggle
+  const btn = document.getElementById('toggleInstr');
+  const wrap = document.getElementById('instrWrap');
+  if (btn && wrap){
+    btn.addEventListener('click', ()=>{
+      wrap.classList.toggle('d-none');
+      btn.textContent = wrap.classList.contains('d-none') ? 'Show Instructions' : 'Hide Instructions';
+    });
+  }
+// Exports
+document.getElementById('btnPng').addEventListener('click', ()=> gateOr(downloadPNG));
+document.getElementById('btnPrint').addEventListener('click', ()=> gateOr(printReport));
+document.getElementById('btnJson').addEventListener('click', ()=> gateOr(downloadJSON));
+
+// Init
+window.addEventListener('load', ()=>{
+  // visualizer removed; retain defaults
+renderVelocity(); renderComplexity();
+});
+  // Minimal handler: clear all rows and refresh
+(function(){
+  var delBtn = document.getElementById('btnDeleteAll');
+  if (delBtn){
+    delBtn.addEventListener('click', function(){
+      if (!window.velocityData || !window.velocityData.length){
+        renderVelocity(); renderComplexity();
+        return;
+      }
+      if (confirm('Delete all routines? This cannot be undone.')){
+        window.velocityData = [];
+        renderVelocity();
+        renderComplexity();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

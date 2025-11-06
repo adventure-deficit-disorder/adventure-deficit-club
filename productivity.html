@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Velocity — Life Balance Visualizer + Velocity Table (Stateless)</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- html2canvas for PNG capture -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b1220; --card:#11192b; --line:#22314d; --text:#dbe7ff; --muted:#8aa1c9; --accent:#20a5a5;
+      --table-bg:#11192b; --input-bg:#11192b;
+    }
+    html,body{background:var(--bg); color:var(--text);}
+    .navbar{background:linear-gradient(90deg,#0b1220 0%, #0e1830 60%, #0b1220 100%); border-bottom:1px solid var(--line);}
+    .container-narrow{max-width:1040px;}
+    .card{background:var(--card); border:1px solid var(--line); color:white ;}
+    .card h6, .list-group-item {
+    color: #4da98a;
+    }
+    .btn-accent{background:var(--accent); color:#08121f; border:1px solid #128b8b;}
+    .metric-pill{display:flex; justify-content:space-between; align-items:center; border:1px dashed var(--line); border-radius:999px; padding:.35rem .75rem; }
+    .range-track::-webkit-slider-thumb{cursor:pointer;}
+    .vis-wrap{border:1px solid var(--line); border-radius:.75rem; overflow:hidden; background:#0c1526;}
+    .node-label{fill:var(--text); font-size:12px; text-anchor:middle; pointer-events:none;}
+    .edge{stroke:#6c7a99; stroke-width:2; opacity:.25;}
+    .node{stroke:#0b1220; stroke-width:2;}
+    .pill{border:1px solid var(--line); border-radius:999px; padding:.1rem .5rem; font-size:.8rem; color:var(--muted);}
+    .legend-dot{display:inline-block; width:.8rem; height:.8rem; border-radius:50%; margin-right:.4rem; vertical-align:middle;}
+    .legend{display:flex; gap:.75rem; flex-wrap:wrap;}
+    .export-bar .btn{min-width:10rem;}
+
+    /* Velocity Table: dark theme */
+    .vt-table .table{background:var(--table-bg); border-color:var(--line);}
+    .vt-table thead th{background:var(--table-bg); color:#cfe1ff; border-color:var(--line);}
+    .vt-table tbody td,.vt-table tbody th{color:#e7efff; background:var(--table-bg); border-color:var(--line); vertical-align:middle;}
+    .vt-table .table-hover tbody tr:hover{background:rgba(32,165,165,.10)}
+    .vt-input{background:var(--input-bg)!important; color:#fff!important; border:1px solid #27324b;}
+    .vt-input::placeholder{color:#c4d0f0;}
+    .offcanvas{background:var(--card); color:var(--text); border-left:1px solid var(--line);}
+    .tiny{font-size:.85rem; color:var(--muted)}
+
+    /* Mobile list for Velocity Table */
+    @media (max-width: 767.98px){
+      .vt-table{display:none}
+      #vtList{display:block}
+    }
+    @media (min-width: 768px){
+      #vtList{display:none}
+    }
+    /* Square export surface without changing page flow */
+    #reportCard {
+      width: 1024px;           /* exported size */
+      aspect-ratio: 1 / 1;     /* guarantees 1:1 */
+      margin: 0 auto;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: .75rem;
+    }
+
+    .report-topbar, .report-bottombar {
+      display: grid;
+      gap: .5rem;
+    }
+
+    .report-topbar {
+      grid-template-columns: 1fr auto 1fr; /* [Processes (n)] [title] [Interdependencies] */
+    }
+
+    .report-bottombar {
+      grid-template-columns: 1fr 1fr 1fr;  /* [Maint Hours] [Avg Lev] [Interdependencies] */
+    }
+
+    /* Keep your current cards/styles; these just tighten within the report */
+    .report-panel { background: transparent; }
+
+  
+/* === Dark legibility patch (non-breaking) === */
+:root {
+  --bg-deep: #0b1220;
+  --bg-card: #0f1626;
+  --bg-card-2: #121a2b;
+  --fg-base: #e6edf3;
+  --fg-dim: #c2ccda;
+  --fg-muted: #9fb0cc;
+  --border-1: #27324b;
+  --border-2: #33415e;
+}
+body { color: var(--fg-base); }
+.card { background: var(--bg-card); }
+.metric-pill {
+  background: var(--bg-card-2);
+  border: 1.25px dashed var(--border-2);
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+.metric-pill .k { font-size: 0.9rem; color: var(--fg-muted); }
+.metric-pill .v { font-weight: 600; font-size: 1.1rem; }
+
+/* Table legibility in dark mode (scoped to card tables) */
+.card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: var(--fg-base);
+}
+.card table thead th {
+  background: var(--bg-card-2);
+  color: var(--fg-base);
+  padding: 10px 12px;
+  border: 1.25px solid var(--border-1);
+  text-align: left;
+}
+.card table tbody td {
+  padding: 10px 12px;
+  border: 1.25px solid var(--border-1);
+}
+.card table tbody tr:nth-child(odd) { background: var(--bg-card); }
+.card table tbody tr:nth-child(even){ background: #0e1525; }
+.card table td:nth-last-child(1),
+.card table th:nth-last-child(1){
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tiny text helper */
+.tiny { color: var(--fg-muted); font-size: .85rem; }
+
+/* Visualizer label legibility */
+.node-label { 
+  fill: var(--fg-base);
+  paint-order: stroke;
+  stroke: rgba(0,0,0,.35);
+  stroke-width: 2px;
+  font-size: 14px;
+}
+
+/* Edge hint inline (no layout change) */
+#edgeLegendHint { color: var(--fg-muted); }
+
+/* Report container if present */
+#reportCard {
+  background: var(--bg-deep);
+  color: var(--fg-base);
+}
+.report-topbar, .report-bottombar { 
+  background: var(--bg-deep);
+}
+
+</style>
+</head>
+<body>
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 gap-2">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+        
+
+    </div>
+  </nav>
+
+  <main class="container container-narrow my-4">
+
+    <!-- Overview -->
+    <nav class="card my-3 text-light">
+      <div class="card-header bg-transparent p-0">
+        <button class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
+          type="button" data-bs-toggle="collapse" data-bs-target="#dailyOutputPanel" aria-expanded="true" aria-controls="dailyOutputPanel"
+          style="background:#0b1220;border:none;">
+          <span>
+            <span class="kicker text-uppercase d-block small mb-1 text-warning">Directives</span>
+            <h2 class="fw-bold">Levearge And Productivity</h2>
+          </span>
+          <span class="chev ms-3 badge bg-warning text-dark" aria-hidden="true">▾</span>
+        </button>
+      </div>
+      <div id="dailyOutputPanel" class="collapse hide">
+        <div class="card-body p-4">
+            <div class="row">
+              <div class="col my-4">
+                <h3 class="mb-2 text-light">Directives</h3>
+                <h6 class="m-0 text-light mb-4">Strategies For Balancing Stress, Energy, Complexity, Support And Efficacy</h6>
+                <ol class="list-group list-group-numbered  text-light" style="background-color:#0c1526">
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Stop relying on willpower</strong>
+                    <div class="small text-light">Willpower is backup fuel. If every task depends on “feeling ready,” your system lacks leverage.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Find where leverage is missing</strong>
+                    <div class="small text-light">Ask: “Where does effort feel expensive compared to the result it gives?” Those are your bottlenecks.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Replace force with structure</strong>
+                    <div class="small text-light">Automate what repeats. Simplify what confuses. Schedule what you avoid.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Use the real formula</strong>
+                    <div class="small text-light">Output = Input × Leverage. More input without more leverage only creates exhaustion.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Understand procrastination</strong>
+                    <div class="small text-light">Delay is an efficiency judgment. Make the first action smaller and the payoff clearer.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Understand perfectionism</strong>
+                    <div class="small text-light">Over-control is fear of wasted effort. Define “good enough,” finish, and learn faster.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Build leverage to reduce emotional cost</strong>
+                    <div class="small text-light">Leverage lowers friction → less willpower needed → momentum forms.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Measure ease, not effort</strong>
+                    <div class="small text-light">Ask “How easy was it to start?” Ease signals that the system carries the weight.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Replace anxiety with proof</strong>
+                    <div class="small text-light">Systems that reliably turn input into output build certainty and dissolve fear.</div>
+                  </li>
+                  <li class="list-group-item lh-lg  border-secondary" style="background-color:#0c1526">
+                    <strong>Simplify → Systemize → Scale</strong>
+                    <div class="small text-light">If it’s messy, simplify. If repeatable, systemize. If it works, scale.</div>
+                  </li>
+                </ol>
+
+
+              </div>
+            </div>
+
+        </div>
+      </div>
+    </nav>
+
+    <!-- Life Balance Visualizer -->
+    <section class="mb-4" id="lbvSection">
+      <div class="card">
+        <div class="card-header text-light d-flex  align-items-center p-4 flex-column">
+          <div class="w-100 d-flex justify-content-between "> 
+
+            <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Replace Willpower With Leverage</p>
+            <button id="toggleInstr" class="btn btn-sm btn-outline-light">Hide Instructions</button>            
+          </div>
+          <div id="instrWrap" class="mb-3 d-none">
+              <div class="row">
+                <div class="col my-4">
+                  <div class="legend">
+                    <span><span class="legend-dot" style="background:#808b99"></span>1 (gray) → low leverage</span>
+                    <span><span class="legend-dot" style="background:#20a5a5"></span>3 (teal) → stable leverage</span>
+                    <span><span class="legend-dot" style="background:#1fbf82"></span>5 (emerald/blue) → high leverage</span>
+                    <span class="lead">The radar chart is your Opportunity Efficiency Map.
+                        Each axis (Mind, Body, Money, Relationships) represents a domain of leverage.
+                        The shape shows how balanced your leverage is — wide and even means your resources reinforce each other, narrow or skewed means one area is bottlenecking your potential.
+                    </span>
+                  </div>
+          
+                </div>
+              </div>
+              <div class="row row-cols-1 row-cols-md-4 g-3">
+                <div class="col"><div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 1</span> Visualizer</h6>
+                  <p class="mb-0 text-light">Adjust sliders for Money, Body, Mind, and Relationships.</p>
+                </div></div>
+                <div class="col"><div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 2</span> Opportunity Efficiency</h6>
+                  <p class="mb-0 text-light">How effectively your time, energy, and focus turn into meaningful progress.
+  High = leveraged balance across domains; low = one area drains the rest.</p>
+                </div></div>
+                <div class="col"><div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 3</span> Leverage</h6>
+                  <p class="mb-0 text-light">Effort that multiplies results.
+  Raising leverage means your actions create compounding benefits instead of linear gains.</p>
+                </div></div>
+                <div class="col">
+                  <div class="p-3 border rounded-3 h-100">
+                    <h6 class="fw-bold mb-2"><span class="badge text-bg-warning">4</span> Velocity</h6>
+                    <p class="mb-0 text-light">Rate of meaningful output over time.
+    Measured by how consistently you convert routines into forward motion.</p>
+                  </div>
+                </div>
+            </div>
+          </div>            
+        </div>
+        
+        <div class="card-body text-light">
+
+
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <div class="card h-100 text-light rounded-0">
+                <div class="card-body d-flex flex-column">
+                  <div class="p-3 border rounded-3 d-flex justify-content-between mb-2">
+                    <h6 class="mb-2 text-light lh-baseline d-flex align-items-center justify-content-between gap-2"><span class="badge text-bg-warning"> 1</span> Leverage
+                    <span class="tiny ms-2">(Set Leverage Scores)</span></h6>
+                  </div>
+                  <div class="col-12">
+                    <label for="mindLv" class="form-label">Mind <span><span id="mindDot" class="legend-dot"></span></span><div class="tiny">Structure & focus under uncertainty</div></label>
+                    <input id="mindLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Mind slider">
+                  </div>
+                  <div class="col-12">
+                    <label for="bodyLv" class="form-label">Body <span><span id="bodyDot" class="legend-dot"></span></span><div class="tiny">Energy, sleep, physical regulation</div></label>
+                    <input id="bodyLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Body slider">
+                  </div>
+                  <div class="col-12">
+                    <label for="moneyLv" class="form-label">Money <span><span id="moneyDot" class="legend-dot"></span></span><div class="tiny">Financial stability; buy back time</div></label>
+                    <input id="moneyLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Money slider">
+                  </div>
+                  <div class="col-12">
+                    <label for="relLv" class="form-label">Relationships <span><span id="relDot" class="legend-dot"></span></span><div class="tiny">Support, accountability, stress buffer</div></label>
+                    <input id="relLv" type="range" min="1" max="5" step="1" value="3" class="form-range" aria-label="Relationships slider">
+                  </div>
+                  <div class="col-12">
+                    <p>
+                      Leverage measures how much output or impact you get for the energy, time, and focus you invest in a given area of life.
+A high leverage score means your actions in that domain create compounding benefits — they make other goals easier or more efficient to achieve.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12 col-md-8">
+              <div class="card h-100 text-light rounded-0">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 text-light lh-baseline d-flex align-items-center justify-content-between gap-2"><span class="badge text-bg-warning"> 2</span> Opportunity Efficiency</h6>
+                    <output id="tranqOut" class="pill">—</output>
+                  </div>
+                  <div class="vis-wrap p-3 rounded-0">
+                    <svg id="lbGraph" viewBox="0 0 420 360" preserveAspectRatio="xMidYMid meet" aria-label="Life Balance">
+                      <g id="lbEdges"></g>
+                      <g id="lbNodes"></g>
+                      <g id="lbLabels"></g>
+                    </svg>
+                  </div>
+                  <div class="row row-cols-1 row-cols-md-2 g-0 mt-2" id="examplesWrap"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+// Normalizes a 1..5 slider to [0,1]
+function normalizeToUnit(v){ return Math.max(0, Math.min(1, (Number(v)-1)/4 )); }
+
+// Harmonic mean of 4 normalized domains, with ε protection for zeros
+function harmonicMeanOE({ Money, Body, Mind, Relationships }){
+  const eps = 0.01;
+  const xs = [
+    normalizeToUnit(Money) || eps,
+    normalizeToUnit(Body) || eps,
+    normalizeToUnit(Mind) || eps,
+    normalizeToUnit(Relationships) || eps
+  ];
+  const denom = xs.reduce((s,x)=> s + 1/Math.max(x, eps), 0);
+  return 4 / denom; // 0..1
+}
+
+// Bottleneck helper (returns {key, level, normalized})
+function findLowestDomain(levels){
+  const entries = Object.entries(levels);
+  let min = entries[0];
+  for(const e of entries){
+    if (Number(e[1]) < Number(min[1])) min = e;
+  }
+  return { key: min[0], level: Number(min[1]), normalized: normalizeToUnit(min[1]) };
+}
+
+// Public API used by your render/update code
+function computeAndSetOE(){
+  // expects state.balance.{Money,Body,Mind,Relationships}
+  if (!window.state || !state.balance) return 0;
+  const { Money, Body, Mind, Relationships } = state.balance;
+  const oe = harmonicMeanOE({ Money, Body, Mind, Relationships });
+
+  // Preserve your existing wiring by writing to tranquility as the displayed %.
+  state.balance.tranquility = oe; // 0..1; UI can multiply by 100
+
+  // Optional: keep a short in-memory history for a tiny trend arrow
+  window.__oeHistory = window.__oeHistory || [];
+  __oeHistory.push({ t: Date.now(), oe });
+  if (__oeHistory.length > 100) __oeHistory.shift();
+
+  // Expose recommendation target
+  window.__lowestDomain = findLowestDomain({ Money, Body, Mind, Relationships });
+
+  return oe;
+}
+
+// Call this inside your main render loop (where you previously computed "oppEff")
+function renderOE(){
+  // Ensure globals exist
+  window.__oeHistory = window.__oeHistory || [];
+  const oe = computeAndSetOE();
+
+  // Example DOM updates (adjust selectors to your page):
+  const val = Math.round(oe * 100);
+  const meter = document.querySelector('[data-oe-meter]');
+  const label = document.querySelector('[data-oe-label]');
+  if (meter) meter.style.setProperty('--oe', oe); // if you use CSS var for meter fill
+  if (label) label.textContent = `${val}% Opportunity Efficiency`;
+
+  // Tiny trend arrow (last 5 samples)
+  const trendHost = document.querySelector('[data-oe-trend]');
+  if (trendHost && __oeHistory.length > 5){
+    const recent = __oeHistory.slice(-5).map(x=>x.oe);
+    const d = recent[recent.length-1] - recent[0];
+    trendHost.textContent = d > 0.005 ? '↑' : d < -0.005 ? '↓' : '→';
+    trendHost.setAttribute('aria-label', d>0? 'Improving' : d<0? 'Declining' : 'Flat');
+  }
+}
+
+const goals = {
+  floor: {
+    name: 'Raise the Floor',
+    baseline: null,
+    startedAt: null,
+    targetDelta: 0.10
+  },
+  equalize: {
+    name: 'Equalize the Load',
+    baseline: null,
+    startedAt: null
+  },
+  restore: {
+    name: 'Zero → One Restoration',
+    baseline: null,
+    startedAt: null,
+    targetDelta: 0.15
+  },
+  eight: {
+    name: 'The 0.8 Week',
+    baseline: null,
+    startedAt: null,
+    threshold: 0.80,
+    streak: 0,
+    best: 0
+  }
+};
+
+function updateLowestDomainHint(){
+  if (!window.__lowestDomain) return;
+  const el = document.querySelector('[data-lowest-domain]');
+  if (!el) return;
+  const { key, level } = __lowestDomain;
+  el.textContent = `Lowest = ${key} (Lv ${level}). Raise this first for the biggest OE gain.`;
+}
+
+// Attach button handlers once
+function initGoalsUI(){
+  document.querySelectorAll('[data-goal]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-goal');
+      const g = goals[id];
+      if (!g) return;
+      g.baseline = computeAndSetOE();
+      g.startedAt = Date.now();
+      const out = document.querySelector(`[data-goal-status="${id}"]`);
+      if (out){
+        const basePct = Math.round(g.baseline*100);
+        out.textContent = `Started. Baseline OE: ${basePct}%. Track delta over time.`;
+      }
+    });
+  });
+}
+
+// Call on each render to refresh status and recommendations
+function tickGoals(){
+  const oe = computeAndSetOE();
+  updateLowestDomainHint();
+
+  // floor / restore: check deltas against baseline
+  ['floor','restore'].forEach(id=>{
+    const g = goals[id];
+    if (!g?.baseline) return;
+    const delta = oe - g.baseline;
+    const out = document.querySelector(`[data-goal-status="${id}"]`);
+    if (out){
+      const pct = (delta*100).toFixed(1);
+      const ok = delta >= g.targetDelta;
+      out.textContent = `ΔOE ${pct}% ${ok ? '✅ target met' : '…keep going'}`;
+    }
+  });
+
+  // equalize: report spread
+  {
+    const g = goals.equalize;
+    if (g?.baseline != null){
+      const { Money, Body, Mind, Relationships } = state.balance;
+      const xs = [Money,Body,Mind,Relationships].map(normalizeToUnit);
+      const mean = xs.reduce((a,b)=>a+b,0)/xs.length;
+      const sd = Math.sqrt(xs.reduce((s,x)=> s + (x-mean)*(x-mean),0)/xs.length);
+      const out = document.querySelector('[data-goal-status="equalize"]');
+      if (out) out.textContent = `Spread (σ) ${(sd).toFixed(3)} — aim lower (within ±1 level).`;
+    }
+  }
+
+  // eight: update streak
+  {
+    const g = goals.eight;
+    if (g?.baseline != null){
+      if (oe >= g.threshold){ g.streak++; g.best = Math.max(g.best, g.streak); }
+      else { g.streak = 0; }
+      const out = document.querySelector('[data-goal-status="eight"]');
+      if (out) out.textContent = `Day streak ≥ ${Math.round(g.threshold*100)}%: ${g.streak} (best ${g.best})`;
+    }
+  }
+}
+
+// Boot once
+document.addEventListener('DOMContentLoaded', ()=>{
+  initGoalsUI();
+  // If you have an existing render loop, ensure renderOE() and tickGoals() are called there.
+  // Otherwise, use a small observer on your sliders:
+  document.querySelectorAll('input[type="range"][data-domain]').forEach(r=>{
+    r.addEventListener('input', ()=> { renderOE(); tickGoals(); });
+    r.addEventListener('change', ()=> { renderOE(); tickGoals(); });
+  });
+
+  // First paint
+  renderOE();
+  tickGoals();
+});
+
+/* =====================
+   STATE (Session-only)
+   ===================== */
+const state = {
+  balance: { Mind: 3, Body: 3, Money: 3, Relationships: 3, tranquility: null },
+  flags:   { firstExportDone: false }
+};
+
+/* =====================
+   Utilities
+   ===================== */
+const $  = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const clamp = (n,min,max)=> Math.max(min, Math.min(max, n));
+
+// Shared color ramp for levels (1 gray → 3 teal → 5 emerald/blue)
+function colorRamp(v){
+  const t = (clamp(Number(v),1,5)-1)/4; // 0..1
+  function hexToRgb(h){ const n=parseInt(h.slice(1),16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
+  function mix(a,b,u){ return {r:Math.round(a.r+(b.r-a.r)*u), g:Math.round(a.g+(b.g-a.g)*u), b:Math.round(a.b+(b.b-a.b)*u)}; }
+  const c1 = hexToRgb('#808b99'), c2 = hexToRgb('#20a5a5'), c3 = hexToRgb('#1fbf82');
+  const c  = (t<=0.5) ? mix(c1,c2,t/0.5) : mix(c2,c3,(t-0.5)/0.5);
+  return `rgb(${c.r},${c.g},${c.b})`;
+}
+const mean   = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : 0;
+const stddev = arr => { const m=mean(arr); return Math.sqrt(mean(arr.map(x=>(x-m)*(x-m)))); };
+
+/* =====================
+   Life Balance Visualizer (Radar)
+   ===================== */
+function updateSliderDots(){
+  const dotMap = {
+    Mind:  document.getElementById('mindDot'),
+    Body:  document.getElementById('bodyDot'),
+    Money: document.getElementById('moneyDot'),
+    Relationships: document.getElementById('relDot')
+  };
+  Object.entries(dotMap).forEach(([k,el])=>{
+    if (el) el.style.background = colorRamp(state.balance[k]);
+  });
+}
+
+function renderLB(){
+  // query the SVG groups when we render (safer than top-level)
+  const lbNodesG  = document.getElementById('lbNodes');
+  const lbEdgesG  = document.getElementById('lbEdges');
+  const lbLabelsG = document.getElementById('lbLabels');
+
+  const vals = state.balance;
+  const arr  = [vals.Mind, vals.Body, vals.Money, vals.Relationships];
+
+  // Opportunity Efficiency (balanced avg with stddev penalty)
+  const maxStd = stddev([1,1,1,5]);
+  const oppEff = clamp((mean(arr)/5) * (1 - (stddev(arr) / maxStd || 0)), 0, 1);
+  state.balance.tranquility = Math.round(oppEff*100);
+
+  const tOut = document.getElementById('tranqOut');
+  if (tOut){
+    tOut.textContent = state.balance.tranquility + '%';
+    tOut.classList.toggle('text-bg-success', oppEff >= 0.7);
+    tOut.classList.toggle('text-bg-warning', oppEff >= 0.4 && oppEff < 0.7);
+    tOut.classList.toggle('text-bg-danger',  oppEff < 0.4);
+  }
+
+  if (!lbEdgesG || !lbNodesG || !lbLabelsG) return; // nothing to draw yet
+
+  // Radar geometry
+  const cx = 210, cy = 180, minR = 20, maxR = 120;
+  const axes = [
+    {key:'Mind',          angle:-Math.PI/2},
+    {key:'Money',         angle:0},
+    {key:'Relationships', angle:Math.PI/2},
+    {key:'Body',          angle:Math.PI}
+  ];
+  const scale = v => minR + (clamp(Number(v),1,5)-1)*((maxR-minR)/4);
+
+  // clear
+  lbEdgesG.innerHTML = '';
+  lbNodesG.innerHTML = '';
+  lbLabelsG.innerHTML = '';
+
+  // grid rings
+  for (let i=1;i<=5;i++){
+    const r = minR + (i-1)*((maxR-minR)/4);
+    const circ = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circ.setAttribute('cx',cx); circ.setAttribute('cy',cy); circ.setAttribute('r',r);
+    circ.setAttribute('fill','none'); circ.setAttribute('stroke','rgba(108,122,153,0.15)'); circ.setAttribute('stroke-width','1');
+    lbEdgesG.appendChild(circ);
+  }
+
+  // axes + points + labels
+  const pts = [];
+  axes.forEach(ax=>{
+    const axLine = document.createElementNS('http://www.w3.org/2000/svg','line');
+    axLine.setAttribute('x1',cx); axLine.setAttribute('y1',cy);
+    axLine.setAttribute('x2', cx + Math.cos(ax.angle)*maxR);
+    axLine.setAttribute('y2', cy + Math.sin(ax.angle)*maxR);
+    axLine.setAttribute('stroke','#6c7a99'); axLine.setAttribute('opacity','0.25');
+    lbEdgesG.appendChild(axLine);
+
+    const rNow = scale(vals[ax.key]);
+    const px = cx + Math.cos(ax.angle)*rNow;
+    const py = cy + Math.sin(ax.angle)*rNow;
+    const dot = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    dot.setAttribute('cx',px); dot.setAttribute('cy',py); dot.setAttribute('r',6);
+    dot.setAttribute('fill', colorRamp(vals[ax.key])); dot.setAttribute('class','node');
+    lbNodesG.appendChild(dot);
+    pts.push({x:px,y:py});
+
+    const lx = cx + Math.cos(ax.angle)*(maxR+18);
+    const ly = cy + Math.sin(ax.angle)*(maxR+18);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',lx); t.setAttribute('y',ly); t.setAttribute('class','node-label');
+    t.textContent = ax.key;
+    lbLabelsG.appendChild(t);
+  });
+
+  // polygon
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points', pts.map(p=>`${p.x},${p.y}`).join(' '));
+  poly.setAttribute('fill','rgba(31,191,130,0.22)');
+  poly.setAttribute('stroke','rgba(31,191,130,0.9)'); poly.setAttribute('stroke-width','2');
+  lbNodesG.appendChild(poly);
+
+  // center indicator + label
+  const center = document.createElementNS('http://www.w3.org/2000/svg','circle');
+  center.setAttribute('cx',cx); center.setAttribute('cy',cy); center.setAttribute('r',10);
+  center.setAttribute('fill', oppEff>=0.7 ? '#1fbf82' : (oppEff>=0.4 ? '#20a5a5' : '#808b99'));
+  lbNodesG.appendChild(center);
+
+  const t2 = document.createElementNS('http://www.w3.org/2000/svg','text');
+  t2.setAttribute('x',cx); t2.setAttribute('y',cy+4); t2.setAttribute('class','node-label');
+  t2.textContent='Opportunity Efficiency';
+  lbLabelsG.appendChild(t2);
+
+  updateSliderDots();
+}
+
+/* =====================
+   Examples (domain → list)
+   ===================== */
+const exampleBank = {
+  Money: [
+    'Automate savings transfers',
+    'Productize a service (starter offer)',
+    'Weekly offer sprint (2 hrs)',
+    'Hire a coach for pricing & GTM',
+    'Close loops: invoice & collect'
+  ],
+  Body: [
+    'Trainer 2x/week (compound lifts)',
+    '10k steps + sunlight walk',
+    'Sleep window: 10:30–6:30',
+    'Meal prep Sun/Wed (30m)',
+    'Mobility 10m post-workout'
+  ],
+  Mind: [
+    '25m deep-work blocks (3x/day)',
+    'Meditation 10m (AM)',
+    'Therapy/coaching weekly',
+    'Distraction audit + blockers',
+    'Write 200 words before phone'
+  ],
+  Relationships: [
+    'Weekly accountability call',
+    'Date night planned Wed',
+    'Text 1 friend daily',
+    'No-phone dinner block',
+    'Volunteer or group session'
+  ]
+};
+
+function regenExamples(){
+  const wrap = document.getElementById('examplesWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  Object.keys(exampleBank).forEach(domain=>{
+    const level = state.balance[domain];
+    const n = clamp(level,1,5);
+    const list = exampleBank[domain].slice(0,n);
+    const card = document.createElement('div'); card.className='col';
+    card.innerHTML = `
+      <div class="card h-100 text-light rounded-0">
+        <div class="card-body d-flex flex-column">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong class="text-warning">${domain}</strong>
+            <span class="pill">Lv ${level}</span>
+          </div>
+          <ul class="mb-3 text-light" style="padding-left:1.1rem;">
+            ${list.map(x=>`<li>${x}</li>`).join('')}
+          </ul>
+        </div>
+      </div>`;
+    wrap.appendChild(card);
+  });
+}
+
+/* =====================
+   Wiring
+   ===================== */
+window.addEventListener('load', ()=>{
+  // initialize from current slider values
+  const map = { mindLv: 'Mind', bodyLv: 'Body', moneyLv: 'Money', relLv: 'Relationships' };
+  Object.entries(map).forEach(([id,key])=>{
+    const el = document.getElementById(id);
+    if (el) state.balance[key] = Number(el.value);
+  });
+
+  // slider listeners
+  Object.keys(map).forEach(id=>{
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', e=>{
+      const key = map[id];
+      state.balance[key] = Number(e.target.value);
+      renderLB();
+      regenExamples();
+    });
+  });
+
+  // instructions toggle
+  const btn = document.getElementById('toggleInstr');
+  const wrap = document.getElementById('instrWrap');
+  if (btn && wrap){
+    btn.addEventListener('click', ()=>{
+      wrap.classList.toggle('d-none');
+      btn.textContent = wrap.classList.contains('d-none') ? 'Show Instructions' : 'Hide Instructions';
+    });
+  }
+
+  renderLB();
+  regenExamples();
+});
+</script>
+
+</body>
+</html>
