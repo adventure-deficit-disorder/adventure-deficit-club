@@ -285,7 +285,13 @@ html, body { overflow-x: hidden; }  /* belt & suspenders */
         <option value="9:16">9:16 (Story/Reel)</option>
         <option value="16:9">16:9 (Wide)</option>
       </select>
-      <button id="exportBtn" class="btn btn-sm btn-primary">Export PNG</button>
+      <button id="exportBtn" type="button">Export PNG</button>
+      <script>
+        document.getElementById('exportBtn')?.addEventListener('click', () => {
+          exportPNG('#velocityTable', `velocity_${Date.now()}.png`);
+        });
+      </script>
+
     </div>
   </div>
 </div>
@@ -296,6 +302,92 @@ html, body { overflow-x: hidden; }  /* belt & suspenders */
 
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script>
+async function exportPNG(targetSelector = '#velocityTable', filename = 'velocity_summary.png') {
+  const el = document.querySelector(targetSelector);
+  if (!el) return console.warn('Export target not found:', targetSelector);
+
+  // 1) Wait for fonts and images
+  try { if (document.fonts?.ready) await document.fonts.ready; } catch(_) {}
+  await Promise.all(Array.from(el.querySelectorAll('img')).map(img => {
+    return new Promise(res => {
+      if (img.complete) return res();
+      img.crossOrigin = img.crossOrigin || 'anonymous';
+      img.addEventListener('load', res, { once:true });
+      img.addEventListener('error', res, { once:true });
+    });
+  }));
+
+  // 2) Temporarily neutralize clipping/animations on the capture container
+  const prev = {
+    overflow: el.style.overflow,
+    transform: el.style.transform,
+    transition: el.style.transition
+  };
+  el.style.overflow = 'visible';
+  el.style.transform = 'none';
+  el.style.transition = 'none';
+
+  // 3) Render
+  const dpr = Math.min(2, window.devicePixelRatio || 1); // cap DPR on mobile
+  let canvas;
+  try {
+    canvas = await html2canvas(el, {
+      backgroundColor: null,
+      scale: dpr,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      imageTimeout: 3000, // keep tight for mobile
+      removeContainer: true,
+      onclone: (doc) => {
+        // Ensure cloned node is visible
+        const cloneEl = doc.querySelector(targetSelector);
+        if (cloneEl) {
+          cloneEl.style.maxHeight = 'none';
+          cloneEl.style.overflow = 'visible';
+          cloneEl.style.transform = 'none';
+        }
+      }
+    });
+  } finally {
+    // restore styles
+    el.style.overflow = prev.overflow;
+    el.style.transform = prev.transform;
+    el.style.transition = prev.transition;
+  }
+
+  // 4) Download / Fallback for iOS
+  try {
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    if (!blob) throw new Error('Blob failed');
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+
+    // Detect iOS Safari (download attr unsupported)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+    if (isIOS && isSafari) {
+      // Open in new tab so user can long-press/save
+      window.open(url, '_blank');
+    } else {
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+  } catch (e) {
+    // Last-ditch dataURL fallback
+    const dataURL = canvas.toDataURL('image/png');
+    window.open(dataURL, '_blank'); // works on iOS (user can save)
+  }
+}
+</script>
+
 <script>
 (function () {
   const habitsSection = document.getElementById('habits');
