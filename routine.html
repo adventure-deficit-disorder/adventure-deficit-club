@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Velocity — Life Balance Visualizer + Velocity Table (Stateless)</title>
 
-  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- html2canvas for PNG capture -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
@@ -20,9 +17,7 @@
     .navbar{background:linear-gradient(90deg,#0b1220 0%, #0e1830 60%, #0b1220 100%); border-bottom:1px solid var(--line);}
     .container-narrow{max-width:1040px;}
     .card{background:var(--card); border:1px solid var(--line); color:white ;}
-    .card h6, .list-group-item {
-    color: #4da98a;
-    }
+    .card h6, .list-group-item { color: #4da98a; }
     .btn-accent{background:var(--accent); color:#08121f; border:1px solid #128b8b;}
     .metric-pill{display:flex; justify-content:space-between; align-items:center; border:1px dashed var(--line); border-radius:999px; padding:.35rem .75rem; }
     .range-track::-webkit-slider-thumb{cursor:pointer;}
@@ -35,7 +30,6 @@
     .legend{display:flex; gap:.75rem; flex-wrap:wrap;}
     .export-bar .btn{min-width:10rem;}
 
-    /* Velocity Table: dark theme */
     .vt-table .table{background:var(--table-bg); border-color:var(--line);}
     .vt-table thead th{background:var(--table-bg); color:#cfe1ff; border-color:var(--line);}
     .vt-table tbody td,.vt-table tbody th{color:#e7efff; background:var(--table-bg); border-color:var(--line); vertical-align:middle;}
@@ -45,7 +39,6 @@
     .offcanvas{background:var(--card); color:var(--text); border-left:1px solid var(--line);}
     .tiny{font-size:.85rem; color:var(--muted)}
 
-    /* Mobile list for Velocity Table */
     @media (max-width: 767.98px){
       .vt-table{display:none}
       #vtList{display:block}
@@ -53,34 +46,8 @@
     @media (min-width: 768px){
       #vtList{display:none}
     }
-    /* Square export surface without changing page flow */
-    #reportCard {
-      width: 1024px;           /* exported size */
-      aspect-ratio: 1 / 1;     /* guarantees 1:1 */
-      margin: 0 auto;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: .75rem;
-    }
 
-    .report-topbar, .report-bottombar {
-      display: grid;
-      gap: .5rem;
-    }
-
-    .report-topbar {
-      grid-template-columns: 1fr auto 1fr; /* [Processes (n)] [title] [Interdependencies] */
-    }
-
-    .report-bottombar {
-      grid-template-columns: 1fr 1fr 1fr;  /* [Maint Hours] [Avg Lev] [Interdependencies] */
-    }
-
-    /* Keep your current cards/styles; these just tighten within the report */
-    .report-panel { background: transparent; }
-
-  
-/* === Dark legibility patch (non-breaking) === */
+/* Dark legibility patch */
 :root {
   --bg-deep: #0b1220;
   --bg-card: #0f1626;
@@ -93,81 +60,31 @@
 }
 body { color: var(--fg-base); }
 .card { background: var(--bg-card); }
-.metric-pill {
-  background: var(--bg-card-2);
-  border: 1.25px dashed var(--border-2);
-  padding: 8px 10px;
-  border-radius: 999px;
-}
+.metric-pill { background: var(--bg-card-2); border: 1.25px dashed var(--border-2); padding: 8px 10px; border-radius: 999px; }
 .metric-pill .k { font-size: 0.9rem; color: var(--fg-muted); }
 .metric-pill .v { font-weight: 600; font-size: 1.1rem; }
-
-/* Table legibility in dark mode (scoped to card tables) */
-.card table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  color: var(--fg-base);
-}
-.card table thead th {
-  background: var(--bg-card-2);
-  color: var(--fg-base);
-  padding: 10px 12px;
-  border: 1.25px solid var(--border-1);
-  text-align: left;
-  font-size:12px;
-}
-.card table tbody td {
-  padding: 10px 12px;
-  border: 1.25px solid var(--border-1);
-}
+.card table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--fg-base); }
+.card table thead th { background: var(--bg-card-2); color: var(--fg-base); padding: 10px 12px; border: 1.25px solid var(--border-1); text-align: left; font-size:12px; }
+.card table tbody td { padding: 10px 12px; border: 1.25px solid var(--border-1); }
 .card table tbody tr:nth-child(odd) { background: var(--bg-card); }
 .card table tbody tr:nth-child(even){ background: #0e1525; }
-.card table td:nth-last-child(1),
-.card table th:nth-last-child(1){
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Tiny text helper */
+.card table td:nth-last-child(1), .card table th:nth-last-child(1){ text-align: right; font-variant-numeric: tabular-nums; }
 .tiny { color: var(--fg-muted); font-size: .85rem; }
-
-/* Visualizer label legibility */
-.node-label { 
-  fill: var(--fg-base);
-  paint-order: stroke;
-  stroke: rgba(0,0,0,.35);
-  stroke-width: 2px;
-  font-size: 14px;
-}
-
-/* Edge hint inline (no layout change) */
+.node-label { fill: var(--fg-base); paint-order: stroke; stroke: rgba(0,0,0,.35); stroke-width: 2px; font-size: 14px; }
 #edgeLegendHint { color: var(--fg-muted); }
-
-/* Report container if present */
-#reportCard {
-  background: var(--bg-deep);
-  color: var(--fg-base);
-}
-.report-topbar, .report-bottombar { 
-  background: var(--bg-deep);
-}
-
-</style>
+  </style>
 </head>
 <body>
   <nav class="navbar navbar-dark">
     <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
         <div>
-            <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+            <a class="navbar-brand" href="#">Adventure Deficit Club</a>
             <h6>Procrastination | Perfectionism | Fatigue</h6>
         </div>
         <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 gap-2">
         <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
         <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
         </div>
-        
-
     </div>
   </nav>
 
@@ -241,46 +158,7 @@ body { color: var(--fg-base); }
         </div>
       </div>
     </nav>
-    <section class="mb-4" id="lbvSection">
-      <div class="card">
-        <div class="card-header text-light d-flex  align-items-center p-4 flex-column">
-          <div class="w-100 d-flex justify-content-between "> 
 
-                <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Simple Survives Complex Breaks</p>
-            <button id="toggleInstr" class="btn btn-sm btn-outline-light">Hide Instructions</button>            
-          </div>
-          <div id="instrWrap" class="mb-3 d-none">
-              <p class="lead mt-3">Complexity feels powerful — it flatters intelligence and creates the illusion of control — but under stress, every extra moving part becomes a failure point. Simplicity, by contrast, is antifragile: it endures because it demands less to maintain and more to adapt. The goal isn’t to make life easy; it’s to make progress frictionless. A simple routine survives interruptions, fatigue, and chaos. Complexity collapses the moment your energy or focus dips. When systems break, simplify until momentum returns — then rebuild only what compounds output, not what decorates it.</p>            
-              <div class="row row-cols-1 row-cols-md-4 g-3">
-                    <div class="col"><div class="p-3 border rounded-3 h-100">
-                      <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 1</span> Routine</h6>
-                      <p class="mb-0 text-light">Define each repeatable task or habit — what you actually do daily.</p>
-                    </div></div>
-                    <div class="col"><div class="p-3 border rounded-3 h-100">
-                      <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 2</span> Time Block </h6>
-                      <p class="mb-0 text-light">Assign a fixed window to anchor consistency.</p>
-                    </div></div>
-                    <div class="col"><div class="p-3 border rounded-3 h-100">
-                      <h6 class="fw-bold mb-2"><span class="badge text-bg-warning"> 3</span> Min / Last / Max</h6>
-                      <p class="mb-0 text-light">Track smallest, latest, and best effort to visualize progress.</p>
-                    </div></div>
-                    <div class="col">
-                      <div class="p-3 border rounded-3 h-100">
-                        <h6 class="fw-bold mb-2"><span class="badge text-bg-warning">4</span> Leverage</h6>
-                        <p class="mb-0 text-light">Note what multiplies results — tool, person, or structure. Rate efficiency: 1 = force, 5 = flow.</p>
-                      </div>
-                    </div>
-                    <div class="col">
-                      <div class="p-3 border rounded-3 h-100">
-                        <h6 class="fw-bold mb-2"><span class="badge text-bg-warning">5</span> Five Year Outcome</h6>
-                        <p class="mb-0 text-light">Describe what compounding this routine leads to.</p>
-                      </div>
-                    </div>                    
-                </div>
-          </div>            
-        </div>
-      </div>
-    </section>
     <!-- Velocity Table -->
     <section class="mb-4">
       <div class="card">
@@ -289,11 +167,18 @@ body { color: var(--fg-base); }
             <span class="badge text-bg-warning"> 1</span><Strong class="h4 mb-0 text-warning fw-semibold"> Daily Routine -</Strong> Align Long-term Goals With Short-term Actions</p>
           <div class="btn-group btn-group-sm" role="group">
             <button id="addRow" class="btn btn-sm btn-outline-light">+ Add Routine</button>
-            <button id="btnPng" class="btn btn-sm btn-outline-light">Export PNG</button>
+<button id="btnImport" class="btn btn-sm btn-outline-light">Import CSV</button>
+<input type="file" id="fileCsv" accept=".csv,text/csv" class="d-none" />
+            <div class="btn-group">
+              <button id="btnExport" type="button" class="btn btn-sm btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Export
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="#" id="actExportPng">PNG (Velocity Table)</a></li>
+                <li><a class="dropdown-item" href="#" id="actExportCsv">Spreadsheet (CSV)</a></li>
+              </ul>
+            </div>
             <button id="btnDeleteAll" class="btn btn-sm btn-outline-danger">Delete All</button>
-            <!-- Hidden placeholders to satisfy existing listeners without changing JS -->
-            <button id="btnPrint" class="btn btn-sm btn-outline-light d-none">Print</button>
-            <button id="btnJson" class="btn btn-sm btn-outline-light d-none">Download JSON</button>
           </div>
         </div>
         <div class="card-body">
@@ -303,14 +188,15 @@ body { color: var(--fg-base); }
               <table id="velocityTable" class="table table-hover align-middle mb-0">
                 <thead>
                   <tr>
+                    <th>Five Year Outcome</th>
+                    <th>1 Year Goal</th>
                     <th>Routine</th>
                     <th>Time Block</th>
                     <th style="width:90px">Min</th>
                     <th style="width:90px">Last</th>
                     <th style="width:90px">Max</th>
                     <th>Leverage</th>
-                    <th style="width:160px">Leverage Score (1–5)</th>
-                    <th>Five Year Outcome</th>
+                    <th>Leverage Score (1–5)</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -344,10 +230,28 @@ body { color: var(--fg-base); }
               <input id="maintSlider" type="range" min="0" max="120" step="20" value="40" class="form-range range-track flex-grow-1" aria-label="Upkeep minutes per task">
               <output id="maintOut" class="badge bg-transparent border border-light text-light fw-bold" style="min-width:3.2rem; text-align:center;">40</output>
             </div>
+            
             <div class="tiny mt-2">
               <strong>Node color = Leverage Score</strong> · 
               <span id="edgeLegendHint">Edges react to Upkeep per task + Interdependencies + total Maintenance.</span>
-          </div>
+            </div>
+            
+<label class="form-label">ChatGPT Prompt (auto-generated)</label>
+<textarea id="promptArea" class="form-control" rows="12" readonly></textarea>
+<div class="d-flex align-items-center gap-2 mt-2">
+  <button id="copyPrompt" class="btn btn-sm btn-accent" type="button">Copy Prompt</button>
+  <small id="copyStatus" class="text-success d-none">Copied</small>
+</div>
+<small class="tiny">This prompt summarizes your goals, routines, and current complexity math so ChatGPT can use the Socratic method to help you maximize leverage (0–5) and minimize interdependencies.
+<label class="form-label mt-3">ChatGPT Prompt — Routine Spreadsheet (CSV)</label>
+<textarea id="promptCsv" class="form-control" rows="8" readonly></textarea>
+<div class="d-flex align-items-center gap-2 mt-2">
+  <button id="copyPromptCsv" class="btn btn-sm btn-accent" type="button">Copy CSV Prompt</button>
+  <small id="copyStatusCsv" class="text-success d-none">Copied</small>
+</div>
+<small class="tiny">Paste this into ChatGPT to generate a CSV with the exact headers the importer expects.</small>
+</small>
+
           </div>
         </div>
         <div class="col-12 col-md-7">
@@ -366,28 +270,7 @@ body { color: var(--fg-base); }
       </div>
     </section>
 
-
-
   </main>
-
-  <!-- Gating Modal -->
-  <div class="modal fade" id="gateModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content" style="background:var(--card); border:1px solid var(--line); color:var(--text)">
-        <div class="modal-header">
-          <h5 class="modal-title">Unlock Unlimited Exports & Deeper Insights</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Join Adventure Deficit Club on Skool for <strong>$2/month</strong> to get unlimited exports, richer analysis, and pro templates.
-        </div>
-        <div class="modal-footer">
-          <a class="btn btn-accent" href="https://www.skool.com/adventure-deficit-club-8261" target="_blank" rel="noopener">Join on Skool</a>
-          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Velocity Table Editor -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="vtEditor" aria-labelledby="vtEditorLabel">
@@ -397,9 +280,31 @@ body { color: var(--fg-base); }
     </div>
     <div class="offcanvas-body">
       <form id="vtForm" class="vstack gap-3">
+        <div class="row g-2">
+          <div class="col-6">
+            <label class="form-label">Output</label>
+            <input list="outputOptions" class="form-control vt-input" id="f_output" placeholder="e.g., words, workouts, pages">
+            <datalist id="outputOptions">
+              <option value="words"></option>
+              <option value="workouts"></option>
+              <option value="pages"></option>
+              <option value="videos"></option>
+              <option value="calls"></option>
+              <option value="leads"></option>
+            </datalist>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Period</label>
+            <select class="form-select vt-input" id="f_period">
+              <option value="day">Day</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+            </select>
+          </div>
+        </div>
         <div>
-          <label class="form-label">Routine</label>
-          <input type="text" class="form-control vt-input" id="f_routine" placeholder="e.g., Words/Day">
+          <label class="form-label">Routine (auto)</label>
+          <input type="text" class="form-control vt-input" id="f_routine" placeholder="e.g., words/day" readonly>
         </div>
         <div>
           <label class="form-label">Time Block</label>
@@ -420,12 +325,17 @@ body { color: var(--fg-base); }
           </div>
         </div>
         <div>
-          <label class="form-label">Leverage</label>
-          <input type="text" class="form-control vt-input" id="f_lev" placeholder="What increases payoff?">
+          <label class="form-label">Leverage (text)</label>
+          <input type="text" class="form-control vt-input" id="f_lev" placeholder="What increases payoff? (leave blank = score 0)">
+          <div class="tiny">If this is empty, leverage score will be set to 0 automatically.</div>
         </div>
         <div>
-          <label class="form-label">Leverage Score (1–5)</label>
-          <input type="number" class="form-control vt-input" id="f_score" min="1" max="5" inputmode="numeric">
+          <label class="form-label">Leverage Score (0–5)</label>
+          <input type="number" class="form-control vt-input" id="f_score" min="0" max="5" inputmode="numeric">
+        </div>
+        <div>
+          <label class="form-label">1 Year Goal</label>
+          <input type="text" class="form-control vt-input" id="f_goal1y" placeholder="Milestone by 12 months">
         </div>
         <div>
           <label class="form-label">Five Year Outcome</label>
@@ -440,627 +350,577 @@ body { color: var(--fg-base); }
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    /* =====================
-       STATE (Session-only)
-       ===================== */
-    const state = {
-      balance: { Mind:3, Body:3, Money:3, Relationships:3, tranquility: null },
-      flags: { firstExportDone: false }
-    };
+    // ==== Utility ====
+    function $(id){ return document.getElementById(id); }
 
-    /* =====================
-       Utilities
-       ===================== */
-    const $ = s => document.querySelector(s);
-    const $$ = s => document.querySelectorAll(s);
-    const clamp = (n,min,max)=> Math.max(min, Math.min(max, n));
-
-    // Shared color ramp for levels (1 gray → 3 teal → 5 emerald/blue)
-    function colorRamp(v){
-      const t = (clamp(Number(v),1,5)-1)/4; // 0..1
-      // interpolate between #808b99 (gray) at t=0, #20a5a5 at t=0.5, #1fbf82 at t=1
-      function hexToRgb(h){ const n=parseInt(h.slice(1),16); return {r:(n>>16)&255,g:(n>>8)&255,b:n&255}; }
-      function mix(a,b,u){ return {r:Math.round(a.r+(b.r-a.r)*u), g:Math.round(a.g+(b.g-a.g)*u), b:Math.round(a.b+(b.b-a.b)*u)}; }
-      const c1 = hexToRgb('#808b99'), c2 = hexToRgb('#20a5a5'), c3 = hexToRgb('#1fbf82');
-      let c;
-      if(t<=0.5){ c = mix(c1,c2,t/0.5); } else { c = mix(c2,c3,(t-0.5)/0.5); }
-      return `rgb(${c.r},${c.g},${c.b})`;
+    // Score display: 0 if no leverage text present
+    function getDisplayScore(row, autoScore){
+      try{
+        const hasLevText = row && row.lev && String(row.lev).trim().length > 0;
+        if (!hasLevText) return 0;
+        const s = Number(row && row.score);
+        if (Number.isFinite(s) && s >= 0) return s;
+        const a = Number(autoScore);
+        return Number.isFinite(a) ? a : 0;
+      }catch(e){ return 0; }
     }
 
-    const mean = arr => arr.reduce((a,b)=>a+b,0)/arr.length;
-    const stddev = arr => { const m=mean(arr); return Math.sqrt(mean(arr.map(x=>(x-m)*(x-m)))); };
-
-    // ---- Upkeep slider wiring (visualizer removed)
-    const maintSlider = document.getElementById('maintSlider');
-    const maintOut    = document.getElementById('maintOut');
-
-
-    function recalcComplexityAndRedraw(){
-      // n = # of active routines/nodes currently rendered
-      const n = document.querySelectorAll('#nodes .node').length || 0;
-
-      // interdependencies = n(n-1)/2
-      const edges = (n * (n - 1)) / 2;
-
-      // upkeep minutes per task (slider) and total maintenance
-      const per = Number(maintSlider?.value ?? 0);
-      const totalMaint = n * per;
-
-      // update metric pills
-      const mN     = document.getElementById('m_n');
-      const mE     = document.getElementById('m_edges');
-      const mMaint = document.getElementById('m_maint');
-
-      if (mN)     mN.textContent     = n;
-      if (mE)     mE.textContent     = edges;
-      if (mMaint) mMaint.textContent = totalMaint;
-
-      // ---- Edge restyle: color + opacity + width from load ----
-      function restyleEdgesByLoad({ n, edges, per, totalMaint }){
-        const edgeEls = document.querySelectorAll('#edges .edge');
-        if (!edgeEls.length || !n) return;
-
-        // Normalize factors:
-        // per task upkeep: 0..120 (your slider max); clamp to 0..1
-        const perNorm = clamp(per / 120, 0, 1);
-
-        // interdependency intensity: edges grows ~n^2; cap to 45 (n≈10) for stability
-        const edgesNorm = clamp(edges / 45, 0, 1);
-
-        // total maintenance per node ~ per; keep as soft check (redundant but user-intuitive)
-        const totalNorm = clamp((totalMaint / (n * 120)), 0, 1); // ≈ perNorm
-
-        // Composite intensity (weights tuned to make slider clearly “in charge”)
-        const intensity = clamp(0.6 * perNorm + 0.25 * edgesNorm + 0.15 * totalNorm, 0, 1);
-
-        // Map intensity → stroke color/opacity/width
-        // Hue: blue(200) → red(20) as load increases; no custom CSS needed
-        const hue      = Math.round(200 - 180 * intensity);
-        const opacity  = 0.15 + 0.55 * intensity; // was ≈0.1875 static
-        const width    = 1 + 2 * intensity;
-
-        edgeEls.forEach(line => {
-          line.style.stroke      = `hsl(${hue} 60% 55%)`;
-          line.style.opacity     = opacity.toFixed(3);
-          line.style.strokeWidth = `${width.toFixed(2)}px`;
-        });
-
-        // Optional: tiny legend hint (keeps layout)
-        const hint = document.getElementById('edgeLegendHint');
-        if (hint) {
-          hint.textContent = `Edge color/width react to Upkeep per task, Interdependencies, and total Maintenance.`;
-        }
-      }
-
-
-      // if you already have renderComplexity/renderVelocity, keep them:
-      if (typeof renderComplexity === 'function') renderComplexity();
-      if (typeof renderVelocity   === 'function') renderVelocity();
-
-      // if you show “Maintenance Hours” elsewhere, you can update it here:
-      const hoursEl = document.getElementById('maintHours');
-      if (hoursEl) hoursEl.textContent = (totalMaint/60).toFixed(1);
+    // Heuristic auto score (only used when text is present and user hasn't set one)
+    function computeAutoScore(row, upkeep){
+      const minV = Number(row.min)||0, lastV = Number(row.last)||0;
+      const base = upkeep>0 ? (minV / upkeep) : 0;
+      const curr = upkeep>0 ? (lastV / upkeep) : 0;
+      let lift = (base>0) ? (curr / Math.max(base,1e-9)) : (curr>0?1.2:0.8);
+      if ((row.lev||'').trim().length) lift *= 1.2;
+      const score = 1 + 4 * Math.min(1, lift / 3.0);
+      return Math.max(1, Math.min(5, Number(score.toFixed(1))));
     }
 
-    if (maintSlider && maintOut) {
-      maintSlider.addEventListener('input', (e) => {
-        maintOut.textContent = e.target.value;
-        recalcComplexityAndRedraw();
-      });
+    function unitTagFor(row){
+      const o = (row.output||'').toString().trim().toLowerCase();
+      const p = (row.period||'').toString().trim().toLowerCase();
+      if (!o || !p) return '';
+      return ` (${o}/${p})`;
     }
 
-    /* =====================
-       Examples (domain → list)
-       ===================== */
-    const exampleBank = {
-      Money: [
-        'Automate savings transfers',
-        'Productize a service (starter offer)',
-        'Weekly offer sprint (2 hrs)',
-        'Hire a coach for pricing & GTM',
-        'Close loops: invoice & collect'
-      ],
-      Body: [
-        'Trainer 2x/week (compound lifts)',
-        '10k steps + sunlight walk',
-        'Sleep window: 10:30–6:30',
-        'Meal prep Sun/Wed (30m)',
-        'Mobility 10m post-workout'
-      ],
-      Mind: [
-        '25m deep-work blocks (3x/day)',
-        'Meditation 10m (AM)',
-        'Therapy/coaching weekly',
-        'Distraction audit + blockers',
-        'Write 200 words before phone'
-      ],
-      Relationships: [
-        'Weekly accountability call',
-        'Date night planned Wed',
-        'Text 1 friend daily',
-        'No-phone dinner block',
-        'Volunteer or group session'
-      ]
-    };
-// ---- Params you can tune ----
-const W = { A:0.5, D:0.5, R:0.5, C:0.5 };
-const L_TARGET = 3.0;           // "high leverage" threshold
-const AMPL_MAX = 4.0;           // cap
-// === Auto-compute a provable leverage score from existing fields (no UI changes) ===
-// OECD identity: Productivity = Output / Input.
-// Output = 'last' (fallback to 'min'); Input = upkeep minutes per task (maintSlider).
-// Baseline productivity P0 = (min / input); Amplification = 1 by default.
-function computeAutoScore(row, perTask){
-  const input = Number(perTask) > 0 ? Number(perTask) : 1;
-  const output = Number(row.last) || Number(row.min) || 0;
-  if (!Number.isFinite(output) || output <= 0) return '';
-
-  const baselineOut = Number(row.min) || output;
-  const P0 = baselineOut / input;
-  const prod = output / input;
-
-  const prodNorm = prod / (P0 || 1e-9);
-  const ampl = 1;
-  const lev  = prodNorm * ampl;
-
-  const L_norm = Math.min(1, lev / L_TARGET);
-  const score = 1 + 4 * L_norm;   // 1..5
-  return Number(score.toFixed(1));
-}
-
-
-// Safe helpers
-const clamp01 = x => Math.max(0, Math.min(1, x));
-
-// Core identities
-function productivity(outputUnits, inputMinutes){
-  if (!inputMinutes) return 0;
-  return outputUnits / inputMinutes;   // OECD identity
-}
-
-function amplification({A=0, D=0, R=0, C=0}){
-  const amp = (1 + W.A*clamp01(A)) *
-              (1 + W.D*clamp01(D)) *
-              (1 + W.R*clamp01(R)) *
-              (1 + W.C*clamp01(C));
-  return Math.min(amp, AMPL_MAX);
-}
-
-function leverageScore({output, input, baselineP, A=0, D=0, R=0, C=0}){
-  const prod = productivity(output, input);
-  const P0   = Math.max(baselineP || 0, 1e-9); // avoid 0 baseline
-  const prodNorm = prod / P0;
-
-  const ampl = amplification({A,D,R,C});
-  const lev  = prodNorm * ampl;
-
-  const L_norm = Math.min(1, lev / L_TARGET);
-  return 1 + 4 * L_norm; // 1..5
-}
-
-// Example aggregator by domain
-function domainScore(routines){ // [{domain, output, input, baselineP, A,D,R,C}, ...]
-  const byDomain = new Map();
-  for (const r of routines){
-    const s = leverageScore(r);
-    if (!Number.isFinite(s)) continue;
-    if (!byDomain.has(r.domain)) byDomain.set(r.domain, []);
-    byDomain.get(r.domain).push(s);
-  }
-  const domainScores = {};
-  for (const [dom, arr] of byDomain){
-    domainScores[dom] = arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : NaN;
-  }
-  // Opportunity Efficiency %
-  const four = ["Mind","Body","Money","Relationships"].map(d => domainScores[d]).filter(Number.isFinite);
-  const oppEff = four.length ? (four.reduce((a,b)=>a+b,0)/four.length)/5*100 : NaN;
-  return { domainScores, oppEff };
-}
-    function regenExamples(){
-      const wrap = document.getElementById('examplesWrap'); wrap.innerHTML='';
-      Object.keys(exampleBank).forEach(domain=>{
-        const level = state.balance[domain];
-        const n = clamp(level,1,5);
-        const list = exampleBank[domain].slice(0,n);
-        const card = document.createElement('div'); card.className='col';
-        card.innerHTML = `
-          <div class="card h-100 text-light rounded-0">
-            <div class="card-body d-flex flex-column">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <strong class="text-warning">${domain}</strong>
-                <span class="pill">Lv ${level}</span>
-              </div>
-              <ul class="mb-3 text-light" style="padding-left:1.1rem;">
-                ${list.map(x=>`<li>${x}</li>`).join('')}
-              </ul>
-              <div class="mt-auto">
-                <button class="btn btn-sm btn-accent w-100" data-domain="${domain}">Pin top example to Velocity</button>
-              </div>
-            </div>
-          </div>`;
-        wrap.appendChild(card);
-      });
-    }
-
-    /* =====================
-       Velocity Table (replaces Routine cards)
-       ===================== */
-    const tableBody = document.querySelector('#velocityTable tbody');
-    const listWrap  = document.getElementById('vtList');
-    const editorEl  = document.getElementById('vtEditor');
-    const offcanvas = new bootstrap.Offcanvas(editorEl);
-    let editIndex = null;
-
-    // Source of truth
-    window.velocityData = window.velocityData || [
-      {routine:'Outdoor Workout (min)', block:'6:00–7:00 AM', min:45, last:45, max:45, lev:'No excuses (weather = leverage)', score:5, outcome:'Discipline + resilience'},
-      {routine:'Indoor Training (min)', block:'6:00–7:00 PM', min:45, last:45, max:45, lev:'Resistance + cardio rotation', score:4, outcome:'Strength + endurance'},
-      {routine:'Progress Photo', block:'Post-workout', min:2, last:2, max:2, lev:'Daily visual accountability', score:3, outcome:'Consistency + feedback loop'},
-      {routine:'Read 10 Pages (pages)', block:'9:00–9:30 PM', min:10, last:10, max:10, lev:'Input → Reflection → Application', score:4, outcome:'Knowledge + mental focus'},
-      {routine:'Gallon of Water (fl oz)', block:'Throughout Day', min:64, last:120, max:128, lev:'Hydration = cognitive clarity', score:3, outcome:'Energy + discipline'},
-      {routine:'Diet Adherence (meals)', block:'All meals', min:3, last:3, max:4, lev:'Clean inputs, no cheat meals', score:5, outcome:'Body comp + self-control'},
-      {routine:'No Alcohol / Junk', block:'24h', min:1, last:1, max:1, lev:'Eliminate numbing behaviors', score:5, outcome:'Focus + emotional stability'}
+    // ==== Sample Data ====
+    const SAMPLE_ROWS = [
+      { output:'words', period:'day', routine:'words/day', block:'5:30–7:00 AM', min:300, last:700, max:1200, lev:'AI outline + Pomodoro + keyboard macro', score:4, goal1y:'Publish 12 long-form essays', outcome:'Nonfiction book + lead gen' },
+      { output:'workouts', period:'week', routine:'workouts/week', block:'6:00–7:00 PM', min:2, last:4, max:5, lev:'Gym near home + partner + preset playlist', score:3, goal1y:'Consistent 4×/wk', outcome:'Stronger body; more energy' },
+      { output:'calls', period:'day', routine:'calls/day', block:'1:00–2:00 PM', min:2, last:5, max:10, lev:'Template + CRM queue + auto-dial', score:5, goal1y:'Close first 50 clients', outcome:'$8k MRR' }
     ];
-    function nextName(base){
-    const names = new Set((window.velocityData||[]).map(r => (r.routine||'').trim()));
-    if(!names.has(base)) return base;
-    let i = 2, name = `${base} (${i})`;
-    while(names.has(name)) name = `${base} (${++i})`;
-    return name;
-    }
-    function renderVelocity(){
-  const perTask = Number(document.getElementById('maintSlider').value)||0;
-  const rowsWithAuto = (window.velocityData||[]).map(r=>({ ...r, _autoScore: computeAutoScore(r, perTask) }));
-      // desktop
-        tableBody.innerHTML = rowsWithAuto.map((row,i)=>`
-        <tr class="vt-row" data-idx="${i}">
-          <th scope="row">${row.routine||'—'}</th>
-          <td>${row.block||'—'}</td>
-          <td>${row.min??'—'}</td>
-          <td>${row.last??'—'}</td>
-          <td>${row.max??'—'}</td>
-          <td>${row.lev||'—'}</td>
-          <td>${(row.score||row._autoScore||'') || '<span class="badge text-bg-danger">set</span>'}</td>
-          <td>${row.outcome||'—'}</td>
-        </tr>`).join('');
 
-      // mobile
-        listWrap.innerHTML = rowsWithAuto.map((row,i)=>`
-        <div class="card p-3" data-idx="${i}">
-          <div class="d-flex justify-content-between align-items-start text-warning">
-            <div>
-              <div class="fw-semibold">${row.routine||'—'}</div>
-              <div class="small ">${row.block||'—'}</div>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="badge bg-secondary">${row.score||row._autoScore||'—'}</span>
-              <button class="btn btn-sm btn-outline-light vt-edit" data-idx="${i}">Edit</button>
-            </div>
-          </div>
-          <div class="d-flex gap-3 mt-2">
-            <div><div class="small ">Min</div><div>${row.min??'—'}</div></div>
-            <div><div class="small ">Last</div><div>${row.last??'—'}</div></div>
-            <div><div class="small ">Max</div><div>${row.max??'—'}</div></div>
-          </div>
-        </div>`).join('');
+    // ==== State ====
+    window.velocityData = [];
+    let currentIndex = -1;
+
+    const els = {};
+    function initEls(){
+      ['velocityTable','vtList','m_n','m_edges','m_maint','m_lavg','maintSlider','maintOut','graph','edges','nodes','labels',
+       'addRow','btnDeleteAll','actExportCsv','actExportPng',
+       'vtEditor','vtForm','f_output','f_period','f_routine','f_block','f_min','f_last','f_max','f_lev','f_score','f_goal1y','f_outcome'
+      ].forEach(k=> els[k]=$((k)));
     }
 
-    function openEditor(idx){
-      editIndex = idx;
-      const r = window.velocityData[idx] || {routine:'', block:'', min:'', last:'', max:'', lev:'', score:'', outcome:''};
-      document.getElementById('f_routine').value = r.routine||'';
-      document.getElementById('f_block').value   = r.block||'';
-      document.getElementById('f_min').value     = r.min ?? '';
-      document.getElementById('f_last').value    = r.last ?? '';
-      document.getElementById('f_max').value     = r.max ?? '';
-      document.getElementById('f_lev').value     = r.lev||'';
-      document.getElementById('f_score').value   = r.score ?? '';
-      document.getElementById('f_outcome').value = r.outcome||'';
-      offcanvas.show();
-    }
-
-    document.addEventListener('click', (e)=>{
-      const tr = e.target.closest('tr.vt-row');
-      if(tr && tr.dataset.idx){ openEditor(Number(tr.dataset.idx)); }
-      if(e.target.matches('.vt-edit')){ openEditor(Number(e.target.dataset.idx)); }
-
-      // Pin from examples
-      const pinBtn = e.target.closest('button[data-domain]');
-      if(pinBtn){
-      const domain = pinBtn.getAttribute('data-domain');
-      const topExample = (exampleBank[domain] && exampleBank[domain][0]) || (domain + ' focus');
-      const base = `${domain}: ${topExample}`;
-      const routineName = nextName(base);
-      const level = clamp(state.balance[domain] ?? 3, 1, 5);
-
-
-      window.velocityData.push({
-      routine: routineName,
-      block: '—',
-      min: '',
-      last: '',
-      max: '',
-      lev: `${domain} leverage`,
-      score: level,
-      outcome: ''
+    // ==== Render Table/List ====
+    function renderTable(){
+      if (!els.velocityTable || !els.vtList) return; // safety guard
+      const tbody = els.velocityTable.querySelector('tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      const rows = window.velocityData;
+      const upkeep = Number(els.maintSlider?.value||0);
+      rows.forEach((r, idx)=>{
+        const tr = document.createElement('tr');
+        const dispScore = getDisplayScore(r, computeAutoScore(r, upkeep));
+        tr.innerHTML = `
+          <td>${r.outcome||'—'}</td>
+          <td>${r.goal1y||'—'}</td>
+          <td>${r.routine||'—'}</td>
+          <td>${r.block||'—'}</td>
+          <td>${r.min||0}</td>
+          <td>${r.last||0}</td>
+          <td>${r.max||0}</td>
+          <td>${(r.lev||'')}</td>
+          <td>${dispScore}</td>
+        `;
+        tr.style.cursor='pointer';
+        tr.addEventListener('click', ()=> openEditor(idx));
+        tbody.appendChild(tr);
       });
 
-
-      renderVelocity();
-      renderComplexity();
-      }
-    });
-
-    document.getElementById('addRow').addEventListener('click', ()=>{
-      window.velocityData.push({routine:'', block:'', min:'', last:'', max:'', lev:'', score:'', outcome:''});
-      renderVelocity();
-      openEditor(window.velocityData.length-1);
-    });
-
-    document.getElementById('saveRow').addEventListener('click', ()=>{
-      if(editIndex==null) return;
-      const r = window.velocityData[editIndex] || {};
-      r.routine = document.getElementById('f_routine').value.trim();
-      r.block   = document.getElementById('f_block').value.trim();
-      r.min     = Number(document.getElementById('f_min').value)||'';
-      r.last    = Number(document.getElementById('f_last').value)||'';
-      r.max     = Number(document.getElementById('f_max').value)||'';
-      r.lev     = document.getElementById('f_lev').value.trim();
-      const s   = Number(document.getElementById('f_score').value);
-      r.score   = (s>=1 && s<=5) ? s : '';
-      r.outcome = document.getElementById('f_outcome').value.trim();
-      window.velocityData[editIndex] = r;
-      renderVelocity();
-      renderComplexity();
-      offcanvas.hide();
-    });
-
-    document.getElementById('deleteRow').addEventListener('click', ()=>{
-      if(editIndex==null) return;
-      window.velocityData.splice(editIndex,1);
-      renderVelocity();
-      renderComplexity();
-      offcanvas.hide();
-    });
-
-    // routinesMap shim: Complexity reads from Velocity Table data
-    window.routinesMap = function(){
-      const m = new Map();
-      (window.velocityData||[]).forEach(r=>{
-        const key = (r.routine||'').trim();
-        if(!key) return;
-        m.set(key, {
-          routine: r.routine||'',
-          timeBlock: r.block||'',
-          min: r.min||'',
-          last: r.last||'',
-          max: r.max||'',
-          leverageText: r.lev||'',
-          leverageScore: r.score||'',
-          outcome: r.outcome||''
-        });
+      // Mobile list
+      els.vtList.innerHTML='';
+      rows.forEach((r, idx)=>{
+        const card = document.createElement('div');
+        card.className='p-3 border rounded-3';
+        card.style.background='#0f1626';
+        const dispScore = getDisplayScore(r, computeAutoScore(r, Number(els.maintSlider?.value||0)));
+        card.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <strong>${r.routine||'—'}</strong>
+            <span class="badge bg-secondary">Score: ${dispScore}</span>
+          </div>
+          <div class="small">${r.block||'—'} · Min ${r.min||0} / Last ${r.last||0} / Max ${r.max||0}</div>
+          <div class="tiny mt-1">${r.lev||''}</div>
+        `;
+        card.addEventListener('click', ()=> openEditor(idx));
+        els.vtList.appendChild(card);
       });
-      return m;
-    };
-    
+    }
 
-    /* =====================
-       Complexity Graph
-       ===================== */
-    const gEdges = document.getElementById('edges'), gNodes = document.getElementById('nodes'), gLabels = document.getElementById('labels');
-
-    // Use the same ramp for leverage score
-    const colorForScore = (s)=> (Number(s) >= 1 ? colorRamp(s) : '#ff3b30');
-
-    function layoutCircle(n, w=1000, h=640, pad=56){
-      const cx=w/2, cy=h/2, R=Math.min(w,h)/2 - pad;
-      return Array.from({length:n}, (_,i)=>{
+    // ==== Graph ====
+    function drawGraph(){
+      const nodesG = $('nodes'), edgesG = $('edges'), labelsG = $('labels');
+      if (!nodesG || !edgesG || !labelsG) return;
+      edgesG.innerHTML = ''; nodesG.innerHTML=''; labelsG.innerHTML='';
+      const rows = window.velocityData;
+      const n = rows.length;
+      if (!n) return;
+      const upkeep = Number(els.maintSlider?.value||0);
+      const cx=500, cy=320, R=230;
+      const positions = rows.map((_,i)=>{
         const ang = (Math.PI*2*i)/n - Math.PI/2;
         return {x: cx + R*Math.cos(ang), y: cy + R*Math.sin(ang)};
       });
-    }
-    function fmt(x){ return (x>=1000) ? (Math.round(x/10)/100)+'k' : String(Math.round(x*10)/10); }
 
-    function renderComplexity(){
-      const rows = Array.from(routinesMap().values());
-      const n = rows.length;
-
-      const perTask = Number(document.getElementById('maintSlider').value) || 0;
-      document.getElementById('maintOut').textContent = perTask;
-      document.getElementById('m_n').textContent = n;
-
-      const edges = n * (n - 1) / 2;
-      document.getElementById('m_edges').textContent = fmt(edges);
-      document.getElementById('m_maint').textContent = String(n * perTask);
-
-      const scores = rows
-      .map(r => Number(r.leverageScore))
-      .filter(v => Number.isFinite(v) && v >= 1);
-      const avgL = scores.length ? (scores.reduce((a,b)=>a+b,0) / scores.length) : NaN;
-      document.getElementById('m_lavg').textContent = Number.isFinite(avgL) ? avgL.toFixed(1) : '—';
-
-      gEdges.innerHTML = ''; gNodes.innerHTML = ''; gLabels.innerHTML = '';
-      if (n === 0) return;
-
-      const pts = layoutCircle(n);
-      const edgeAlpha = Math.max(0.08, Math.min(0.6, 12 / (n * n)));
-
-      for (let i = 0; i < n; i++) {
-        for (let j = i + 1; j < n; j++) {
-          const a = pts[i], b = pts[j];
-          const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-          line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
-          line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
-          line.setAttribute('class', 'edge');
-          line.setAttribute('style', `opacity:${edgeAlpha}; stroke:#6c7a99; stroke-width:1px;`);
-          gEdges.appendChild(line);
+      for (let i=0;i<n;i++){
+        for (let j=i+1;j<n;j++){
+          const p1 = positions[i], p2 = positions[j];
+          const e = document.createElementNS('http://www.w3.org/2000/svg','line');
+          e.setAttribute('x1', p1.x); e.setAttribute('y1', p1.y);
+          e.setAttribute('x2', p2.x); e.setAttribute('y2', p2.y);
+          const w = Math.max(1.5, Math.min(6, 1 + (upkeep/40) + (n/6)));
+          e.setAttribute('stroke-width', w.toFixed(1));
+          e.setAttribute('stroke', '#6c7a99');
+          e.setAttribute('opacity', '0.28');
+          edgesG.appendChild(e);
         }
       }
 
-      const r = Math.max(8, 18 - Math.max(0, n - 6));
-      rows.forEach((row, i) => {
-        const pt = pts[i];
-        const nodeColor = colorForScore(row.leverageScore);
+      rows.forEach((r,i)=>{
+        const p = positions[i];
+        const autoScore = computeAutoScore(r, upkeep);
+        const score = getDisplayScore(r, autoScore);
+        const palette = ['#2b5569','#2b7a78','#20a5a5','#38c3c3','#7be3e3'];
+        const idx = Math.max(1, Math.min(5, Math.round(Math.max(1, score)))) - 1;
+        const fill = palette[idx];
 
+        const g = document.createElementNS('http://www.w3.org/2000/svg','g');
         const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-        c.setAttribute('cx', pt.x);
-        c.setAttribute('cy', pt.y);
-        c.setAttribute('r', r);
-        c.setAttribute('class', 'node');
-        c.setAttribute('style', `fill:${nodeColor}; stroke:#0b1220; stroke-width:2px;`);
-        gNodes.appendChild(c);
+        c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 26);
+        c.setAttribute('fill', fill);
+        c.setAttribute('stroke', '#0b1220'); c.setAttribute('stroke-width','2');
+        g.appendChild(c);
+        nodesG.appendChild(g);
 
-        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-        t.setAttribute('x', pt.x);
-        t.setAttribute('y', pt.y - r - 6);
-        t.setAttribute('class', 'node-label');
-        t.textContent = row.routine;
-        gLabels.appendChild(t);
+        const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+        label.setAttribute('x', p.x);
+        label.setAttribute('y', p.y + 44);
+        label.setAttribute('class','node-label');
+        label.textContent = r.routine || '—';
+        labelsG.appendChild(label);
       });
     }
 
-    /* =====================
-       Exports (with gating)
-       ===================== */
-    function gateOr(fn){
-      if(!state.flags.firstExportDone){
-        state.flags.firstExportDone = true; fn();
-      }else{
-        const modal = new bootstrap.Modal('#gateModal'); modal.show();
-      }
+    // ==== Metrics ====
+    function refreshMetrics(){
+      const rows = window.velocityData;
+      const n = rows.length;
+      const edges = n*(n-1)/2;
+      const upkeep = Number(els.maintSlider?.value||0);
+      const maint = n*upkeep;
+      let sumScore=0, count=0;
+      rows.forEach(r=>{
+        const sc = getDisplayScore(r, computeAutoScore(r, upkeep));
+        sumScore += sc; count++;
+      });
+      const avg = count? (sumScore/count).toFixed(2) : '—';
+      $('m_n').textContent = n;
+      $('m_edges').textContent = edges;
+      $('m_maint').textContent = maint;
+      $('m_lavg').textContent = avg;
+      $('maintOut').textContent = upkeep;
     }
 
-    async function downloadPNG(){
-      const card = document.createElement('div');
-      card.style.background = getComputedStyle(document.body).backgroundColor;
-      card.style.padding = '16px';
-      card.style.color = getComputedStyle(document.body).color;
-      card.innerHTML = `
-        <div style="border:1px solid var(--line); border-radius:12px; padding:12px;">
-          <h3 style="margin:0 0 8px 0;">Daily Routine</h3>
-          <div id="captureArea"></div>
-        </div>`;
-      document.body.appendChild(card);
-      const capture = card.querySelector('#captureArea');
-      capture.appendChild(document.getElementById('velocityTable').cloneNode(true));
-      const meta = document.createElement('div');
-      meta.style.marginTop = '8px';
-      capture.appendChild(meta);
-      const canvas = await html2canvas(card, {scale:2, backgroundColor:getComputedStyle(card).backgroundColor});
+    // ==== Editor ====
+    function openEditor(idx){
+      currentIndex = idx;
+      const r = window.velocityData[idx];
+      if (!r) return;
+      els.f_output.value = r.output||'';
+      els.f_period.value = r.period||'day';
+      els.f_routine.value = r.routine||'';
+      els.f_block.value = r.block||'';
+      els.f_min.value = r.min||0;
+      els.f_last.value = r.last||0;
+      els.f_max.value = r.max||0;
+      els.f_lev.value = r.lev||'';
+      // If leverage text is empty, force score = 0 for editing view
+      els.f_score.value = (r.lev && String(r.lev).trim().length>0) ? (r.score ?? '') : 0;
+      els.f_goal1y.value = r.goal1y||'';
+      els.f_outcome.value = r.outcome||'';
+      new bootstrap.Offcanvas(els.vtEditor).show();
+    }
+
+    function recomputeRoutineField(){
+      const o = els.f_output.value.trim();
+      const p = els.f_period.value.trim();
+      els.f_routine.value = (o && p) ? `${o}/${p}` : '';
+    }
+
+    function collectEditor(){
+      let levText = els.f_lev.value.trim();
+      let scoreVal = Number(els.f_score.value);
+      if (!levText){ scoreVal = 0; } // enforce rule
+      return {
+        output: els.f_output.value.trim(),
+        period: els.f_period.value.trim(),
+        routine: els.f_routine.value.trim(),
+        block: els.f_block.value.trim(),
+        min: Number(els.f_min.value)||0,
+        last: Number(els.f_last.value)||0,
+        max: Number(els.f_max.value)||0,
+        lev: levText,
+        score: Number.isFinite(scoreVal) ? scoreVal : 0,
+        goal1y: els.f_goal1y.value.trim(),
+        outcome: els.f_outcome.value.trim(),
+      };
+    }
+
+    function bindEditor(){
+      els.f_output.addEventListener('input', recomputeRoutineField);
+      els.f_period.addEventListener('change', recomputeRoutineField);
+
+      // If leverage text becomes empty, auto set score to 0; if non-empty and score is 0, nudge to 1
+      els.f_lev.addEventListener('input', ()=>{
+        const txt = els.f_lev.value.trim();
+        if (!txt){
+          els.f_score.value = 0;
+        } else {
+          if (Number(els.f_score.value) === 0) els.f_score.value = 1;
+        }
+      });
+
+      $('saveRow').addEventListener('click', ()=>{
+        if (currentIndex<0) return;
+        const data = collectEditor();
+        window.velocityData[currentIndex] = data;
+        refreshAll();
+        bootstrap.Offcanvas.getInstance(els.vtEditor)?.hide();
+      });
+      $('deleteRow').addEventListener('click', ()=>{
+        if (currentIndex<0) return;
+        window.velocityData.splice(currentIndex,1);
+        refreshAll();
+        bootstrap.Offcanvas.getInstance(els.vtEditor)?.hide();
+      });
+    }
+
+    // ==== CSV Export (quoted fields, aligned to table headers) ====
+    function csvQuote(val){
+      const s = String(val ?? '');
+      // Escape quotes by doubling them, then wrap the whole field in quotes
+      return `"${s.replace(/"/g,'""')}"`;
+    }
+    function exportCsv(){
+      const rows = window.velocityData;
+      const upkeep = Number(els.maintSlider?.value||0);
+      const header = [
+        "Five Year Outcome",
+        "1 Year Goal",
+        "Routine",
+        "Time Block",
+        "Min",
+        "Last",
+        "Max",
+        "Leverage",
+        "Leverage Score (1–5)"
+      ];
+      const lines = [header.map(csvQuote).join(',')];
+      rows.forEach(r=>{
+        const row = [
+          csvQuote(r.outcome||''),
+          csvQuote(r.goal1y||''),
+          csvQuote(r.routine||''),
+          csvQuote(r.block||''),
+          (Number(r.min)||0),
+          (Number(r.last)||0),
+          (Number(r.max)||0),
+          csvQuote(r.lev||''),
+          getDisplayScore(r, computeAutoScore(r, upkeep))
+        ];
+        lines.push(row.join(','));
+      });
+      const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
       const a = document.createElement('a');
-      a.download = `velocity_summary_${Date.now()}.png`;
-      a.href = canvas.toDataURL('image/png');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'velocity_routines.csv';
+      document.body.appendChild(a);
       a.click();
-      card.remove();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
     }
-function printReport(){
-  const rows = Array.from(routinesMap().values());
-  const win = window.open('', '_blank');
 
-  const css = `body{font:14px system-ui, -apple-system, Segoe UI, Roboto, sans-serif; color:#111; padding:16px;}
-    h1,h2,h3{margin:.2em 0;} table{border-collapse:collapse; width:100%;}
-    th,td{border:1px solid #ccc; padding:6px; font-size:12px;}
-    .muted{color:#666; font-size:12px}`;
-
-  const html = `
-    <html>
-    <head>
-      <title>Printable Report</title>
-      <style>${css}</style>
-    </head>
-    <body>
-      <h1>Opportunity Efficiency Report</h1>
-      <div class="muted">Opportunity Efficiency: <strong>${state.balance.tranquility}%</strong></div>
-      <h2>Routines</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Routine</th><th>Time Block</th><th>Min</th><th>Last</th>
-            <th>Max</th><th>Leverage</th><th>Leverage Score</th><th>Five Year Outcome</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows.map(r =>
-            `<tr>
-              <td>${r.routine||''}</td>
-              <td>${r.timeBlock||''}</td>
-              <td>${r.min??''}</td>
-              <td>${r.last??''}</td>
-              <td>${r.max??''}</td>
-              <td>${r.leverageText||''}</td>
-              <td>${r.leverageScore??''}</td>
-              <td>${r.outcome||''}</td>
-            </tr>`
-          ).join('')}
-        </tbody>
-      </table>
-    </body>
-    </html>`;
-
-  win.document.write(html);
-  win.document.close();
-  win.focus();
-  win.print();
-}
-
-function downloadJSON(){
-  const payload = {
-    balance: state.balance,
-    routines: Array.from(routinesMap().values()),
-    generatedAt: new Date().toISOString()
-  };
-  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `velocity_state_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-
-/* =====================
-   Listeners & Init
-   ===================== */
-
-  // instructions toggle
-  const btn = document.getElementById('toggleInstr');
-  const wrap = document.getElementById('instrWrap');
-  if (btn && wrap){
-    btn.addEventListener('click', ()=>{
-      wrap.classList.toggle('d-none');
-      btn.textContent = wrap.classList.contains('d-none') ? 'Show Instructions' : 'Hide Instructions';
-    });
-  }
-// Exports
-document.getElementById('btnPng').addEventListener('click', ()=> gateOr(downloadPNG));
-document.getElementById('btnPrint').addEventListener('click', ()=> gateOr(printReport));
-document.getElementById('btnJson').addEventListener('click', ()=> gateOr(downloadJSON));
-
-// Init
-window.addEventListener('load', ()=>{
-  // visualizer removed; retain defaults
-renderVelocity(); renderComplexity();
-});
-  // Minimal handler: clear all rows and refresh
-(function(){
-  var delBtn = document.getElementById('btnDeleteAll');
-  if (delBtn){
-    delBtn.addEventListener('click', function(){
-      if (!window.velocityData || !window.velocityData.length){
-        renderVelocity(); renderComplexity();
-        return;
+    // ==== PNG Export (Velocity Table card) ====
+    function exportPng(){
+      try{
+        const tableCard = document.querySelector('.vt-table');
+        const target = tableCard || $('velocityTable');
+        if (!target) throw new Error('Velocity table not found');
+        html2canvas(target, {
+          useCORS: true,
+          backgroundColor: '#0b1220',
+          scale: (window.devicePixelRatio || 2)
+        }).then(canvas=>{
+          const a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'velocity_table.png';
+          a.click();
+        }).catch(err=>{
+          console.error('PNG export failed:', err);
+          alert('PNG export failed. Try desktop or allow cross-origin images.');
+        });
+      }catch(e){
+        console.error(e);
+        alert('PNG export not available on this view.');
       }
-      if (confirm('Delete all routines? This cannot be undone.')){
+    }
+
+    
+    // ==== CSV Import ====
+    function normalizeHeader(h){
+      return String(h||'').trim().toLowerCase();
+    }
+    function parseCsvText(text){
+      const rows = [];
+      let i=0, field='', row=[], inQuotes=false;
+      for (i=0; i<text.length; i++){
+        const c = text[i];
+        if (inQuotes){
+          if (c === '"'){
+            if (text[i+1] === '"'){ field += '"'; i++; }
+            else { inQuotes = false; }
+          } else { field += c; }
+        } else {
+          if (c === '"'){ inQuotes = true; }
+          else if (c === ','){ row.push(field); field=''; }
+          else if (c === '\n' || c === '\r'){
+            if (c === '\r' && text[i+1] === '\n') i++;
+            row.push(field); field='';
+            if (row.length>1 || row[0] !== '') rows.push(row);
+            row = [];
+          } else { field += c; }
+        }
+      }
+      if (field.length || row.length){ row.push(field); rows.push(row); }
+      return rows;
+    }
+    function importCsvRows(rows){
+      if (!rows || !rows.length) return;
+      const headers = rows[0].map(normalizeHeader);
+      const dataRows = rows.slice(1);
+      const idx = (name)=> headers.indexOf(normalizeHeader(name));
+
+      const mapIdx = {
+        outcome: [idx("five year outcome"), idx("5 year outcome"), idx("five-year outcome")].find(i=>i>=0),
+        goal1y: [idx("1 year goal"), idx("one year goal"), idx("1y goal")].find(i=>i>=0),
+        routine: idx("routine"),
+        block: [idx("time block"), idx("block")].find(i=>i>=0),
+        min: idx("min"),
+        last: idx("last"),
+        max: idx("max"),
+        lev: [idx("leverage"), idx("leverage (text)")].find(i=>i>=0),
+        score: [idx("leverage score (1–5)"), idx("leverage score"), idx("score")].find(i=>i>=0),
+        output: idx("output"),
+        period: idx("period"),
+      };
+
+      const imported = [];
+      dataRows.forEach(r=>{
+        const get = (k)=>{
+          const i = mapIdx[k];
+          if (i === undefined || i < 0 || i >= r.length) return "";
+          return r[i];
+        };
+        const toNum = (v)=>{
+          const n = Number(String(v||"").trim());
+          return Number.isFinite(n) ? n : 0;
+        };
+        const levText = String(get('lev')||'').trim();
+        let scoreVal = toNum(get('score'));
+        if (!levText){ scoreVal = 0; }
+
+        imported.push({
+          output: String(get('output')||'').trim(),
+          period: String(get('period')||'').trim() || 'day',
+          routine: String(get('routine')||'').trim(),
+          block: String(get('block')||'').trim(),
+          min: toNum(get('min')),
+          last: toNum(get('last')),
+          max: toNum(get('max')),
+          lev: levText,
+          score: scoreVal,
+          goal1y: String(get('goal1y')||'').trim(),
+          outcome: String(get('outcome')||'').trim(),
+        });
+      });
+
+      window.velocityData = imported;
+      refreshAll();
+      alert(`Imported ${imported.length} row(s).`);
+    }
+    function handleImportFile(file){
+      const reader = new FileReader();
+      reader.onload = (e)=>{
+        try{
+          const text = String(e.target.result||"");
+          const rows = parseCsvText(text);
+          importCsvRows(rows);
+        }catch(err){
+          console.error(err);
+          alert('Import failed. Ensure it is a CSV with headers.');
+        }
+      };
+      reader.readAsText(file);
+    }
+    function bindImport(){
+      const btn = $('btnImport');
+      const file = $('fileCsv');
+      if (!btn || !file) return;
+      btn.addEventListener('click', ()=> file.click());
+      file.addEventListener('change', (e)=>{
+        if (e.target.files && e.target.files[0]) handleImportFile(e.target.files[0]);
+        e.target.value = '';
+      });
+    }
+
+    // ==== CSV Prompt (generator) ====
+    function updateCsvPrompt(){
+      const headers = [
+        "Five Year Outcome",
+        "1 Year Goal",
+        "Routine",
+        "Time Block",
+        "Min",
+        "Last",
+        "Max",
+        "Leverage",
+        "Leverage Score (1–5)",
+        "Output",
+        "Period"
+      ];
+      const templateRow = [
+        "Nonfiction book + lead gen",
+        "Publish 12 long-form essays",
+        "words/day",
+        "5:30–7:00 AM",
+        "300",
+        "700",
+        "1200",
+        "AI outline + Pomodoro + keyboard macro",
+        "4",
+        "words",
+        "day"
+      ];
+      const csvHeader = headers.map(h => `"${h.replace(/"/g,'""')}"`).join(',');
+      const csvExample = templateRow.map(h => `"${h.replace(/"/g,'""')}"`).join(',');
+      const prompt = [
+        "Create a CSV for my Daily Routine Builder with EXACT headers and one row per routine.",
+        "",
+        "Headers (first row):",
+        csvHeader,
+        "",
+        "Rules:",
+        "• Leave any missing/unknown values blank (or 0 for Min/Last/Max/Score).",
+        "• If Leverage is blank, set Leverage Score to 0.",
+        "• Use standard time ranges like 5:00–7:00 AM (no military time).",
+        "• Optional: include Output and Period so Routine can be `output/period` (e.g., words/day).",
+        "",
+        "Example (second row):",
+        csvExample,
+        "",
+        "Now generate the CSV with my routines."
+      ].join("\n");
+      const area = $('promptCsv');
+      if (area) area.value = prompt;
+    }
+    function bindCsvPromptCopy(){
+      const btn = $('copyPromptCsv');
+      const area = $('promptCsv');
+      const st = $('copyStatusCsv');
+      if (!btn || !area) return;
+      btn.addEventListener('click', async ()=>{
+        try{
+          await navigator.clipboard.writeText(area.value);
+          if (st){ st.classList.remove('d-none'); setTimeout(()=>st.classList.add('d-none'), 1200); }
+        }catch(e){ alert('Copy failed'); }
+      });
+    }
+
+
+    // ==== Actions ====
+    function bindRowActions(){
+      $('addRow').addEventListener('click', ()=>{
+        window.velocityData.push({output:'',period:'day',routine:'',block:'',min:0,last:0,max:0,lev:'',score:0,goal1y:'',outcome:''});
+        refreshAll();
+      });
+      $('btnDeleteAll').addEventListener('click', ()=>{
+        if (!confirm('Delete all routines?')) return;
         window.velocityData = [];
-        renderVelocity();
-        renderComplexity();
+        refreshAll();
+      });
+    }
+
+    function bindExports(){
+      $('actExportCsv').addEventListener('click', (e)=>{ e.preventDefault(); exportCsv(); });
+      $('actExportPng').addEventListener('click', (e)=>{ e.preventDefault(); exportPng(); });
+    }
+
+    function updatePrompt(){
+      const per = Number($('maintSlider')?.value || 0);
+      const rows = (window.velocityData||[]);
+      const n = rows.length;
+      const edges = (n * (n - 1)) / 2;
+      const totalMaint = n * per;
+
+      const lines = [];
+      lines.push("You are my execution strategist. Use the Socratic method. Goal: increase leverage (0–5) on each routine and reduce interdependencies we can control. Keep me honest, no fluff.");
+      lines.push("");
+      lines.push("Context:");
+      lines.push(`• Processes (n): ${n}`);
+      lines.push(`• Interdependencies (complete graph): n(n−1)/2 = ${n}×${n-1}/2 = ${edges}`);
+      lines.push(`• Upkeep per task (mins): ${per}`);
+      lines.push(`• Total daily maintenance (mins): n×upkeep = ${n}×${per} = ${totalMaint}`);
+      lines.push("");
+      if (rows.length){
+        lines.push("Routines:");
+        rows.forEach((r, i) => {
+          const autoScore = computeAutoScore(r, per);
+          const disp = getDisplayScore(r, autoScore);
+          const tag = unitTagFor(r);
+          lines.push(`  ${i+1}. ${r.routine||'—'} | Block: ${r.block||'—'} | Min: ${r.min||'—'}${tag} | Last: ${r.last||'—'}${tag} | Max: ${r.max||'—'}${tag} | Leverage: ${(r.lev||'')} | Score: ${disp} | 1Y: ${(r.goal1y||'—')} | 5Y: ${(r.outcome||'—')}`);
+        });
+      } else {
+        lines.push("No routines yet.");
       }
+      lines.push("");
+      lines.push("What I want from you:");
+      lines.push("1) For each routine, ask 3–5 short questions to uncover practical leverage I can add today. Then propose a target level (0–5) with rationale.");
+      lines.push("2) Scan for preventable interdependencies given edges≈n(n−1)/2 and my current blocks; suggest simple ways to decouple (batching, automation, schedule shifts).");
+      lines.push("3) Prioritize 1–3 highest-leverage changes with the biggest reduction in maintenance or coordination cost. Show expected impact on score and edges.");
+      $('promptArea').value = lines.join('\n');
+    }
+
+    function refreshAll(){
+      renderTable();
+      drawGraph();
+      refreshMetrics();
+      updatePrompt();
+    }
+
+    // ==== Init ====
+    window.addEventListener('DOMContentLoaded', ()=>{
+      initEls();
+
+      // Force-load dummy routines on every page open (stateless; no localStorage)
+      window.velocityData = Array.isArray(SAMPLE_ROWS)
+        ? SAMPLE_ROWS.map(r => ({ ...r }))
+        : [];
+
+      bindRowActions();
+      bindEditor();
+      bindExports();
+      bindImport();
+      bindCsvPromptCopy();
+      $('maintSlider')?.addEventListener('input', refreshAll);
+      refreshAll();
+      setInterval(updatePrompt, 1500);
+      updateCsvPrompt();
     });
-  }
-})();
-</script>
+  </script>
 </body>
 </html>

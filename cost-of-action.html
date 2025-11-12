@@ -58,27 +58,20 @@
 </head>
 <body>
 
-<nav class="navbar navbar-dark">
-  <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+  <nav class="navbar navbar-dark">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
       <div>
-          <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
-          <h6>Procrastination | Perfectionism | Fatigue</h6>
+        <a class="navbar-brand" href="index.html">Adventure Deficit Club</a>
+        <h6>Procrastination | Perfectionism | Fatigue</h6>
       </div>
       <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 gap-2">
       <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
       <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
       </div>
-      
+    </div>
+  </nav>
 
-  </div>
-</nav>
-<main class="container my-4">
-  
-  <!-- ============================
-       ENERGY & STRESS — DASHBOARD
-       (Consistent with template)
-       ============================ -->
-    <!-- Overview -->
+  <main class="container my-4">
     <nav class="card my-3 text-light">
       <div class="card-header bg-transparent p-0">
         <button class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
@@ -95,58 +88,46 @@
         <div class="card-body p-4">
             <div class="row">
               <div class="col my-4">
-                <h3 class="mb-2 text-light">Directives</h3>
-                <h6 class="m-0 text-light mb-4">Strategies For Balancing Stress, Energy, Complexity, Support And Efficacy</h6>
                 <ol class="list-group list-group-numbered bg-dark text-light" style="background-color:#0c1526">
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When you’re tired, your brain tightens control.</strong>
-                    <div class="small text-light">Refuel before you plan; energy restores perspective faster than logic.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When stress rises, focus collapses into rumination.</strong>
-                    <div class="small text-light">Close one loop completely to free bandwidth for action.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When you think too long, you drain the energy needed to act.</strong>
-                    <div class="small text-light">Decide within two minutes or start small to regain clarity.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When you’re fatigued, every task looks bigger than it is.</strong>
-                    <div class="small text-light">Pause, breathe, drink water, and re-rate effort before giving up.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When pressure climbs, your brain forgets details and chases perfection.</strong>
-                    <div class="small text-light">Simplify the task before you fix it — fewer moving parts means fewer errors.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When nothing feels urgent, motivation shuts down.</strong>
-                    <div class="small text-light">Add mild tension: a timer, a deadline, or someone waiting for the result.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When energy and stress are both high, burnout hides behind progress.</strong>
-                    <div class="small text-light">Schedule recovery before exhaustion forces it.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When demands keep increasing, usable energy collapses.</strong>
-                    <div class="small text-light">Remove one recurring task every time you add a new one.</div>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
-                    <strong>When you polish to calm anxiety, you mistake relief for progress.</strong>
-                    <div class="small text-light">Finish something imperfect; completion lowers stress more than editing does.</div>
+                    <strong>When you use perfectionism to calm anxiety, you mistake relief for progress.</strong>
                   </li>
 
                   <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
                     <strong>When you delay to feel safe, you lose proof of capability.</strong>
-                    <div class="small text-light">Start something small and reversible — feedback beats fear.</div>
                   </li>
 
                 </ol>
@@ -157,587 +138,585 @@
 
         </div>
       </div>
-    </nav>       
+    </nav>         
+    <section id="esSection" class="mb-4">
+      <div class="card">
+        <!-- Header with Instructions toggle -->
+        <div class="card-header text-light p-4">
+          <div class="d-flex justify-content-between align-items-start flex-column flex-md-row gap-3">
+            <div class="w-100 d-flex justify-content-between "> 
+
+                  <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Simple Survives Complex Breaks</p>
+            <button id="esToggleInstr" class="btn btn-sm btn-outline-light align-self-md-center">Show Instructions</button>
+            </div>
+          </div>
+
+          <!-- Instructions Panel (toggle) -->
+          <div id="esInstrWrap" class="mt-3 d-none">
+            <div class="row g-3">
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">1</span> Presets
+                  </h6>
+                  <p class="mb-0">Pick a baseline (Normal, Deep Work, Deadline, Recovery, Travel, Custom).</p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">2</span> Energy Index (EI)
+                  </h6>
+                  <p class="mb-0">Represents available energy from sleep, nutrition, hydration, movement, and recovery.
+  High EI means your body and mind have enough charge to execute tasks with minimal friction.</p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">3</span> Stress Index (SI)
+                  </h6>
+                  <p class="mb-0">Measures the cost of internal and external load—how strong and how long pressure has been active.
+  High SI means more of your energy is being redirected toward coping instead of performing.</p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">4</span> Effective Energy (EE)
+                  </h6>
+                  <p class="mb-0">The energy you can actually use:<span class="badge"> EE = EI × (1 − SI)</span>
+  When stress rises, usable energy shrinks even if raw energy stays high. This is the “effort cost” you feel.</p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3">
+              <div class="legend">
+                <span><span class="legend-dot" style="background:#20a5a5"></span>Energy Index (EI)</span>
+                <span><span class="legend-dot" style="background:#ff6b6b"></span>Stress Index (SI)</span>
+                <span class="pill">Effective Energy = EI × (1 − SI)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="card-body p-4" id="esPrintable">
+          <div class="row g-4">
+            <!-- LEFT: Inputs -->
+            <div class="col-12 col-md-4">
+              <div class="p-3 border rounded-3 h-100">
+                <h6 class="mb-3 d-flex align-items-center gap-2">
+                  <span class="badge text-bg-warning">1</span>
+                  Today’s Energy &amp; Stress Inputs
+                </h6>
+
+                <!-- Presets (above sliders, below label container) -->
+                <label for="esPreset" class="form-label">Presets</label>
+                <select id="esPreset" class="form-select mb-3">
+                  <option value="normal">Normal Day</option>
+                  <option value="deep">Deep Work Day</option>
+                  <option value="deadline">Deadline Crunch</option>
+                  <option value="recovery">Recovery Day</option>
+                  <option value="travel">Travel/Disrupted</option>
+                  <option value="custom">Custom</option>
+                </select>
+
+                <!-- Sliders -->
+                <div class="mb-2">
+                  <label class="form-label">Sleep (hours)</label>
+                  <input id="esSleep" type="range" min="4" max="10" step="0.25" value="7.5" class="form-range">
+                  <div class="tiny text-secondary">Aim 7–9; both too little and too much drain output.</div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Calories (adequacy 0–10)</label>
+                  <input id="esCals" type="range" min="0" max="10" step="1" value="7" class="form-range">
+                  <div class="tiny text-secondary">Undershoot = fatigue; overshoot = sluggish.</div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Water (adequacy 0–10)</label>
+                  <input id="esWater" type="range" min="0" max="10" step="1" value="7" class="form-range">
+                  <div class="tiny text-secondary">Even mild dehydration raises effort cost.</div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Exercise (level 0–10)</label>
+                  <input id="esEx" type="range" min="0" max="10" step="1" value="5" class="form-range">
+                  <div class="tiny text-secondary">Short, regular movement boosts usable energy.</div>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label">Relaxation (hours 0–10)</label>
+                  <input id="esRelax" type="range" min="0" max="10" step="0.5" value="1.0" class="form-range">
+                  <div class="tiny text-secondary">Intentional downtime lowers spillover stress.</div>
+                </div>
+
+                <hr class="border-secondary my-3">
+
+                <div class="mb-2">
+                  <label class="form-label">Stress Intensity (0–10)</label>
+                  <input id="esSInt" type="range" min="0" max="10" step="1" value="4" class="form-range">
+                </div>
+                <div class="tiny text-secondary">How many hours this stressor has been active in total.</div>
+
+                <div class="mb-2">
+                  <label class="form-label">Stress Duration (hours)</label>
+                  <input id="esSDur" type="range" min="0" max="168" step="1" value="8" class="form-range">
+                </div>
+                <div class="tiny text-secondary">Acute spikes = lower hours; chronic load = many hours.</div>
+                <div class="tiny text-secondary">How long it has stayed about the same (chronicity).</div>
+
+                <div class="mb-2">
+                  <label class="form-label">Stability of State (weeks)</label>
+                  <input id="esSStab" type="range" min="0" max="20" step="1" value="2" class="form-range">
+                  <div class="tiny text-secondary">How long the stress state has stayed the same (higher = more chronic).</div>
+                </div>
+
+                <p class="small text-secondary mt-3">
+                  Energy and stress are linked. As stress rises, a slice of your energy becomes unavailable. As energy rises, stress is easier to absorb.
+                </p>
+              </div>
+            </div>
+
+            <!-- RIGHT: Radar + Activities -->
+            <div class="col-12 col-md-8">
+              <div class="p-3 border rounded-3 h-100">
+                <!-- Radar -->
+                <div class="vis-wrap p-3">
+        <div id="esBars">
+          <!-- Summary bars -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small kpi-bar"><strong>Energy Index (EI)</strong><span id="eiPct">—</span></div>
+            <div class="progress" style="height:12px;"><div id="barEI" class=" progress-bar-dark" style="width:0%"></div></div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between small kpi-bar"><strong>Stress Index (SI)</strong><span id="siPct">—</span></div>
+            <div class="progress" style="height:12px;"><div id="barSI" class="progress-bar bg-danger" style="width:0%"></div></div>
+          </div>
+          <div class="mb-4">
+            <div class="d-flex justify-content-between small kpi-bar"><strong>Effective Energy (EE = EI × (1 − SI))</strong><span id="eePct">—</span></div>
+            <div class="progress" style="height:12px;"><div id="barEE" class="progress-bar-success" style="width:0%"></div></div>
+          </div>
+
+          <!-- Paired micro-bars: Energy vs Stress dimensions -->
+          <div class="row g-3">
+            <div class="col-12 col-lg-6">
+              <h6 class="mb-2">Energy Inputs</h6>
+              <div class="mb-2 small">Sleep<div class="progress " style="height:8px;"><div id="barSleep" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
+              <div class="mb-2 small">Calories<div class="progress" style="height:8px;"><div id="barCals" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
+              <div class="mb-2 small">Water<div class="progress" style="height:8px;"><div id="barWater" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
+              <div class="mb-2 small">Exercise<div class="progress" style="height:8px;"><div id="barEx" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
+              <div class="mb-2 small">Relaxation<div class="progress" style="height:8px;"><div id="barRelax" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <h6 class="mb-2">Stress Metrics</h6>
+              <div class="mb-2 small">Intensity<div class="progress" style="height:8px;"><div id="barSInt" class="progress-bar bg-danger" style="width:0%"></div></div></div>
+              <div class="mb-2 small">Duration<div class="progress" style="height:8px;"><div id="barSDur" class="progress-bar bg-danger" style="width:0%"></div></div></div>
+              <div class="mb-2 small">Stability<div class="progress" style="height:8px;"><div id="barSStab" class="progress-bar bg-danger" style="width:0%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+                <!-- Leverage Activities (below graph) -->
+                <div id="esReportWrap" class="row g-4 mt-3">
+                  <div class="d-flex justify-content-end align-items-center mt-2">
+                    <button id="exportReportBtn" class="btn btn-sm btn-outline-light">Export Report (PNG)</button><button id="esExport" class="btn btn-sm btn-outline-light ms-2">Export Report</button>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded-3 h-100 report-panel">
+                      <div class="report-topbar mb-2">
+                        <span class="pill">EI: <span id="esEI">—</span></span>
+                        <h5 class="m-0 text-center">Present State</h5>
+                        <span class="pill">SI: <span id="esSI">—</span></span>
+                      </div>
+                      <div class="text-center">
+                        <div id="esScoreBadge" class="es-badge">—</div>
+                        <p id="esScoreDesc" class="text-secondary mt-2">Awaiting input…</p><p id="esScoreDetail" class="small text-secondary mt-2"></p>
+                        <p id="esScoreResearch" class="small text-secondary mt-2"></p>
+                      </div>
+                      <div class="mt-2">
+                        <div class="progress" role="progressbar" aria-label="Effective Energy" style="height: 10px;">
+                          <div id="esEEBar" class="progress-bar-success" style="width:0%"></div>
+                        </div>
+                        <div class="tiny text-secondary mt-1">Effective Energy (EI × (1 − SI))</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded-3 h-100 report-panel">
+                      <div class="d-flex justify-content-between align-items-center mt-3">
+                        <h6 class="m-0">Cost of Action (CoA)</h6>
+                        <div class="display-6 m-0" id="esCOA">—</div>
+                      </div>
+                      <div class="progress mt-2" role="progressbar" aria-label="CoA" style="height: 12px;">
+                        <div id="esCOABar" class="progress-bar" style="width:0%"></div>
+                      </div>
+                      <p id="esCOADesc" class="small text-secondary mt-2">Higher = feels harder to start.</p>                    
+                      <h6 class="mb-2">Why it matters</h6>
+                      <p class="text-secondary">
+                        Stress taxes control. Energy funds control. When usable energy outpaces stress, you start fast and finish clean. When stress overwhelms energy, initiation gets expensive and execution stalls.
+                      </p>
+
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- REPORT (2 columns) -->
+
+
+        </div> <!-- /card-body -->
+      </div> <!-- /card -->
+    </section>
+  </main>
+
+  <footer class="container my-4 footer-note tiny">
+    Built for rapid iteration. Keep leverage high, friction low.
+  </footer>
+
+  <!-- Bootstrap JS (optional) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+  (function(){
+    // ---------- Utils ----------
+    const clamp = (n,min,max)=> Math.max(min, Math.min(max, n));
+    const byId = id => document.getElementById(id);
+
+    function norm01(v, min, max){
+      v = Number(v);
+      return clamp((v - min) / (max - min), 0, 1);
+    }
+    // Sleep inverted-U around ~8h
+    function sleepScore(h){
+      const x = clamp((h - 8)/3, -1.5, 1.5); // center 8h, breadth ~3h
+      const y = 1 - x*x; // 1 at 8h, ~0 at ±3h
+      return clamp(y, 0, 1);
+    }
+    // Calories: adequacy 0..10, peak ~7..8
+    function calorieScore(a){
+      const x = clamp((a - 7.5)/3, -2, 2);
+      const y = 1 - 0.5*x*x;
+      return clamp(y, 0, 1);
+    }
+
+    // ---------- DOM ----------
+    const els = {
+      preset: byId('esPreset'),
+      sleep: byId('esSleep'),
+      cals: byId('esCals'),
+      water: byId('esWater'),
+      ex: byId('esEx'),
+      relax: byId('esRelax'),
+      sInt: byId('esSInt'),
+      sDur: byId('esSDur'),
+      sStab: byId('esSStab'),
+      ei: byId('esEI'),
+      si: byId('esSI'),
+      eeBar: byId('esEEBar'),
+      scoreBadge: byId('esScoreBadge'),
+      scoreDesc: byId('esScoreDesc'),
+      coa: byId('esCOA'),
+      coaBar: byId('esCOABar'),
+      coaDesc: byId('esCOADesc'),
+      radar: byId('esRadar'),
+      instrTgl: byId('esToggleInstr'),
+      instrWrap: byId('esInstrWrap'),
+    };
+
+    // ---------- Presets ----------
+    const PRESETS = {
+      normal:  { sleep:7.5, cals:7, water:7, ex:5, relax:1, sInt:4, sDur:2, sStab:2 },
+      deep:    { sleep:8,   cals:7, water:8, ex:6, relax:1.5, sInt:5, sDur:2, sStab:2 },
+      deadline:{ sleep:6.5, cals:6, water:7, ex:3, relax:0.5, sInt:8, sDur:6, sStab:6 },
+      recovery:{ sleep:9,   cals:7, water:8, ex:3, relax:2.5, sInt:3, sDur:1, sStab:1 },
+      travel:  { sleep:6,   cals:6, water:8, ex:2, relax:1,   sInt:6, sDur:3, sStab:3 },
+      custom:  null
+    };
+
+    function applyPreset(name){
+      const p = PRESETS[name];
+      if (!p) return;
+      els.sleep.value = p.sleep;
+      els.cals.value  = p.cals;
+      els.water.value = p.water;
+      els.ex.value    = p.ex;
+      els.relax.value = p.relax;
+      els.sInt.value  = p.sInt;
+      els.sDur.value  = p.sDur;
+      els.sStab.value = p.sStab;
+    }
+
+    // ---------- Coupling ----------
+    function softCoupleOnEnergyChange(){
+      const EI = computeEI();
+      const k = 0.10; // coupling strength
+      const delta = (EI - 0.5) * k; // EI>0.5 pushes intensity down a bit
+      const newInt = clamp(Number(els.sInt.value) - delta*10, 0, 10);
+      els.sInt.value = newInt.toFixed(0);
+    }
+    function softCoupleOnStressChange(){
+      const SI = computeSI();
+      const k = 0.06; // coupling strength
+      const delta = (SI - 0.5) * k; // positive when stress is high
+      // High stress slightly reduces exercise & relaxation, increases water target
+      const newRelax = clamp(Number(els.relax.value) - delta*10, 0, 10);
+      const newEx    = clamp(Number(els.ex.value) - delta*10, 0, 10);
+      const newWater = clamp(Number(els.water.value) + delta*10, 0, 10);
+      els.relax.value = newRelax.toFixed(1);
+      els.ex.value    = newEx.toFixed(0);
+      els.water.value = newWater.toFixed(0);
+    }
+
+    // ---------- Indices ----------
+    function computeEI(){
+      const w = { sleep:.35, water:.15, cals:.15, ex:.20, relax:.15 };
+      const sleep = sleepScore(Number(els.sleep.value));
+      const water = norm01(els.water.value, 0, 10);
+      const cals  = calorieScore(Number(els.cals.value));
+      const ex    = norm01(els.ex.value, 0, 10);
+      const relax = norm01(els.relax.value, 0, 10);
+      const EI = w.sleep*sleep + w.water*water + w.cals*cals + w.ex*ex + w.relax*relax;
+      return clamp(EI, 0, 1);
+    }
+
+    function chronicity(){
+      // Duration now in HOURS (0..168+). Convert to weeks for chronicity merge.
+      const durHours = clamp(Number(els.sDur.value), 0, 168);
+      const durWeeks = durHours / 168; // 168h = 1 week
+      const stabWeeks = clamp(Number(els.sStab.value), 0, 20);
+      const c = Math.max(durWeeks, stabWeeks);
+      // map to 0..1 where ~12 weeks ~ 1.0
+      return clamp(c / 12, 0, 1);
+    }
+
+    function computeSI(){
+      const intensity = norm01(els.sInt.value, 0, 10);
+      const chrono = chronicity();
+      const SI = 0.6*intensity + 0.4*chrono;
+      return clamp(SI, 0, 1);
+    }
+
+    // ---------- COA ----------
+    function sleepDebt(){
+      const h = Number(els.sleep.value);
+      return clamp(Math.abs(8 - h) / 3, 0, 1); // ~1 by 5h or 11h
+    }
+    function hydrationDeficit(){
+      return 1 - norm01(els.water.value, 0, 10);
+    }
+    function computeCOA(){
+      const base = 0.5*sleepDebt() + 0.3*computeSI() + 0.2*hydrationDeficit();
+      const coa = Math.round(1 + 9*clamp(base,0,1));
+      return clamp(coa, 1, 10);
+    }
+
+    // ---------- Classification ----------
+    
+    function scoreDetailText(key){
+      switch(key){
+        case 'green':
+          return "You have ample usable energy with low systemic load. This is the window to convert effort into output efficiently. Protect sleep and hydration, schedule deep work blocks, and avoid overcommitting—your nervous system is primed for precision and consistency. Expect faster starts, fewer context-switch costs, and better error monitoring.";
+        case 'yellow':
+          return "High energy with high stress means arousal is elevated. Short sprints can perform well, but risk spillover fatigue and control lapses. Use time-boxed bursts (25–50 min), add clear stop rules, and insert micro-recovery (water + 5–10 min walk) between pushes. Scope cuts beat heroics; keep decisions pre-loaded to reduce control cost.";
+        case 'idle':
+          return "Low energy but also low stress: low friction, low fuel. Focus on refueling inputs first—sleep regularity, hydration, light movement—then start with micro-scoped tasks to rebuild momentum. Expect slow initiation until energy climbs; avoid consuming willpower on low-leverage busywork.";
+        case 'red':
+          return "Low energy combined with high stress indicates allostatic load is draining control resources. Initiation will feel expensive; error rates and rework risk rise. Triage: shorten duration by offloading or deferring stressors, protect sleep and water, simplify tasks to single actions, and set strict boundaries to reduce inflow.";
+        default:
+          return "Adjust inputs to see an assessment of your current state and its expected impact on start-up cost, speed, and error risk.";
+      }
+    }
+
+    function classify(EI, SI){
+      const eHigh = EI >= 0.60;
+      const sHigh = SI >= 0.60;
+
+      if (eHigh && !sHigh) return { key:'green',  label:'High Energy · Low Stress', desc:'You’re primed; lock gains and ship.' };
+      if (eHigh &&  sHigh) return { key:'yellow', label:'High Energy · High Stress', desc:'Ride the wave for short sprints; insert recovery gates.' };
+      if (!eHigh && !sHigh) return { key:'idle',   label:'Low Energy · Low Stress', desc:'Low friction, low fuel; refuel first, then act.' };
+      return { key:'red', label:'Low Energy · High Stress', desc:'Stop the bleed; shrink scope, protect sleep/water, offload.' };
+    }
+
+    // ---------- Bars (no radar) ----------
 
     
-  <section id="esSection" class="mb-4">
-    <div class="card">
-      <!-- Header with Instructions toggle -->
-      <div class="card-header text-light p-4">
-        <div class="d-flex justify-content-between align-items-start flex-column flex-md-row gap-3">
-          <div class="w-100 d-flex justify-content-between "> 
 
-                <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Simple Survives Complex Breaks</p>
-          <button id="esToggleInstr" class="btn btn-sm btn-outline-light align-self-md-center">Show Instructions</button>
-          </div>
-        </div>
+    // ---------- Update ----------
 
-        <!-- Instructions Panel (toggle) -->
-        <div id="esInstrWrap" class="mt-3 d-none">
-          <div class="row g-3">
-            <div class="col-12 col-md-3">
-              <div class="p-3 border rounded-3 h-100">
-                <h6 class="fw-bold mb-2">
-                  <span class="badge text-bg-warning">1</span> Presets
-                </h6>
-                <p class="mb-0">Pick a baseline (Normal, Deep Work, Deadline, Recovery, Travel, Custom).</p>
-              </div>
-            </div>
-            <div class="col-12 col-md-3">
-              <div class="p-3 border rounded-3 h-100">
-                <h6 class="fw-bold mb-2">
-                  <span class="badge text-bg-warning">2</span> Energy Index (EI)
-                </h6>
-                <p class="mb-0">Represents available energy from sleep, nutrition, hydration, movement, and recovery.
-High EI means your body and mind have enough charge to execute tasks with minimal friction.</p>
-              </div>
-            </div>
-            <div class="col-12 col-md-3">
-              <div class="p-3 border rounded-3 h-100">
-                <h6 class="fw-bold mb-2">
-                  <span class="badge text-bg-warning">3</span> Stress Index (SI)
-                </h6>
-                <p class="mb-0">Measures the cost of internal and external load—how strong and how long pressure has been active.
-High SI means more of your energy is being redirected toward coping instead of performing.</p>
-              </div>
-            </div>
-            <div class="col-12 col-md-3">
-              <div class="p-3 border rounded-3 h-100">
-                <h6 class="fw-bold mb-2">
-                  <span class="badge text-bg-warning">4</span> Effective Energy (EE)
-                </h6>
-                <p class="mb-0">The energy you can actually use:<span class="badge"> EE = EI × (1 − SI)</span>
-When stress rises, usable energy shrinks even if raw energy stays high. This is the “effort cost” you feel.</p>
-              </div>
-            </div>
-          </div>
-          <div class="mt-3">
-            <div class="legend">
-              <span><span class="legend-dot" style="background:#20a5a5"></span>Energy Index (EI)</span>
-              <span><span class="legend-dot" style="background:#ff6b6b"></span>Stress Index (SI)</span>
-              <span class="pill">Effective Energy = EI × (1 − SI)</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    function updateBars(EI, SI, EE){
+      const pct = v => Math.round(v*100) + '%';
+      const trySet = (id, val) => { const el = byId(id); if (el) el.style.width = val; };
+      const tryTxt = (id, val) => { const el = byId(id); if (el) el.textContent = val; };
 
-      <!-- Body -->
-      <div class="card-body p-4" id="esPrintable">
-        <div class="row g-4">
-          <!-- LEFT: Inputs -->
-          <div class="col-12 col-md-4">
-            <div class="p-3 border rounded-3 h-100">
-              <h6 class="mb-3 d-flex align-items-center gap-2">
-                <span class="badge text-bg-warning">1</span>
-                Today’s Energy &amp; Stress Inputs
-              </h6>
+      trySet('barEI', pct(EI));
+      trySet('barSI', pct(SI));
+      trySet('barEE', pct(EE));
+      tryTxt('eiPct', pct(EI));
+      tryTxt('siPct', pct(SI));
+      tryTxt('eePct', pct(EE));
 
-              <!-- Presets (above sliders, below label container) -->
-              <label for="esPreset" class="form-label">Presets</label>
-              <select id="esPreset" class="form-select mb-3">
-                <option value="normal">Normal Day</option>
-                <option value="deep">Deep Work Day</option>
-                <option value="deadline">Deadline Crunch</option>
-                <option value="recovery">Recovery Day</option>
-                <option value="travel">Travel/Disrupted</option>
-                <option value="custom">Custom</option>
-              </select>
+      // Per-dimension
+      trySet('barSleep', pct(sleepScore(Number(els.sleep.value))));
+      trySet('barCals',  pct(calorieScore(Number(els.cals.value))));
+      trySet('barWater', pct(norm01(els.water.value,0,10)));
+      trySet('barEx',    pct(norm01(els.ex.value,0,10)));
+      trySet('barRelax', pct(norm01(els.relax.value,0,10)));
 
-              <!-- Sliders -->
-              <div class="mb-2">
-                <label class="form-label">Sleep (hours)</label>
-                <input id="esSleep" type="range" min="4" max="10" step="0.25" value="7.5" class="form-range">
-                <div class="tiny text-secondary">Aim 7–9; both too little and too much drain output.</div>
-              </div>
-
-              <div class="mb-2">
-                <label class="form-label">Calories (adequacy 0–10)</label>
-                <input id="esCals" type="range" min="0" max="10" step="1" value="7" class="form-range">
-                <div class="tiny text-secondary">Undershoot = fatigue; overshoot = sluggish.</div>
-              </div>
-
-              <div class="mb-2">
-                <label class="form-label">Water (adequacy 0–10)</label>
-                <input id="esWater" type="range" min="0" max="10" step="1" value="7" class="form-range">
-                <div class="tiny text-secondary">Even mild dehydration raises effort cost.</div>
-              </div>
-
-              <div class="mb-2">
-                <label class="form-label">Exercise (level 0–10)</label>
-                <input id="esEx" type="range" min="0" max="10" step="1" value="5" class="form-range">
-                <div class="tiny text-secondary">Short, regular movement boosts usable energy.</div>
-              </div>
-
-              <div class="mb-2">
-                <label class="form-label">Relaxation (hours 0–10)</label>
-                <input id="esRelax" type="range" min="0" max="10" step="0.5" value="1.0" class="form-range">
-                <div class="tiny text-secondary">Intentional downtime lowers spillover stress.</div>
-              </div>
-
-              <hr class="border-secondary my-3">
-
-              <div class="mb-2">
-                <label class="form-label">Stress Intensity (0–10)</label>
-                <input id="esSInt" type="range" min="0" max="10" step="1" value="4" class="form-range">
-              </div>
-              <div class="tiny text-secondary">How many hours this stressor has been active in total.</div>
-
-              <div class="mb-2">
-                <label class="form-label">Stress Duration (hours)</label>
-                <input id="esSDur" type="range" min="0" max="168" step="1" value="8" class="form-range">
-              </div>
-              <div class="tiny text-secondary">Acute spikes = lower hours; chronic load = many hours.</div>
-              <div class="tiny text-secondary">How long it has stayed about the same (chronicity).</div>
-
-              <div class="mb-2">
-                <label class="form-label">Stability of State (weeks)</label>
-                <input id="esSStab" type="range" min="0" max="20" step="1" value="2" class="form-range">
-                <div class="tiny text-secondary">How long the stress state has stayed the same (higher = more chronic).</div>
-              </div>
-
-              <p class="small text-secondary mt-3">
-                Energy and stress are linked. As stress rises, a slice of your energy becomes unavailable. As energy rises, stress is easier to absorb.
-              </p>
-            </div>
-          </div>
-
-          <!-- RIGHT: Radar + Activities -->
-          <div class="col-12 col-md-8">
-            <div class="p-3 border rounded-3 h-100">
-              <!-- Radar -->
-              <div class="vis-wrap p-3">
-      <div id="esBars">
-        <!-- Summary bars -->
-        <div class="mb-3">
-          <div class="d-flex justify-content-between small kpi-bar"><strong>Energy Index (EI)</strong><span id="eiPct">—</span></div>
-          <div class="progress" style="height:12px;"><div id="barEI" class=" progress-bar-dark" style="width:0%"></div></div>
-        </div>
-        <div class="mb-3">
-          <div class="d-flex justify-content-between small kpi-bar"><strong>Stress Index (SI)</strong><span id="siPct">—</span></div>
-          <div class="progress" style="height:12px;"><div id="barSI" class="progress-bar bg-danger" style="width:0%"></div></div>
-        </div>
-        <div class="mb-4">
-          <div class="d-flex justify-content-between small kpi-bar"><strong>Effective Energy (EE = EI × (1 − SI))</strong><span id="eePct">—</span></div>
-          <div class="progress" style="height:12px;"><div id="barEE" class="progress-bar-success" style="width:0%"></div></div>
-        </div>
-
-        <!-- Paired micro-bars: Energy vs Stress dimensions -->
-        <div class="row g-3">
-          <div class="col-12 col-lg-6">
-            <h6 class="mb-2">Energy Inputs</h6>
-            <div class="mb-2 small">Sleep<div class="progress " style="height:8px;"><div id="barSleep" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
-            <div class="mb-2 small">Calories<div class="progress" style="height:8px;"><div id="barCals" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
-            <div class="mb-2 small">Water<div class="progress" style="height:8px;"><div id="barWater" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
-            <div class="mb-2 small">Exercise<div class="progress" style="height:8px;"><div id="barEx" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
-            <div class="mb-2 small">Relaxation<div class="progress" style="height:8px;"><div id="barRelax" class="progress-bar progress-bar-dark" style="width:0%"></div></div></div>
-          </div>
-          <div class="col-12 col-lg-6">
-            <h6 class="mb-2">Stress Metrics</h6>
-            <div class="mb-2 small">Intensity<div class="progress" style="height:8px;"><div id="barSInt" class="progress-bar bg-danger" style="width:0%"></div></div></div>
-            <div class="mb-2 small">Duration<div class="progress" style="height:8px;"><div id="barSDur" class="progress-bar bg-danger" style="width:0%"></div></div></div>
-            <div class="mb-2 small">Stability<div class="progress" style="height:8px;"><div id="barSStab" class="progress-bar bg-danger" style="width:0%"></div></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-              <!-- Leverage Activities (below graph) -->
-              <div id="esReportWrap" class="row g-4 mt-3">
-                <div class="d-flex justify-content-end align-items-center mt-2">
-                  <button id="exportReportBtn" class="btn btn-sm btn-outline-light">Export Report (PNG)</button><button id="esExport" class="btn btn-sm btn-outline-light ms-2">Export Report</button>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="p-3 border rounded-3 h-100 report-panel">
-                    <div class="report-topbar mb-2">
-                      <span class="pill">EI: <span id="esEI">—</span></span>
-                      <h5 class="m-0 text-center">Present State</h5>
-                      <span class="pill">SI: <span id="esSI">—</span></span>
-                    </div>
-                    <div class="text-center">
-                      <div id="esScoreBadge" class="es-badge">—</div>
-                      <p id="esScoreDesc" class="text-secondary mt-2">Awaiting input…</p><p id="esScoreDetail" class="small text-secondary mt-2"></p>
-                      <p id="esScoreResearch" class="small text-secondary mt-2"></p>
-                    </div>
-                    <div class="mt-2">
-                      <div class="progress" role="progressbar" aria-label="Effective Energy" style="height: 10px;">
-                        <div id="esEEBar" class="progress-bar-success" style="width:0%"></div>
-                      </div>
-                      <div class="tiny text-secondary mt-1">Effective Energy (EI × (1 − SI))</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="p-3 border rounded-3 h-100 report-panel">
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                      <h6 class="m-0">Cost of Action (CoA)</h6>
-                      <div class="display-6 m-0" id="esCOA">—</div>
-                    </div>
-                    <div class="progress mt-2" role="progressbar" aria-label="CoA" style="height: 12px;">
-                      <div id="esCOABar" class="progress-bar" style="width:0%"></div>
-                    </div>
-                    <p id="esCOADesc" class="small text-secondary mt-2">Higher = feels harder to start.</p>                    
-                    <h6 class="mb-2">Why it matters</h6>
-                    <p class="text-secondary">
-                      Stress taxes control. Energy funds control. When usable energy outpaces stress, you start fast and finish clean. When stress overwhelms energy, initiation gets expensive and execution stalls.
-                    </p>
-
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- REPORT (2 columns) -->
-
-
-      </div> <!-- /card-body -->
-    </div> <!-- /card -->
-  </section>
-</main>
-
-<footer class="container my-4 footer-note tiny">
-  Built for rapid iteration. Keep leverage high, friction low.
-</footer>
-
-<!-- Bootstrap JS (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<script>
-(function(){
-  // ---------- Utils ----------
-  const clamp = (n,min,max)=> Math.max(min, Math.min(max, n));
-  const byId = id => document.getElementById(id);
-
-  function norm01(v, min, max){
-    v = Number(v);
-    return clamp((v - min) / (max - min), 0, 1);
-  }
-  // Sleep inverted-U around ~8h
-  function sleepScore(h){
-    const x = clamp((h - 8)/3, -1.5, 1.5); // center 8h, breadth ~3h
-    const y = 1 - x*x; // 1 at 8h, ~0 at ±3h
-    return clamp(y, 0, 1);
-  }
-  // Calories: adequacy 0..10, peak ~7..8
-  function calorieScore(a){
-    const x = clamp((a - 7.5)/3, -2, 2);
-    const y = 1 - 0.5*x*x;
-    return clamp(y, 0, 1);
-  }
-
-  // ---------- DOM ----------
-  const els = {
-    preset: byId('esPreset'),
-    sleep: byId('esSleep'),
-    cals: byId('esCals'),
-    water: byId('esWater'),
-    ex: byId('esEx'),
-    relax: byId('esRelax'),
-    sInt: byId('esSInt'),
-    sDur: byId('esSDur'),
-    sStab: byId('esSStab'),
-    ei: byId('esEI'),
-    si: byId('esSI'),
-    eeBar: byId('esEEBar'),
-    scoreBadge: byId('esScoreBadge'),
-    scoreDesc: byId('esScoreDesc'),
-    coa: byId('esCOA'),
-    coaBar: byId('esCOABar'),
-    coaDesc: byId('esCOADesc'),
-    radar: byId('esRadar'),
-    instrTgl: byId('esToggleInstr'),
-    instrWrap: byId('esInstrWrap'),
-  };
-
-  // ---------- Presets ----------
-  const PRESETS = {
-    normal:  { sleep:7.5, cals:7, water:7, ex:5, relax:1, sInt:4, sDur:2, sStab:2 },
-    deep:    { sleep:8,   cals:7, water:8, ex:6, relax:1.5, sInt:5, sDur:2, sStab:2 },
-    deadline:{ sleep:6.5, cals:6, water:7, ex:3, relax:0.5, sInt:8, sDur:6, sStab:6 },
-    recovery:{ sleep:9,   cals:7, water:8, ex:3, relax:2.5, sInt:3, sDur:1, sStab:1 },
-    travel:  { sleep:6,   cals:6, water:8, ex:2, relax:1,   sInt:6, sDur:3, sStab:3 },
-    custom:  null
-  };
-
-  function applyPreset(name){
-    const p = PRESETS[name];
-    if (!p) return;
-    els.sleep.value = p.sleep;
-    els.cals.value  = p.cals;
-    els.water.value = p.water;
-    els.ex.value    = p.ex;
-    els.relax.value = p.relax;
-    els.sInt.value  = p.sInt;
-    els.sDur.value  = p.sDur;
-    els.sStab.value = p.sStab;
-  }
-
-  // ---------- Coupling ----------
-  function softCoupleOnEnergyChange(){
-    const EI = computeEI();
-    const k = 0.10; // coupling strength
-    const delta = (EI - 0.5) * k; // EI>0.5 pushes intensity down a bit
-    const newInt = clamp(Number(els.sInt.value) - delta*10, 0, 10);
-    els.sInt.value = newInt.toFixed(0);
-  }
-  function softCoupleOnStressChange(){
-    const SI = computeSI();
-    const k = 0.06; // coupling strength
-    const delta = (SI - 0.5) * k; // positive when stress is high
-    // High stress slightly reduces exercise & relaxation, increases water target
-    const newRelax = clamp(Number(els.relax.value) - delta*10, 0, 10);
-    const newEx    = clamp(Number(els.ex.value) - delta*10, 0, 10);
-    const newWater = clamp(Number(els.water.value) + delta*10, 0, 10);
-    els.relax.value = newRelax.toFixed(1);
-    els.ex.value    = newEx.toFixed(0);
-    els.water.value = newWater.toFixed(0);
-  }
-
-  // ---------- Indices ----------
-  function computeEI(){
-    const w = { sleep:.35, water:.15, cals:.15, ex:.20, relax:.15 };
-    const sleep = sleepScore(Number(els.sleep.value));
-    const water = norm01(els.water.value, 0, 10);
-    const cals  = calorieScore(Number(els.cals.value));
-    const ex    = norm01(els.ex.value, 0, 10);
-    const relax = norm01(els.relax.value, 0, 10);
-    const EI = w.sleep*sleep + w.water*water + w.cals*cals + w.ex*ex + w.relax*relax;
-    return clamp(EI, 0, 1);
-  }
-
-  function chronicity(){
-    // Duration now in HOURS (0..168+). Convert to weeks for chronicity merge.
-    const durHours = clamp(Number(els.sDur.value), 0, 168);
-    const durWeeks = durHours / 168; // 168h = 1 week
-    const stabWeeks = clamp(Number(els.sStab.value), 0, 20);
-    const c = Math.max(durWeeks, stabWeeks);
-    // map to 0..1 where ~12 weeks ~ 1.0
-    return clamp(c / 12, 0, 1);
-  }
-
-  function computeSI(){
-    const intensity = norm01(els.sInt.value, 0, 10);
-    const chrono = chronicity();
-    const SI = 0.6*intensity + 0.4*chrono;
-    return clamp(SI, 0, 1);
-  }
-
-  // ---------- COA ----------
-  function sleepDebt(){
-    const h = Number(els.sleep.value);
-    return clamp(Math.abs(8 - h) / 3, 0, 1); // ~1 by 5h or 11h
-  }
-  function hydrationDeficit(){
-    return 1 - norm01(els.water.value, 0, 10);
-  }
-  function computeCOA(){
-    const base = 0.5*sleepDebt() + 0.3*computeSI() + 0.2*hydrationDeficit();
-    const coa = Math.round(1 + 9*clamp(base,0,1));
-    return clamp(coa, 1, 10);
-  }
-
-  // ---------- Classification ----------
-  
-  function scoreDetailText(key){
-    switch(key){
-      case 'green':
-        return "You have ample usable energy with low systemic load. This is the window to convert effort into output efficiently. Protect sleep and hydration, schedule deep work blocks, and avoid overcommitting—your nervous system is primed for precision and consistency. Expect faster starts, fewer context-switch costs, and better error monitoring.";
-      case 'yellow':
-        return "High energy with high stress means arousal is elevated. Short sprints can perform well, but risk spillover fatigue and control lapses. Use time-boxed bursts (25–50 min), add clear stop rules, and insert micro-recovery (water + 5–10 min walk) between pushes. Scope cuts beat heroics; keep decisions pre-loaded to reduce control cost.";
-      case 'idle':
-        return "Low energy but also low stress: low friction, low fuel. Focus on refueling inputs first—sleep regularity, hydration, light movement—then start with micro-scoped tasks to rebuild momentum. Expect slow initiation until energy climbs; avoid consuming willpower on low-leverage busywork.";
-      case 'red':
-        return "Low energy combined with high stress indicates allostatic load is draining control resources. Initiation will feel expensive; error rates and rework risk rise. Triage: shorten duration by offloading or deferring stressors, protect sleep and water, simplify tasks to single actions, and set strict boundaries to reduce inflow.";
-      default:
-        return "Adjust inputs to see an assessment of your current state and its expected impact on start-up cost, speed, and error risk.";
+      trySet('barSInt',  pct(norm01(els.sInt.value,0,10)));
+      trySet('barSDur',  pct(chronicity()));
+      trySet('barSStab', pct(chronicity()));
     }
-  }
-
-  function classify(EI, SI){
-    const eHigh = EI >= 0.60;
-    const sHigh = SI >= 0.60;
-
-    if (eHigh && !sHigh) return { key:'green',  label:'High Energy · Low Stress', desc:'You’re primed; lock gains and ship.' };
-    if (eHigh &&  sHigh) return { key:'yellow', label:'High Energy · High Stress', desc:'Ride the wave for short sprints; insert recovery gates.' };
-    if (!eHigh && !sHigh) return { key:'idle',   label:'Low Energy · Low Stress', desc:'Low friction, low fuel; refuel first, then act.' };
-    return { key:'red', label:'Low Energy · High Stress', desc:'Stop the bleed; shrink scope, protect sleep/water, offload.' };
-  }
-
-  // ---------- Bars (no radar) ----------
-
-  
-
-  // ---------- Update ----------
-
-  function updateBars(EI, SI, EE){
-    const pct = v => Math.round(v*100) + '%';
-    const trySet = (id, val) => { const el = byId(id); if (el) el.style.width = val; };
-    const tryTxt = (id, val) => { const el = byId(id); if (el) el.textContent = val; };
-
-    trySet('barEI', pct(EI));
-    trySet('barSI', pct(SI));
-    trySet('barEE', pct(EE));
-    tryTxt('eiPct', pct(EI));
-    tryTxt('siPct', pct(SI));
-    tryTxt('eePct', pct(EE));
-
-    // Per-dimension
-    trySet('barSleep', pct(sleepScore(Number(els.sleep.value))));
-    trySet('barCals',  pct(calorieScore(Number(els.cals.value))));
-    trySet('barWater', pct(norm01(els.water.value,0,10)));
-    trySet('barEx',    pct(norm01(els.ex.value,0,10)));
-    trySet('barRelax', pct(norm01(els.relax.value,0,10)));
-
-    trySet('barSInt',  pct(norm01(els.sInt.value,0,10)));
-    trySet('barSDur',  pct(chronicity()));
-    trySet('barSStab', pct(chronicity()));
-  }
 
 
-    const research = {
-      green: "In this state, your usable energy exceeds stress costs. Expect faster initiation and cleaner execution. Maintain sleep regularity, hydration, and brief movement to keep control costs low. Guardrails (timeboxes, scoped goals) prevent overcommitment while you capitalize on momentum.",
-      yellow: "High arousal can sustain performance briefly (Yerkes–Dodson), but chronic intensity raises allostatic load. Use short sprints with hard stops, pair each sprint with a recovery gate (water + walk), and reduce decision load. Watch for sleep erosion, which quickly inflates effort costs.",
-      idle: "Low stress means low friction, but low energy depresses initiation. Prioritize fuel and activation: protect 7–9h sleep, hydrate, and insert a 10-minute movement minimum. Once EI rises, start with a 2-minute starter task to convert readiness into action.",
-      red: "Energy is outpaced by intense or chronic stress. Expect high effort costs, reduced working memory, and slower error recovery. Triage: shrink scope, offload or delay non-essentials, and restore basics (sleep, water). Short relaxation bouts reduce perceived stress enough to restart."
-    };
+      const research = {
+        green: "In this state, your usable energy exceeds stress costs. Expect faster initiation and cleaner execution. Maintain sleep regularity, hydration, and brief movement to keep control costs low. Guardrails (timeboxes, scoped goals) prevent overcommitment while you capitalize on momentum.",
+        yellow: "High arousal can sustain performance briefly (Yerkes–Dodson), but chronic intensity raises allostatic load. Use short sprints with hard stops, pair each sprint with a recovery gate (water + walk), and reduce decision load. Watch for sleep erosion, which quickly inflates effort costs.",
+        idle: "Low stress means low friction, but low energy depresses initiation. Prioritize fuel and activation: protect 7–9h sleep, hydrate, and insert a 10-minute movement minimum. Once EI rises, start with a 2-minute starter task to convert readiness into action.",
+        red: "Energy is outpaced by intense or chronic stress. Expect high effort costs, reduced working memory, and slower error recovery. Triage: shrink scope, offload or delay non-essentials, and restore basics (sleep, water). Short relaxation bouts reduce perceived stress enough to restart."
+      };
 
-  function updateAll(from){
-    const EI = computeEI();
-    const SI = computeSI();
-    const EE = clamp(EI * (1 - SI), 0, 1);
+    function updateAll(from){
+      const EI = computeEI();
+      const SI = computeSI();
+      const EE = clamp(EI * (1 - SI), 0, 1);
 
-    // Radar expects per-axis normalized vals in [0..1]
-    const vals = {
-      energy: [
-        sleepScore(Number(els.sleep.value)),
-        calorieScore(Number(els.cals.value)),
-        norm01(els.water.value,0,10),
-        norm01(els.ex.value,0,10),
-        norm01(els.relax.value,0,10)
-      ],
-      stress: [
-        norm01(els.sInt.value,0,10),
-        chronicity(), // duration
-        chronicity()  // stability (use same normalized chronicity for cohesive polygon)
-      ]
-    };
+      // Radar expects per-axis normalized vals in [0..1]
+      const vals = {
+        energy: [
+          sleepScore(Number(els.sleep.value)),
+          calorieScore(Number(els.cals.value)),
+          norm01(els.water.value,0,10),
+          norm01(els.ex.value,0,10),
+          norm01(els.relax.value,0,10)
+        ],
+        stress: [
+          norm01(els.sInt.value,0,10),
+          chronicity(), // duration
+          chronicity()  // stability (use same normalized chronicity for cohesive polygon)
+        ]
+      };
 
-        // Update bar visuals
-    updateBars(EI, SI, EE);
+          // Update bar visuals
+      updateBars(EI, SI, EE);
 
-    // Report
-    els.ei.textContent = Math.round(EI*100) + '%';
-    els.si.textContent = Math.round(SI*100) + '%';
+      // Report
+      els.ei.textContent = Math.round(EI*100) + '%';
+      els.si.textContent = Math.round(SI*100) + '%';
 
-    const cls = classify(EI, SI);
-    els.scoreBadge.className = 'es-badge ' + cls.key;
-    els.scoreBadge.textContent = cls.label;
-    els.scoreDesc.textContent = cls.desc;
-    byId('esScoreDetail').textContent = scoreDetailText(cls.key);
-    byId("esScoreResearch").textContent = research[cls.key];
+      const cls = classify(EI, SI);
+      els.scoreBadge.className = 'es-badge ' + cls.key;
+      els.scoreBadge.textContent = cls.label;
+      els.scoreDesc.textContent = cls.desc;
+      byId('esScoreDetail').textContent = scoreDetailText(cls.key);
+      byId("esScoreResearch").textContent = research[cls.key];
 
-    els.eeBar.style.width = Math.round(EE*100) + '%';
+      els.eeBar.style.width = Math.round(EE*100) + '%';
 
-    const COA = computeCOA();
-    els.coa.textContent = COA;
-    els.coaBar.style.width = (COA*10) + '%';
-    els.coaDesc.textContent = coaText(COA);
+      const COA = computeCOA();
+      els.coa.textContent = COA;
+      els.coaBar.style.width = (COA*10) + '%';
+      els.coaDesc.textContent = coaText(COA);
 
-    if (from === 'energy') softCoupleOnEnergyChange();
-    if (from === 'stress') softCoupleOnStressChange();
-  }
+      if (from === 'energy') softCoupleOnEnergyChange();
+      if (from === 'stress') softCoupleOnStressChange();
+    }
 
-  function coaText(v){
-    if (v <= 3) return 'Light: start now; protect flow.';
-    if (v <= 6) return 'Moderate: use a 2-min foot-in-door and a timer.';
-    if (v <= 8) return 'Heavy: micro-scope; water + 5–10 min walk first.';
-    return 'Very Heavy: triage; shrink scope, early night, ask for help.';
-  }
+    function coaText(v){
+      if (v <= 3) return 'Light: start now; protect flow.';
+      if (v <= 6) return 'Moderate: use a 2-min foot-in-door and a timer.';
+      if (v <= 8) return 'Heavy: micro-scope; water + 5–10 min walk first.';
+      return 'Very Heavy: triage; shrink scope, early night, ask for help.';
+    }
 
-  // Events
-  ['sleep','cals','water','ex','relax'].forEach(k=>{
-    els[k].addEventListener('input', ()=> updateAll('energy'));
-  });
-  ['sInt','sDur','sStab'].forEach(k=>{
-    els[k].addEventListener('input', ()=> updateAll('stress'));
-  });
-  els.preset.addEventListener('change', ()=>{
-    applyPreset(els.preset.value);
-    updateAll();
-  });
-
-  // Instructions toggle
-  els.instrTgl.addEventListener('click', ()=>{
-    const open = !els.instrWrap.classList.contains('d-none');
-    els.instrWrap.classList.toggle('d-none');
-    els.instrTgl.textContent = open ? 'Show Instructions' : 'Hide Instructions';
-  });
-
-  // Export report PNG
-  const exportBtn = byId("exportReportBtn");
-  if (exportBtn) {
-    exportBtn.addEventListener("click", async ()=>{
-      const node = document.getElementById("esReportWrap") || document.getElementById("esSection");
-      if (!window.html2canvas || !node) { window.print(); return; }
-      const canvas = await html2canvas(node, {backgroundColor: getComputedStyle(document.body).backgroundColor, scale: 2});
-      const link = document.createElement("a");
-      link.download = `energy_stress_report_${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+    // Events
+    ['sleep','cals','water','ex','relax'].forEach(k=>{
+      els[k].addEventListener('input', ()=> updateAll('energy'));
     });
-  }
+    ['sInt','sDur','sStab'].forEach(k=>{
+      els[k].addEventListener('input', ()=> updateAll('stress'));
+    });
+    els.preset.addEventListener('change', ()=>{
+      applyPreset(els.preset.value);
+      updateAll();
+    });
 
-  // Init
-  applyPreset('normal');
-  
-  updateAll();
+    // Instructions toggle
+    els.instrTgl.addEventListener('click', ()=>{
+      const open = !els.instrWrap.classList.contains('d-none');
+      els.instrWrap.classList.toggle('d-none');
+      els.instrTgl.textContent = open ? 'Show Instructions' : 'Hide Instructions';
+    });
+
+    // Export report PNG
+    const exportBtn = byId("exportReportBtn");
+    if (exportBtn) {
+      exportBtn.addEventListener("click", async ()=>{
+        const node = document.getElementById("esReportWrap") || document.getElementById("esSection");
+        if (!window.html2canvas || !node) { window.print(); return; }
+        const canvas = await html2canvas(node, {backgroundColor: getComputedStyle(document.body).backgroundColor, scale: 2});
+        const link = document.createElement("a");
+        link.download = `energy_stress_report_${Date.now()}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    // Init
+    applyPreset('normal');
+    
+    updateAll();
 
 
-  // Export: open print-friendly window with radar + report
-  byId('esExport').addEventListener('click', ()=>{
-    const win = window.open('', '_blank');
-    const doc = win.document;
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Energy–Stress Report</title>
-      <style>
-        body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:#ffffff;color:#111;margin:24px;}
-        h1,h2,h3{margin:.2rem 0;}
-        .muted{color:#555;}
-        .bar{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin:.25rem 0 1rem;}
-        .bar > div{height:100%;background:linear-gradient(90deg,#20a5a5,#0fd39d);}
-        .bar2 > div{background:linear-gradient(90deg,#6c8cff,#ff6b6b);}
-        .grid svg{max-width:100%;height:auto;}
-        .row{display:flex;gap:20px;flex-wrap:wrap;}
-        .col{flex:1 1 300px;min-width:300px;}
-        .pill{display:inline-block;padding:.15rem .55rem;border:1px solid #ccc;border-radius:999px;color:#333;font-size:.85rem;margin-right:.5rem;}
-        .badge{display:inline-block;padding:.3rem .6rem;border-radius:999px;border:1px solid #ddd;font-weight:700;}
-      </style>
-    </head><body>` +
-    `<h1>Energy–Stress Report</h1>` +
-    `<div class="row">
-      <div class="col">
-        <div class="pill">EI: ${document.getElementById('esEI').textContent}</div>
-        <div class="pill">SI: ${document.getElementById('esSI').textContent}</div>
-        <h3>${document.getElementById('esScoreBadge').textContent}</h3>
-        <div class="muted">${document.getElementById('esScoreDesc').textContent}</div>
-        <p class="muted">${document.getElementById('esScoreDetail').textContent}</p>
-        <h4>Effective Energy</h4>
-        <div class="bar"><div style="width:${document.getElementById('esEEBar').style.width}"></div></div>
-        <h4>Cost of Action (CoA): ${document.getElementById('esCOA').textContent}</h4>
-        <div class="bar bar2"><div style="width:${document.getElementById('esCOABar').style.width}"></div></div>
-      </div>
-      <div class="col grid">
-        ${document.getElementById('esBars').outerHTML}
-      </div>
-    </div>` +
-    `</body></html>`;
-    doc.open(); doc.write(html); doc.close();
-    win.focus();
-    win.print();
-  });
+    // Export: open print-friendly window with radar + report
+    byId('esExport').addEventListener('click', ()=>{
+      const win = window.open('', '_blank');
+      const doc = win.document;
+      const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Energy–Stress Report</title>
+        <style>
+          body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:#ffffff;color:#111;margin:24px;}
+          h1,h2,h3{margin:.2rem 0;}
+          .muted{color:#555;}
+          .bar{height:10px;background:#eee;border-radius:6px;overflow:hidden;margin:.25rem 0 1rem;}
+          .bar > div{height:100%;background:linear-gradient(90deg,#20a5a5,#0fd39d);}
+          .bar2 > div{background:linear-gradient(90deg,#6c8cff,#ff6b6b);}
+          .grid svg{max-width:100%;height:auto;}
+          .row{display:flex;gap:20px;flex-wrap:wrap;}
+          .col{flex:1 1 300px;min-width:300px;}
+          .pill{display:inline-block;padding:.15rem .55rem;border:1px solid #ccc;border-radius:999px;color:#333;font-size:.85rem;margin-right:.5rem;}
+          .badge{display:inline-block;padding:.3rem .6rem;border-radius:999px;border:1px solid #ddd;font-weight:700;}
+        </style>
+      </head><body>` +
+      `<h1>Energy–Stress Report</h1>` +
+      `<div class="row">
+        <div class="col">
+          <div class="pill">EI: ${document.getElementById('esEI').textContent}</div>
+          <div class="pill">SI: ${document.getElementById('esSI').textContent}</div>
+          <h3>${document.getElementById('esScoreBadge').textContent}</h3>
+          <div class="muted">${document.getElementById('esScoreDesc').textContent}</div>
+          <p class="muted">${document.getElementById('esScoreDetail').textContent}</p>
+          <h4>Effective Energy</h4>
+          <div class="bar"><div style="width:${document.getElementById('esEEBar').style.width}"></div></div>
+          <h4>Cost of Action (CoA): ${document.getElementById('esCOA').textContent}</h4>
+          <div class="bar bar2"><div style="width:${document.getElementById('esCOABar').style.width}"></div></div>
+        </div>
+        <div class="col grid">
+          ${document.getElementById('esBars').outerHTML}
+        </div>
+      </div>` +
+      `</body></html>`;
+      doc.open(); doc.write(html); doc.close();
+      win.focus();
+      win.print();
+    });
 
-})();
-</script>
+  })();
+  </script>
 </body>
 </html>

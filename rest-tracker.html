@@ -9,8 +9,46 @@
   <style>
 html, body { overflow-x: hidden; }  /* belt & suspenders */
 #habits, #habits > [class^="col-"] { min-width: 0; } /* Bootstrap grid overflow edge-case */
-
-        </style>
+    .card { background: var(--card); border-color: var(--border-1); }
+        .card h6, .list-group-item {
+    color: #4da98a;
+    }
+    .card-body{
+      color: white;
+    }
+    .border { border-color: var(--border-1) !important; }
+    .border-secondary { border-color: var(--border-1) !important; }
+    .text-secondary { color: var(--muted) !important; }
+    .tiny { font-size: .8rem; }
+    .lead { color: var(--text); }
+    .legend .legend-dot{
+      width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:.35rem; vertical-align:middle;
+    }
+    .legend .pill{
+      display:inline-block; padding:.2rem .5rem; border:1px solid var(--border-1); border-radius:999px; margin-left:.5rem; font-size:.85rem; color:var(--muted);
+    }
+    .es-badge{
+      display:inline-block; padding:.45rem 1rem; border-radius:999px;
+      border:1px solid var(--border-1); background:rgba(32,165,165,.08);
+      font-weight:700; letter-spacing:.25px;
+    }
+    .es-badge.green{ color:#0fd39d; border-color:#1a8f76; background:rgba(15,211,157,.10); }
+    .es-badge.yellow{ color:#ffd166; border-color:#b08b2c; background:rgba(255,209,102,.10); }
+    .es-badge.idle{ color:#8aa1c9; border-color:#3a4969; background:rgba(138,161,201,.10); }
+    .es-badge.red{ color:#ff6b6b; border-color:#9e2a2a; background:rgba(255,107,107,.10); }
+    #esRadar .grid { stroke: rgba(158,176,214,0.25); fill: none; }
+    #esRadar .axis { stroke: rgba(158,176,214,0.35); }
+    #esRadar .poly-energy { fill: rgba(32,165,165,0.18); stroke: #20a5a5; stroke-width: 2; }
+    #esRadar .poly-stress { fill: rgba(255,107,107,0.12); stroke: #ff6b6b; stroke-width: 2; }
+  .progress-bar {     background-image: linear-gradient(90deg, #d3a02a, #b78900); }     
+    .progress-bar-dark { background-image: linear-gradient(90deg, #55b0f3, #26d39e); }
+    .progress-bar-success { background-image: linear-gradient(90deg, #7f20a5, #d30f0f); }
+    #esCOABar { background-image: linear-gradient(90deg, #6c8cff, #ff6b6b); }
+    .report-topbar{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+    .report-topbar .pill{ display:inline-block; padding:.15rem .55rem; border:1px solid var(--border-1); border-radius:999px; color:var(--muted); font-size:.85rem; }
+    .navbar-brand { color: var(--text) !important; }
+    .footer-note { color: var(--muted); }
+  </style>
         
     
 </head>
@@ -27,10 +65,142 @@ html, body { overflow-x: hidden; }  /* belt & suspenders */
         </div>
     </div>
   </nav>
+
+  
 <div class="wrap">
+      <!-- Overview -->
+    <nav class="card my-3 text-light border-0 mt-4">
+      <div class="card-header bg-transparent p-0">
+        <button class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
+          type="button" data-bs-toggle="collapse" data-bs-target="#dailyOutputPanel" aria-expanded="true" aria-controls="dailyOutputPanel"
+          style="background:#0b1220;border:none;">
+          <span>
+            <span class="kicker text-uppercase d-block small mb-1 text-warning">Directives</span>
+            <h2 class="fw-bold">Rest Tracker</h2>
+          </span>
+          <span class="chev ms-3 badge bg-warning text-dark" aria-hidden="true">▾</span>
+        </button>
+      </div>
+              <!-- Header with Instructions toggle -->
+        <div class="card-header text-light p-4">
+          <div class="d-flex justify-content-between align-items-start flex-column flex-md-row gap-3">
+            <div class="w-100 d-flex justify-content-between "> 
+
+                  <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Simple Survives Complex Breaks</p>
+            <button id="esToggleInstr" class="btn btn-light align-self-md-center text-dark">Show Instructions</button>
+            </div>
+          </div>
+        </div>
+      <!-- Instructions Panel (toggle) -->
+      <div id="esInstrWrap" class="mt-3 d-none">
+        <div class="row g-3">
+          <div class="col-12 col-md-3">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="fw-bold mb-2">
+                <span class="badge text-bg-warning">1</span> Baseline
+              </h6>
+              <p class="mb-0">
+                Set your last week’s energy, stress, and support levels. 
+                These sliders define your starting state and store your personal baseline for comparison.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="fw-bold mb-2">
+                <span class="badge text-bg-warning">2</span> Presets
+              </h6>
+              <p class="mb-0">
+                Tap a preset — <strong>Overwhelmed</strong>, <strong>Cruising</strong>, <strong>Stressed</strong>, or <strong>Skool</strong> — 
+                to simulate your current condition and auto-fill matching inputs.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="fw-bold mb-2">
+                <span class="badge text-bg-warning">3</span> Habits
+              </h6>
+              <p class="mb-0">
+                Select 1–3 habits for the next two days. 
+                Each choice changes Energy, Stress, Complexity, and Support in real time.
+              </p>
+            </div>
+          </div>
+          <div class="col-12 col-md-3">
+            <div class="p-3 border rounded-3 h-100">
+              <h6 class="fw-bold mb-2">
+                <span class="badge text-bg-warning">4</span> Report
+              </h6>
+              <p class="mb-0">
+                Review your <strong>Power</strong>, <strong>Risk</strong>, and <strong>Efficacy Lift</strong>. 
+                Copy the ChatGPT prompt for personalized advice or export your Recovery Report for tracking.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="dailyOutputPanel" class="collapse hide">
+        <div class="card-body p-4">
+            <div class="row">
+              <div class="col my-4">
+                  <ol class="list-group list-group-numbered bg-dark text-light" style="background-color:#0c1526">
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Set your baseline honestly—match last week, not the ideal.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Pick one mode (Overwhelmed, Cruising, Stressed, or Skool) to anchor today.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Choose 1–3 habits only—too many hides the signal.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Start with one easy win—then add one power habit.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Watch KPIs change live—aim for higher Power and lower Stress/SAU.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Close the Support Gap—raise “have” or reduce “need.”</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Reduce complexity—drop or delegate one process (n).</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Use the Prompt—copy it into ChatGPT for three risk-lowering actions.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Export your report—compare Sunday vs Wednesday to see lift.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Reset weekly—new baseline, two-day test, quick review.</strong>
+                    </li>
+
+                  </ol>
+
+
+
+              </div>
+            </div>
+
+        </div>
+      </div>
+    </nav>       
+
   <div class="card p-3 mb-3">
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
-      <div class="text-light"><strong>Week of Sunday:</strong> <span id="weekDate"></span> </div>
+      <div class="text-light"><strong>Week of Sunday:</strong> <span id="weekDate"></span> 
+      </div>
       <div class="d-flex gap-2">
         <button class="state-pill" data-preset="overwhelmed">Overwhelmed</button>
         <button class="state-pill" data-preset="cruising">Cruising</button>
@@ -144,37 +314,6 @@ html, body { overflow-x: hidden; }  /* belt & suspenders */
             </div>
           </div>        
         </div>
-        <!--
-        <div id="stats" class="card p-3 mt-3">
-          <div class="d-flex align-items-center justify-content-between mb-2">
-            <h6 class="card-title mb-0">Directives</h6>
-            <span class="sub">Auto-updates as you select habits.</span>
-          </div>
-          <ol class="directives list-unstyled m-0">
-            <li class="directive">
-              <div class="badge-num">1</div>
-              <div>
-                <h3 class="h6 mb-1">Focus On Less <em>And Obsess</em></h3>
-                <p class="mb-0">Roald Amundsen’s success wasn’t the result of innovation—it was the result of ruthless focus.</p>
-              </div>
-            </li>
-            <li class="directive">
-              <div class="badge-num">2</div>
-              <div>
-                <h3 class="h6 mb-1">Reduce the <em>surface area</em> for error, not just errors</h3>
-                <p class="mb-0">Fewer moving parts means fewer ways to fail. </p>
-              </div>
-            </li>
-            <li class="directive">
-              <div class="badge-num">3</div>
-              <div>
-                <h3 class="h6 mb-1">Simple Works <em>Complex Breaks</em></h3>
-                <p class="mb-0">In harsh environments, interdependence turns small issues into system failures. </p>
-              </div>
-            </li>
-          </ol>
-        </div>
-        -->
       </div>
       <div class="d-flex flex-column  justify-content-between">
         <button
@@ -405,7 +544,19 @@ async function exportPNG(targetSelector = '#velocityTable', filename = 'velocity
 
   // Calculate true content height each time
   const measure = () => habitsSection.scrollHeight;
+      const byId = id => document.getElementById(id);
 
+    // ---------- DOM ----------
+    const els = {
+      instrTgl: byId('esToggleInstr'),
+      instrWrap: byId('esInstrWrap'),
+    };
+        // Instructions toggle
+    els.instrTgl.addEventListener('click', ()=>{
+      const open = !els.instrWrap.classList.contains('d-none');
+      els.instrWrap.classList.toggle('d-none');
+      els.instrTgl.textContent = open ? 'Show Instructions' : 'Hide Instructions';
+    });
   function apply() {
     if (expanded) {
       habitsSection.style.maxHeight = measure() + 'px';
