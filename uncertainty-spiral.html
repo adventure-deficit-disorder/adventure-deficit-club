@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Interactive Anxiety Loop Simulator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+  :root{ --bg:#0d1530; --panel:#121c3d; --ink:#eef3ff; --muted:#a9b4d6; --accent:#d31f2b; --ok:#3ddc97; --warn:#ffd166; --loop:#6da8ff; }
+  html,body{height:100%; background-color: #0b1020;}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .app{max-width:880px;margin:0 auto;padding:16px 16px 128px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;position:sticky;top:0; backdrop-filter:blur(6px);padding:10px 4px;z-index:5;border-bottom:1px solid rgba(255,255,255,.06)}
+  .score{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .chip{background:var(--panel);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.08)}
+  .chip strong{font-variant-numeric:tabular-nums}
+  .actions{display:flex;gap:8px;flex:1;justify-content:flex-end}
+  button{appearance:none;border:1px solid rgba(255,255,255,.12);background:#404040;color:var(--ink);padding:10px 12px;border-radius:12px;font-weight:600;cursor:pointer}
+  button.primary{background:var(--accent);border-color:transparent}
+  button.ghost{background:transparent}
+  button:disabled{opacity:.55;cursor:not-allowed}
+  .panel{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px}
+  .title{font-size:20px;letter-spacing:.04em;text-transform:uppercase;opacity:.95;font-weight:800}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .row button{flex:1}
+  .hint{color:var(--muted)}
+  .kpi{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-top:6px}
+  .progress{height:10px;background:#0b1430;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.06)}
+  .progress>i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--warn),var(--accent));transition:width .25s ease}
+
+  /* Status panel */
+  #statusToggle{width:100%;text-align:left;margin-top:8px}
+  #statusPanel{display:none;margin-top:8px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px}
+  .timeline{list-style:none;padding:0;margin:0}
+  .timeline li{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border:1px dashed rgba(255,255,255,.1);border-radius:10px;margin-bottom:6px}
+  .mono{font-variant-numeric:tabular-nums;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+
+  /* Diagram */
+  .diagram-wrap{display:grid;place-items:center;padding:12px}
+  .label-display{font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;text-align:center;margin-bottom:4px}
+  .thought{font-size:16px;font-weight:700;margin-bottom:8px;text-align:center}
+  svg{width:100%;max-width:560px;height:auto;aspect-ratio:1/1}
+  .ring{fill:none;stroke:#28407e;stroke-width:26;opacity:.7;transition:opacity .25s ease,stroke .25s ease}
+  .ring.active{opacity:1;stroke:var(--loop)}
+  .ring.completed{opacity:.3;}
+  .ring-label{font-size:10px;fill:#cfe1ff;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+
+  /* Dock */
+  .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(13,21,48,0),rgba(13,21,48,.9) 24%,rgba(13,21,48,1));padding:14px 16px}
+  .dock .bar{max-width:880px;margin:0 auto;display:flex;gap:8px}
+  .bar button{flex:1}
+
+  /* Modal */
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50}
+  .adl-modal{background:#0f1a36;border:1px solid rgba(255,255,255,.12);border-radius:14px;max-width:560px;width:92%;padding:14px 16px;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+  .adl-modal h3{margin:0 0 6px;font-size:18px}
+  .adl-modal .crumb{font-size:12px;color:#a9b4d6;margin-bottom:8px}
+  .adl-modal .body{font-size:14px;line-height:1.4;white-space:pre-line}
+  .adl-modal .actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:12px}
+  .adl-modal .actions button{flex:1}
+      .card { background: var(--card); border-color: var(--border-1); }
+        .card h6, .list-group-item {
+    color: #4da98a;
+    }
+    .card-body{
+      color: white;
+    }
+    .border { border-color: var(--border-1) !important; }
+    .border-secondary { border-color: var(--border-1) !important; }
+    .text-secondary { color: var(--muted) !important; }
+    .tiny { font-size: .8rem; }
+    .lead { color: var(--text); }
+    .legend .legend-dot{
+      width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:.35rem; vertical-align:middle;
+    }
+    .legend .pill{
+      display:inline-block; padding:.2rem .5rem; border:1px solid var(--border-1); border-radius:999px; margin-left:.5rem; font-size:.85rem; color:var(--muted);
+    }
+    .es-badge{
+      display:inline-block; padding:.45rem 1rem; border-radius:999px;
+      border:1px solid var(--border-1); background:rgba(32,165,165,.08);
+      font-weight:700; letter-spacing:.25px;
+    }
+    .es-badge.green{ color:#0fd39d; border-color:#1a8f76; background:rgba(15,211,157,.10); }
+    .es-badge.yellow{ color:#ffd166; border-color:#b08b2c; background:rgba(255,209,102,.10); }
+    .es-badge.idle{ color:#8aa1c9; border-color:#3a4969; background:rgba(138,161,201,.10); }
+    .es-badge.red{ color:#ff6b6b; border-color:#9e2a2a; background:rgba(255,107,107,.10); }
+    #esRadar .grid { stroke: rgba(158,176,214,0.25); fill: none; }
+    #esRadar .axis { stroke: rgba(158,176,214,0.35); }
+    #esRadar .poly-energy { fill: rgba(32,165,165,0.18); stroke: #20a5a5; stroke-width: 2; }
+    #esRadar .poly-stress { fill: rgba(255,107,107,0.12); stroke: #ff6b6b; stroke-width: 2; }
+  .progress-bar {     background-image: linear-gradient(90deg, #d3a02a, #b78900); }     
+    .progress-bar-dark { background-image: linear-gradient(90deg, #55b0f3, #26d39e); }
+    .progress-bar-success { background-image: linear-gradient(90deg, #7f20a5, #d30f0f); }
+    #esCOABar { background-image: linear-gradient(90deg, #6c8cff, #ff6b6b); }
+    .report-topbar{ display:flex; justify-content:space-between; align-items:center; gap:.5rem; }
+    .report-topbar .pill{ display:inline-block; padding:.15rem .55rem; border:1px solid var(--border-1); border-radius:999px; color:var(--muted); font-size:.85rem; }
+    .navbar-brand { color: var(--text) !important; }
+    .footer-note { color: var(--muted); }
+</style>
+</head>
+<body>
+  <nav class="navbar navbar-dark" style="background: #0b1220;border:none;
+">
+    <div class="container container-narrow text-md-start text-center d-flex flex-md-row flex-column align-items-md-end align-items-center justify-content-between py-2 gap-2">
+        <div>
+            <a class="navbar-brand" href="#">Adventure Deficit Club</a>
+            <h6>Procrastination | Perfectionism | Fatigue</h6>
+        </div>
+        <div class="campfire-bar d-flex align-items-center justify-content-between  border-0 gap-2">
+        <p class="mb-0 text-light">"Are you feeling tired of starting over, giving up, and remining stuck?"</p>
+        <a class="mb-0 h6 d-flex flex-column" href="https://www.skool.com/adventure-deficit-club-8261"><mark class="px-2">Join The Club</mark></a>
+        </div>
+    </div>
+  </nav>
+  <div class="app" id="app">
+        <!-- Overview -->
+    <nav class="card my-3 text-light border-0 mt-0">
+      <div class="card-header bg-transparent p-0">
+        <button class="btn d-flex w-100 justify-content-between align-items-center px-4 py-3 text-start text-light"
+          type="button" data-bs-toggle="collapse" data-bs-target="#dailyOutputPanel" aria-expanded="true" aria-controls="dailyOutputPanel"
+          style="background:#0b1220;border:none;">
+          <span>
+            <span class="kicker text-uppercase d-block small mb-1 text-warning">Directives</span>
+            <h2 class="fw-bold">The Anxiety Loop</h2>
+          </span>
+          <span class="chev ms-3 badge bg-warning text-dark" aria-hidden="true">▾</span>
+        </button>
+      </div>
+      
+      <div id="dailyOutputPanel" class="collapse hide">
+        <div class="card-body p-4">
+            <div class="row">
+              <div class="col my-4">
+                  <ol class="list-group list-group-numbered bg-dark text-light" style="background-color:#0c1526">
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Anxiety grows in loops—each delay adds cost, not relief.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Every “Go Deeper” shows how excuses compound over time.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>“Action Now” cuts the loop early—proof that motion breaks anxiety faster than logic.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>The longer you stay in Inertia, the more energy and time decay together.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Every thought logged is a data point—track which excuse repeats most.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>When Anxiety Load hits max, the sunk-cost summary shows how resistance multiplies.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Reset doesn’t erase failure—it reveals recovery speed.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Identity isn’t fixed—each completed loop rewires self-belief.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>The goal isn’t zero anxiety—it’s faster recovery between spikes.</strong>
+                    </li>
+
+                    <li class="list-group-item lh-lg border-secondary" style="background-color:#0c1526">
+                      <strong>Use your timeline as evidence—patterns prove progress, not perfection.</strong>
+                    </li>
+
+                  </ol>
+
+
+
+
+              </div>
+            </div>
+
+        </div>
+      </div>
+            <!-- Header with Instructions toggle -->
+        <div class="panel text-light p-4">
+          <div class="d-flex justify-content-between align-items-start flex-column flex-md-row gap-3">
+            <div class="w-100 d-flex justify-content-between "> 
+
+                  <p class="mb-0 text-center lead"><strong class="h3 text-warning fw-semibold">Lesson -</strong> Simple Survives Complex Breaks</p>
+            <button id="esToggleInstr" class="btn btn-light align-self-md-center text-dark">Show Instructions</button>
+            </div>
+          </div>
+        </div>
+      <!-- Instructions Panel (toggle) -->
+        <div id="esInstrWrap" class="mt-3 d-none">
+            <div class="row g-3">
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">1</span> Pick a Path
+                  </h6>
+                  <p class="mb-0">
+                    Choose <strong>Procrastinate</strong>, <strong>Do Nothing</strong>, or <strong>Take Action</strong>. 
+                    Each represents a different feedback loop that changes your anxiety cost.
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">2</span> Go Deeper
+                  </h6>
+                  <p class="mb-0">
+                    Tap <strong>Go Deeper</strong> to descend one ring. 
+                    Each ring represents a mental step—Cue → Avoidance → Rumination → Inertia → Identity.
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">3</span> Take Action
+                  </h6>
+                  <p class="mb-0">
+                    Press <strong>Action Now</strong> to break the loop instantly. 
+                    Anxiety decreases by one point, and recovery resets with higher control.
+                  </p>
+                </div>
+              </div>
+              <div class="col-12 col-md-3">
+                <div class="p-3 border rounded-3 h-100">
+                  <h6 class="fw-bold mb-2">
+                    <span class="badge text-bg-warning">4</span> Review Outcome
+                  </h6>
+                  <p class="mb-0">
+                    Open the <strong>Status Panel</strong> to view your timeline. 
+                    Use the Sunk-Cost Report to see how often each excuse or loop repeated.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+        </div>
+    </nav>           
+    <header>
+      <div class="score bg-transparent ">
+        <span class="chip bg-white text-dark">Anxiety: <strong id="pts">0</strong></span>
+        <span class="chip bg-white text-dark">Days: <strong id="days">0</strong></span>
+        <span class="chip bg-white text-dark">Energy: <strong id="energy">5</strong></span>
+        <span class="chip bg-white text-dark">Time: <strong id="time">5</strong></span>
+      </div>
+      <div class="actions">
+        <button class="ghost" id="resetBtn" title="Reset">Reset</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2 class="title">Choose a path</h2>
+      <div class="d-flex flex-row gap-3 mt-2" >
+        <button id="btnPro">Procrastinate</button>
+        <button id="btnIdle">Do Nothing</button>
+        <button id="btnAct">Take Action</button>
+      </div>
+      <div class="kpi">
+        <div style="font-size:12px;color:var(--muted)">Day Count</div>
+        <div class="progress" style="flex:1"><i id="dayBar"></i></div>
+      </div>
+      <div class="kpi">
+        <div style="font-size:12px;color:var(--muted)">Anxiety Load</div>
+        <div class="progress" style="flex:1"><i id="bar"></i></div>
+      </div>
+      <!-- Status toggle -->
+      <button id="statusToggle" class="ghost"></button>
+
+      <section class="panel mt-2">
+        <div class="title">Outcome</div>
+        <div id="statusPanel">
+          <ul id="timeline" class="timeline"></ul>
+        </div>        
+        <h5 id="outcome" class="hint">Tap “Go deeper” to move from the outer ring (Cue) toward the center (Identity). You can also choose **Action Now** to close a loop with relief.</h5>
+      </section>      
+    </section>
+
+    <section class="panel mt-2">
+      <div class="title">Active loop</div>
+      <div class="diagram-wrap">
+        <div id="label" class="label-display">—</div>
+        <div id="thought" class="thought">Pick a path to begin.</div>
+        <!-- Concentric rings via SVG + numeric markers at top -->
+        <svg id="diagram" viewBox="0 0 200 200" role="img" aria-label="Concentric loop diagram">
+          <!-- rings (outer→inner) r: 88,74,60,46,32,18 -->
+          <circle class="ring" id="ring0" cx="100" cy="100" r="88"/>
+          <text class="ring-label" x="100" y="12">1</text>
+          <circle class="ring" id="ring1" cx="100" cy="100" r="74"/>
+          <text class="ring-label" x="100" y="26">2</text>
+          <circle class="ring" id="ring2" cx="100" cy="100" r="60"/>
+          <text class="ring-label" x="100" y="40">3</text>
+          <circle class="ring" id="ring3" cx="100" cy="100" r="46"/>
+          <text class="ring-label" x="100" y="54">4</text>
+          <circle class="ring" id="ring4" cx="100" cy="100" r="32"/>
+          <text class="ring-label" x="100" y="68">5</text>
+          <circle class="ring" id="ring5" cx="100" cy="100" r="18"/>
+          <text class="ring-label" x="100" y="82">6</text>
+        </svg>
+      </div>
+    </section>
+  </div>
+
+  <div class="dock">
+    <div class="bar">
+      <button id="deeperBtn">Go deeper</button>
+      <button id="actionNowBtn" class="primary">Action Now (−1)</button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="modalOverlay" class="modal-overlay">
+    <div class="adl-modal">
+      <h3 id="modalTitle">Modal</h3>
+      <div id="modalCrumb" class="crumb"></div>
+      <div id="modalBody" class="body">—</div>
+      <div id="modalActions" class="actions"></div>
+      <div class="actions">
+        <button id="modalClose">Close</button>
+      </div>
+    </div>
+  </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+(function(){
+  // ----- Config -----
+  const MAX_POINTS = 15; // Anxiety Load cap (progress bar hits 100%)
+
+  // ----- Loop help copy -----
+  const LOOP_HELP = {
+    Relief: `Relief Loop\nA reminder pops up. You can avoid it or take a tiny step.\nAvoiding feels good for a moment, but the job stays.\nThis loop shows how small choices can become habits.`,
+    Inertia: `Inertia Loop\nHere your energy and time drop. You think a lot but don’t move.\nIt’s like running in mud—waiting makes it heavier.\nThis loop teaches that stuck feelings grow when we don’t act.`,
+    Identity: `Identity Loop\nAfter being stuck, your brain may say “Maybe I can’t do this.”\nThat story isn’t fixed.\nEvery small action can rewrite it.`
+  };
+
+  // ----- Model -----
+  const loops = {
+    procrastinate: {
+      name: 'Procrastination',
+      steps: [
+        {label:'Cue', loop:'Relief', thought:'“I should do it.”'},
+        {label:'Avoidance', loop:'Relief', thought:'“I’ll do it later.”'},
+        {label:'Rumination', loop:'Inertia', thought:'“Why haven’t I…?” (energy−, time−)'},
+        {label:'Depletion/Failure', loop:'Inertia', thought:'“I’m too tired / It didn’t work.”'},
+        {label:'Inertia', loop:'Inertia', thought:'“It feels harder to do it.”'},
+        {label:'Identity Spiral', loop:'Identity', thought:'“Maybe I’m not the kind of person who does this.”'}
+      ]
+    },
+    idle: {
+      name: 'Do Nothing',
+      steps: [
+        {label:'Cue', loop:'Relief', thought:'“I should do it.”'},
+        {label:'Do Nothing', loop:'Relief', thought:'“Maybe later… or never.” (½ anxiety point)'},
+        {label:'Do Task', loop:'Relief', thought:'“Now I don’t have to think about it.”'}
+      ]
+    },
+    action: {
+      name: 'Take Action',
+      steps: [
+        {label:'Cue', loop:'Relief', thought:'“I should do it.”'},
+        {label:'Start', loop:'Relief', thought:'“One small step underway.” (relief)'},
+        {label:'Complete', loop:'Relief', thought:'“Loop closed.” (relief)'}
+      ]
+    }
+  };
+
+  // ----- State -----
+  const state = {
+    mode:null, idx:-1,
+    points:0, energy:5, time:5, attempts:0,
+    cueCost:1,
+    lastLoopName:null,
+    hue:216,
+    timeline: [], // {loop,label,delta,total,thought}
+    stats: { // cumulative across days/loops
+      days:0,
+      loopEntries: {Relief:0, Inertia:0, Identity:0},
+      thoughtCounts: {} // {'I should do it.': 3, ...}
+    }
+  };
+  // ---------- DOM ----------
+        const byId = id => document.getElementById(id);
+
+    const els = {
+      instrTgl: byId('esToggleInstr'),
+      instrWrap: byId('esInstrWrap'),
+    };
+        // Instructions toggle
+    els.instrTgl.addEventListener('click', ()=>{
+      const open = !els.instrWrap.classList.contains('d-none');
+      els.instrWrap.classList.toggle('d-none');
+      els.instrTgl.textContent = open ? 'Show Instructions' : 'Hide Instructions';
+    });
+  // ----- DOM refs -----
+  const $ = s=>document.querySelector(s);
+  const rings = [...Array(6)].map((_,i)=>document.getElementById('ring'+i)).filter(Boolean);
+  const labelEl = $('#label');
+  const thoughtEl = $('#thought');
+  const outEl = $('#outcome');
+  const ptsEl = $('#pts');
+  const daysChip = $('#days');
+  const bar = $('#bar');
+  const dayBar = $('#dayBar');
+  const energyEl = $('#energy');
+  const timeEl = $('#time');
+  const btnPro = $('#btnPro');
+  const btnIdle= $('#btnIdle');
+  const btnAct = $('#btnAct');
+  const deeperBtn = $('#deeperBtn');
+  const actionNowBtn = $('#actionNowBtn');
+
+  // Status panel
+  const statusToggle = $('#statusToggle');
+  const statusPanel = $('#statusPanel');
+  const timelineEl = $('#timeline');
+
+  // Modal refs + queue
+  const modalOverlay = $('#modalOverlay');
+  const modalTitle = $('#modalTitle');
+  const modalCrumb = $('#modalCrumb');
+  const modalBody = $('#modalBody');
+  const modalActions = $('#modalActions');
+  const modalClose = $('#modalClose');
+  const modalQueue = [];
+  let modalOpen = false;
+  let suppressModals = false;
+
+  function showModal(title, body, crumb='', actions=[]){
+    if(suppressModals) return;
+    modalQueue.push({title, body, crumb, actions});
+    if(!modalOpen) drainModalQueue();
+  }
+  function drainModalQueue(){
+    if(modalQueue.length===0){ modalOverlay.style.display='none'; modalOpen=false; return; }
+    const {title, body, crumb, actions} = modalQueue.shift();
+    modalTitle.textContent = title;
+    modalBody.textContent = body;
+    modalCrumb.textContent = crumb || '';
+    modalActions.innerHTML = '';
+    actions.forEach(({label,fn,style})=>{
+      const b=document.createElement('button');
+      if(style==='primary') b.classList.add('primary');
+      b.textContent=label; b.onclick=()=>{ fn(); };
+      modalActions.appendChild(b);
+    });
+    modalOverlay.style.display='flex';
+    modalOpen = true;
+  }
+  modalClose.onclick = ()=>{ modalOverlay.style.display='none'; modalOpen=false; drainModalQueue(); };
+  modalOverlay.addEventListener('click', (e)=>{ if(e.target===modalOverlay){ modalClose.click(); }});
+
+  // Color depth
+  function colorizeRings(){
+    rings.forEach((r,i)=>{
+      const light = 62 - i*7;
+      r.style.stroke = `hsl(${state.hue}, 65%, ${light}%)`;
+    });
+  }
+
+  // Path buttons
+  btnPro.onclick = ()=>start('procrastinate');
+  btnIdle.onclick= ()=>start('idle');
+  btnAct.onclick = ()=>start('action');
+
+  // Other controls
+  deeperBtn.onclick=()=>{
+    if(isOnStep('Inertia') && state.mode==='procrastinate') return openInertiaMCQ();
+    advance();
+  };
+  actionNowBtn.onclick=actionNow;
+  $('#resetBtn').onclick=hardReset;
+
+  function setActivePathButtons(mode){
+    [btnPro,btnIdle,btnAct].forEach(b=>b.classList.remove('primary'));
+    if(mode==='procrastinate') btnPro.classList.add('primary');
+    if(mode==='idle')          btnIdle.classList.add('primary');
+    if(mode==='action')        btnAct.classList.add('primary');
+  }
+
+  // ----- Core -----
+  function start(mode){
+    // Full game reset on tab change
+    state.mode = mode; state.idx=-1; state.points=0; state.energy=5; state.time=5; state.attempts=0; state.lastLoopName=null; state.timeline=[];
+    state.stats.days=0; state.stats.loopEntries={Relief:0, Inertia:0, Identity:0}; state.stats.thoughtCounts={}; state.cueCost=1;
+    setActivePathButtons(mode);
+    labelEl.textContent = '—';
+    thoughtEl.textContent = 'Outer ring = Cue';
+    updateRings();
+    outEl.textContent = 'Tap Go deeper to move inward or use Action Now to cut anxiety by 1.';
+    updateHUD();
+    renderTimeline();
+    updateStatusToggle('Relief');
+    updateDeeperLabel();
+  }
+
+  function updateRings(){
+    rings.forEach(r=>r && r.classList.remove('active','completed'));
+    if(state.idx>=0){ for(let i=0;i<state.idx;i++){ rings[i]?.classList.add('completed'); } }
+    if(rings[state.idx]) rings[state.idx].classList.add('active');
+  }
+
+  function updateHUD(){
+    ptsEl.textContent = Number(state.points.toFixed(1));
+    daysChip.textContent = state.stats.days;
+    energyEl.textContent = state.energy;
+    timeEl.textContent = state.time;
+    const pctAnx = Math.min(100, Math.max(0, (state.points/MAX_POINTS)*100));
+    bar.style.width = pctAnx+"%";
+    const pctDays = Math.min(100, Math.max(0, (state.stats.days/30)*100));
+    if(dayBar) dayBar.style.width = pctDays+"%";
+  }
+
+  function breadcrumb(loopName){
+    const map = ['Relief','Inertia','Identity'];
+    const idx = Math.max(0, map.indexOf(loopName));
+    return map.map((n,i)=> i===idx ? `[${n}]` : n).join(' ▸ ');
+  }
+
+  function announceLoopEntry(loopName){
+    if(loopName && loopName!==state.lastLoopName){
+      showModal(`${loopName} Loop`, LOOP_HELP[loopName] || '', breadcrumb(loopName));
+      state.lastLoopName = loopName;
+      updateStatusToggle(loopName);
+    }
+  }
+
+  function loopCompleteReset(opts={}){
+    const { countDay=false, incrementCue=false } = opts;
+    if(countDay) state.stats.days += 1;
+    if(incrementCue) state.cueCost += 1;
+    state.hue = (state.hue + 36) % 360;
+    colorizeRings();
+    state.idx = -1; state.points = 0; state.energy=5; state.time=5; state.attempts=0; state.lastLoopName=null; state.timeline=[];
+    labelEl.textContent='—'; thoughtEl.textContent='Outer ring = Cue';
+    updateRings(); updateHUD(); renderTimeline(); updateStatusToggle('Relief'); updateDeeperLabel();
+  }
+
+  function getDefaultCost(stepLabel){
+    const defaultCosts = { 'Avoidance':1, 'Rumination':2, 'Depletion/Failure':2, 'Inertia':2, 'Identity Spiral':3, 'Do Task':0 };
+    return defaultCosts[stepLabel] ?? 1;
+  }
+
+  function getNextStep(){
+    if(!state.mode) return null;
+    const m = loops[state.mode];
+    const next = state.idx+1;
+    if(next >= m.steps.length) return null;
+    return m.steps[next];
+  }
+
+  function getStepCostForDisplay(step){
+    if(!step) return null;
+    if(step.label==='Cue') return state.cueCost;
+    if(state.mode==='idle' && step.label==='Do Nothing') return 0.5;
+    if(state.mode==='action' && (step.label==='Start' || step.label==='Complete')) return -1;
+    return getDefaultCost(step.label);
+  }
+
+  function updateDeeperLabel(){
+    const step = getNextStep();
+    if(!step){ deeperBtn.textContent = 'Restart (loop complete)'; return; }
+    const cost = getStepCostForDisplay(step);
+    deeperBtn.textContent = `${stripQuotes(step.thought)} ${cost>=0?`(+${cost})`:`(${cost})`} `;
+  }
+
+  function stripQuotes(t){ return (t||'').replace(/^\“|^\"|\”$|\"$/g,'').replace(/[“”]/g,'').trim(); }
+
+  function logStats(step){
+    state.stats.loopEntries[step.loop] = (state.stats.loopEntries[step.loop]||0) + 1;
+    const th = stripQuotes(step.thought);
+    state.stats.thoughtCounts[th] = (state.stats.thoughtCounts[th]||0) + 1;
+  }
+
+  function advance(){
+    if(!state.mode) return;
+    const m = loops[state.mode];
+    const next = state.idx+1;
+    if(next >= m.steps.length){ loopCompleteReset(); return; }
+
+    if(m.name==='Procrastination' && m.steps[next].label==='Identity Spiral' && state.attempts===0){
+      outEl.innerHTML = 'Identity requires at least one failed attempt at Inertia.';
+      return;
+    }
+
+    const step = m.steps[next];
+    let deltaPts = getStepCostForDisplay(step);
+
+    state.idx = next;
+
+    if(m.name==='Procrastination' && step.label==='Rumination'){
+      state.energy = Math.max(0, state.energy-1);
+      state.time   = Math.max(0, state.time-1);
+    }
+
+    state.points = Math.max(0, +(state.points + deltaPts).toFixed(1));
+
+    updateRings();
+    updateHUD();
+    labelEl.textContent = step.label;
+    thoughtEl.textContent = step.thought;
+    outEl.innerHTML = `<strong>${step.label}:</strong> ${step.thought} <span class="hint"> (${deltaPts>=0?'+':''}${deltaPts} pts)</span>`;
+
+    // Log timeline + cumulative stats
+    state.timeline.push({loop:step.loop, label:step.label, delta:deltaPts, total:state.points, thought: stripQuotes(step.thought)});
+    logStats(step);
+    renderTimeline();
+
+    announceLoopEntry(step.loop);
+
+    if(m.name==='Procrastination' && step.label==='Rumination' && state.time===state.energy){
+      advance();
+      return;
+    }
+
+    updateDeeperLabel();
+    checkAutoQuit();
+  }
+
+  function openInertiaMCQ(){
+    const actions = [
+      {label:'Quit — For Today', fn:()=>{ modalClose.click(); loopCompleteReset({countDay:true, incrementCue:true}); }},
+      {label:'Quit — Goal / Task', fn:()=>{ modalClose.click();
+        // End the game: show summary modal, then user hits Reset Now to hard reset
+        openExitSunkCost('You quit the goal.');
+      }},
+      {label:'Take Action', style:'primary', fn:()=>{ modalClose.click(); actionNow(); }}
+    ];
+    showModal('What do you want to do?', 'Pick one and we will continue from there.', breadcrumb('Inertia'), actions);
+  }
+
+  function actionNow(){
+    if(!state.mode) return;
+    state.points = Math.max(0, +(state.points - 1).toFixed(1));
+    state.timeline.push({loop:state.lastLoopName||'Relief', label:'Action Now', delta:-1, total:state.points, thought:'Action Now'});
+    updateHUD(); renderTimeline();
+    // Close loop without counting a day or increasing cue cost
+    loopCompleteReset({countDay:false, incrementCue:false});
+  }
+
+  function hardReset(){
+    state.mode=null; state.idx=-1; state.points=0; state.energy=5; state.time=5; state.attempts=0; state.lastLoopName=null; state.timeline=[];
+    // Full reset of aggregates and cue cost
+    state.stats.days=0;
+    state.stats.loopEntries={Relief:0, Inertia:0, Identity:0};
+    state.stats.thoughtCounts={};
+    state.cueCost=1;
+    labelEl.textContent='—'; thoughtEl.textContent='Pick a path to begin.'; updateRings(); updateHUD(); setActivePathButtons(null); renderTimeline(); updateStatusToggle('Relief'); deeperBtn.textContent='Go deeper';
+  }
+
+  function updateStatusToggle(loopName){
+    const condensed = `${loopName} Loop\n${breadcrumb(loopName)}`;
+    statusToggle.textContent = condensed;
+  }
+
+  function renderTimeline(){
+    timelineEl.innerHTML = '';
+    state.timeline.forEach((t,i)=>{
+      const li=document.createElement('li');
+      li.innerHTML = `<span>${i+1}. <strong>${t.label}</strong> <span class=\"hint\">(${t.loop})</span></span><span class=\"mono\">${t.delta>=0?'+':''}${t.delta} → ${t.total}</span>`;
+      timelineEl.appendChild(li);
+    });
+  }
+
+  function isOnStep(label){
+    const m = loops[state.mode];
+    return !!(m && state.idx>=0 && m.steps[state.idx].label===label);
+  }
+
+  // ----- Auto‑quit on max Anxiety + Sunk Cost summary -----
+  function checkAutoQuit(){
+    if(state.points < MAX_POINTS) return;
+    openExitSunkCost('Anxiety load reached maximum.');
+  }
+
+  function openExitSunkCost(reason){
+    const {days, loopEntries, thoughtCounts} = state.stats;
+    const header = `Exit: Sunk Cost\n${breadcrumb('Relief')} ▸ ${breadcrumb('Inertia')} ▸ ${breadcrumb('Identity')}`;
+
+    const loopLines = ['\nLoops Entered:','  Relief  : '+(loopEntries.Relief||0),'  Inertia : '+(loopEntries.Inertia||0),'  Identity: '+(loopEntries.Identity||0)].join('\n');
+
+    // Build sorted thought list (top 5)
+    const sortedThoughts = Object.entries(thoughtCounts).sort((a,b)=>b[1]-a[1]).slice(0,20)
+      .map(([k,v])=>`  ${k}  —  ${v}`)
+      .join('\n');
+
+    const body = `${reason}\n\nDays spent in loops: ${days}\nSunk cost: anxiety triggers already paid by repeating excuses.\n${loopLines}\n\nThoughts / Excuses (counts):\n${sortedThoughts || '  —'}`;
+
+    const actions = [
+      {label:'Reset Now', style:'primary', fn:()=>{ modalClose.click(); hardReset(); }},
+    ];
+    showModal('Exit: Sunk Cost', body, header, actions);
+  }
+
+  // --- Runtime checks ---
+  function runChecks(){
+    suppressModals = true;
+    console.assert(document.getElementById('deeperBtn'), '#deeperBtn exists');
+    console.assert(document.getElementById('diagram'), 'SVG diagram exists');
+    start('procrastinate');
+    const before = state.idx; advance();
+    console.assert(state.idx===before+1, 'Advance moves inward one ring');
+    start('idle'); advance(); const p1 = state.points; advance(); console.assert(Math.abs(state.points-(p1+0.5))<1e-9, 'Idle Do Nothing +0.5');
+    start('action'); advance(); const pr = state.points; advance(); console.assert(state.points===Math.max(0,pr-1), 'Action Start −1');
+    hardReset();
+    suppressModals = false;
+  }
+
+  // Boot
+  colorizeRings();
+  runChecks();
+})();
+</script>
+</body>
+</html>
